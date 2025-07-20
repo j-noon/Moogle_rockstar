@@ -1,0 +1,58 @@
+/*About me*/
+
+#about-btn {
+  margin-top: -10px;
+  background-color: white;
+  border: solid 2px black;
+  border-radius: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  width: fit-content;
+}
+
+#about-para {
+  position: absolute;
+  background-color: white;
+  border: solid 2px black;
+  border-radius: 8px;
+  padding: 5px;
+  width: 90%;
+  z-index: 999;
+  left: -4000px;
+}
+/*about me section toggle*/
+#about-para.show {
+  left: 5px;
+}
+
+/*hero*/
+
+#hero img {
+  margin-top: 40px;
+  height: 120px;
+  width: 100%;
+}
+
+/*scheedule section*/
+
+table {
+  margin-bottom: 20px;
+  text-align: center;
+  border-collapse: collapse;
+}
+
+.Schedule {
+  border: solid 3px black;
+  background-color: rgb(104, 95, 233);
+  padding: 5px;
+}
+
+.schedule-cells {
+  border: solid 3px black;
+  background-color: white;
+  padding: 5px;
+}
+
+.schedule-wrapper {
+  display: block; /* default for small screens */
+}
