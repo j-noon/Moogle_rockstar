@@ -1,0 +1,67 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta author="jodesius">
+
+  <!-- style sheet link -->
+  <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+
+  <!-- fav icons -->
+  <link rel="icon" sizes="180x180" href="{% static 'core/favicons/favicon-dj-180x180.webp' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicons/favicon-dj-16x16.webp' %}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicons/favicon-dj-32x32.webp' %}" />
+
+  <title>{% block title %}Moogle-rockstar{% endblock %}</title>
+</head>
+
+<body>
+
+  <h1 class="tittle">Moog13rockstar</h1>
+
+  <a id="logo" href="{% url 'home' %}">
+    <img src=".............." alt="moogles logo" rel="noopener">
+  </a>
+
+  <button id="nav-btn">XX</button>
+
+  <ul id="nav-list">
+    <li><a href="{% url 'gallery' %}"><strong>Gallery</strong></a></li>
+    <li><a href="{% url 'merchandise' %}"><strong>Merchandise</strong></a></li>
+    <li><a href="{% url 'lets_play' %}"><strong>Let's Play</strong></a></li>
+  </ul>
+
+
+  <!-- footer -->
+  <div id="footer">
+    <footer>
+      <ul id="footer-list">
+        <li class="footer-icons"><a href="https://discord.gg/GuKNawu4Xc" rel="noopener" target="_blank"><i
+              class="fa-brands fa-discord"></i></a></li>
+        <li class="footer-icons"><a href="https://www.tiktok.com/@moog13rockstar" rel="noopener" target="_blank"><i
+              class="fa-brands fa-tiktok"></i></a></li>
+        <li class="footer-icons"><a href="https://www.instagram.com/moog13rockstar" rel="noopener" target="_blank"><i
+              class="fa-brands fa-instagram"></i></a></li>
+        <li class="footer-icons"><a href="https://www.youtube.com/@margaretcarvotta4968" rel="noopener" target="_blank"><i
+              class="fa-brands fa-youtube"></i></a></li>
+        <li class="footer-icons"><a href="https://www.twitch.tv/moog13rockstar" rel="noopener" target="_blank"><i
+              class="fa-brands fa-twitch"></i></a></li>
+      </ul>
+    </footer>
+  </div>
+
+  <!-- kit awesome import -->
+  <script></script>
+  <!-- linked java script -->
+  <script></script>
+
+  {% block extra_scripts %}{% endblock %}
+
+</body>
+
+</html>
