@@ -1,0 +1,38 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Home{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'gallery/css/gallery.css' %}">
+{% endblock %}
+
+
+
+{% block content %}
+  <section id="game-ss-section">
+        <h2> Game Pics</h2>
+        <div id="game-sshots-div">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+     <img class="game-ss" src="assets\images\moogle-place-holder.webp" alt="placeholder-image">
+        </div>
+    </section>
+
+        <section id="game-clips-section">
+        <h2> Game Clips</h2>
+        <div id="game-clips-div">
+     <!-- add video tag with a higlight clip here-->
+        </div>
+    </section>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    {% endblock %}
