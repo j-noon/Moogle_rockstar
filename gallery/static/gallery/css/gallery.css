@@ -1,0 +1,16 @@
+/*gallery*/
+
+#game-sshots-div {
+  padding: 5px;
+}
+
+#game-sshots-div img {
+  position: relative;
+  flex-direction: column;
+  margin-left: 12px;
+  margin-top: 5px;
+  width: 90%;
+  height: 280px;
+  border: solid black 2px;
+  border-radius: 5px;
+}
