@@ -99,3 +99,9 @@ h1 {
   padding-left: 10px;
   padding-right: 10px;
 }
+
+.footer-img {
+  height: 50px;
+  width: 50px;
+  justify-content: space-between;
+}
