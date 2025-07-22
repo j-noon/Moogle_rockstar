@@ -2,15 +2,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const playButton = document.getElementById("memory-btn");
     const squares = document.querySelectorAll(".mem-square");
     const roundDisplay = document.getElementById("round-display");
-    const navBtn = document.getElementById('nav-btn');
-    const navList = document.getElementById('nav-list');
-
-    // click events for about me and nav button
-    navBtn.addEventListener('click', () => {
-        navList.classList.toggle('show');
-    });
 
 
+    
     let sequence = [];
     let toClick = new Set();
     let gameActive = false;
