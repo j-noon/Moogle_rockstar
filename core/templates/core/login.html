@@ -1,0 +1,35 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'core/css/login-register.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Login</h1>
+    
+    {% if error %}
+        <div class="error-message">{{ error }}</div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'login' %}" class="auth-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required class="form-input">
+        </div>
+        
+        <button type="submit" class="submit-btn auth-btn">Login</button>
+    </form>
+    
+    <p class="auth-link">Don't have an account? <a href="{% url 'register' %}" class="auth-link-text">Register here</a></p>
+</div>
+{% endblock %}
