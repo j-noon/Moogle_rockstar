@@ -43,6 +43,12 @@ h1 {
   border-radius: 5px;
 }
 
+#nav-btn:hover {
+  color: white;
+  background-color: black;
+  border: solid white 2px;
+}
+
 #nav-list {
   list-style-type: none;
   position: absolute;

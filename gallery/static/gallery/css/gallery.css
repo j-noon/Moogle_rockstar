@@ -1,10 +1,11 @@
 /*gallery*/
 
-#game-sshots-div {
+#game-ss-section {
+  margin-top: 50px;
   padding: 5px;
 }
 
-#game-sshots-div img {
+.game-ss {
   position: relative;
   flex-direction: column;
   margin-left: 12px;
