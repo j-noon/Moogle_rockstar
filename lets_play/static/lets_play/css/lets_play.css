@@ -1,0 +1,45 @@
+/*LETS PLAY PAGE*/
+/* HERO SECCTION */
+#hero-letsplay {
+    margin-top: 70px;
+  width: 100%;
+  height: 120px;
+}
+
+#lets-play-hero-img {
+    width: 100%;
+    height: 100px;
+}
+
+#memory-btn {
+  border: solid black 2px;
+  border-radius: 5px;
+  background-color: white;
+  color: black;
+  padding: 5px;
+  text-align: center;
+}
+
+#memory-grid {
+  padding: 15px;
+}
+
+.mem-square {
+  background-color: white;
+  border: solid black 2px;
+  width: 50px;
+  height: 50px;
+}
+
+.mem-square-highlight {
+  background-color: #db1f8a;
+  border: solid black 2px;
+  width: 50px;
+  height: 50px;
+}
+
+#round-display {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 10px;
+}

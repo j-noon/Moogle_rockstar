@@ -1,0 +1,93 @@
+{% extends 'core/base.html' %}
+{% load static %}
+
+{% block title %}lets_play{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'lets_play/css/lets_play.css' %}">
+{% endblock %}
+
+{% block content %}
+
+    <div id="hero-letsplay">
+        <img id="lets-play-hero-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp" alt="hero image of moogle avatar">
+    </div>
+
+    <div id="game1">
+        <h2> Memory Game</h2>
+        <button id="memory-btn">Play</button>
+
+</div>  
+        <br>
+        <div id="memory-grid">
+            <table id="memory-game">
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+
+                </tr>
+
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+
+                </tr>
+
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+
+                </tr>
+
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+
+                </tr>
+
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+
+                </tr>
+
+                <tr>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                    <td class="mem-square"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <p id="round-display">Round: 0</p>
+
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
+    
+
+  <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
+
+{% endblock %}

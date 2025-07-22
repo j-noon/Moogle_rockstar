@@ -21,9 +21,3 @@ def gallery(request):
 
 def merchandise(request):
     return render(request, 'core/merchandise.html')
-
-
-def lets_play(request):
-    return render(request, 'core/lets_play.html')
-
-
