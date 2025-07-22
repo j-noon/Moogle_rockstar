@@ -12,7 +12,7 @@
   <!-- style sheet link -->
   <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
 
-    {% block head %}{% endblock %}
+  {% block head %}{% endblock %}
 
   <!-- fav icons -->
   <link rel="icon" sizes="180x180" href="{% static 'core/favicons/favicon-dj-180x180.webp' %}">
@@ -30,17 +30,23 @@
     <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp" alt="moogles logo" rel="noopener">
   </a>
 
-  <button id="nav-btn">XX</button>
-
-  <ul id="nav-list">
-    <li><a href="{% url 'home' %}"><strong>Home</strong></a></li>
-    <li><a href="{% url 'gallery' %}"><strong>Gallery</strong></a></li>
-    <li><a href="{% url 'merchandise' %}"><strong>Merchandise</strong></a></li>
-    <li><a href="{% url 'lets_play' %}"><strong>Let's Play</strong></a></li>
-  </ul>
+  {% if user.is_authenticated %}
+    <button id="nav-btn">XX</button>
+    <ul id="nav-list">
+      <li><a href="{% url 'home' %}"><strong>Home</strong></a></li>
+      <li><a href="{% url 'gallery' %}"><strong>Gallery</strong></a></li>
+      <li><a href="{% url 'merchandise' %}"><strong>Merchandise</strong></a></li>
+      <li><a href="{% url 'lets_play' %}"><strong>Let's Play</strong></a></li>
+      <li><a href="{% url 'logout' %}"><strong>Logout</strong></a></li>
+    </ul>
+  {% else %}
+    <ul id="nav-list">
+      <li><a href="{% url 'login' %}"><strong>Login</strong></a></li>
+      <li><a href="{% url 'register' %}"><strong>Register</strong></a></li>
+    </ul>
+  {% endif %}
 
   {% block content %}{% endblock %}
-
 
   <!-- footer -->
   <div id="footer">
@@ -48,17 +54,12 @@
       <ul id="footer-list">
         <li class="footer-icons"><a href="https://discord.gg/GuKNawu4Xc" rel="noopener" target="_blank">
           <img class="footer-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753182484/discord-icon-black-_i5tvab.webp"></a></li>
-
-
         <li class="footer-icons"><a href="https://www.tiktok.com/@moog13rockstar" rel="noopener" target="_blank">
           <img class="footer-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753182484/tik-tok-logo_smtrb5.jpg"></a></li>
-
         <li class="footer-icons"><a href="https://www.instagram.com/moog13rockstar" rel="noopener" target="_blank">
           <img class="footer-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753182484/insta-logo_m2cgmb.webp"></a></li>
-        
         <li class="footer-icons"><a href="https://www.youtube.com/@margaretcarvotta4968" rel="noopener" target="_blank">
           <img class="footer-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753182485/Youtube-Icon_jq09md.webp"></a></li>
-        
         <li class="footer-icons"><a href="https://www.twitch.tv/moog13rockstar" rel="noopener" target="_blank">
           <img class="footer-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp"></a></li>
       </ul>
@@ -66,14 +67,9 @@
   </div>
 
 
-  {% block extra_scripts %}
-  <!-- kit awesome import -->
-  <script></script>
-  <!-- linked java script -->
-  <script></script>
-
-  {% endblock %}
+    {% block extra_scripts %}
+    <script src="{% static 'core/js/navigation.js' %}"></script>
+    {% endblock %}
 
 </body>
-
 </html>

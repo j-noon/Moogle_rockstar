@@ -1,0 +1,54 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'core/css/login-register.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <h1>Register</h1>
+    
+    {% if form.errors %}
+        <div class="error-message">
+            Please correct the errors below:
+            <ul>
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    <form method="post" action="{% url 'register' %}" class="auth-form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="password1">Password:</label>
+            <input type="password" id="password1" name="password1" required class="form-input">
+        </div>
+        
+        <div class="form-group">
+            <label for="password2">Confirm Password:</label>
+            <input type="password" id="password2" name="password2" required class="form-input">
+        </div>
+        
+        <button type="submit" class="submit-btn auth-btn">Register</button>
+    </form>
+    
+    <p class="auth-link">Already have an account? <a href="{% url 'login' %}" class="auth-link-text">Login here</a></p>
+</div>
+{% endblock %}
