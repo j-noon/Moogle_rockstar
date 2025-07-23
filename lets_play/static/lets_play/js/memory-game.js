@@ -3,12 +3,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const squares = document.querySelectorAll(".mem-square");
     const roundDisplay = document.getElementById("round-display");
 
-
-    
     let sequence = [];
     let toClick = new Set();
     let gameActive = false;
     let currentRound = 0;
+    let score = 0;  // <-- Added: track user's moogles earned this session
 
     function updateRoundDisplay() {
         roundDisplay.textContent = `Round: ${currentRound}`;
@@ -52,17 +51,71 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function sendScoreToServer(scoreToSend) {
+        // AJAX POST to Django backend to update user moogles
+        fetch('/update_moogles/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'), // CSRF token for Django
+            },
+            body: JSON.stringify({ score: scoreToSend }),  //
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok.');
+            return response.json();
+        })
+        .then(data => {
+            console.log('Moogles updated:', data);
+            const moogleDisplay = document.querySelector("#user-profile .user-text p:nth-child(2)");
+            if (moogleDisplay && data.new_total !== undefined) {
+            moogleDisplay.textContent = `${data.new_total} 🪙`;
+    }
+            // Optionally update UI with new moogles count here
+        })
+        .catch(error => {
+            console.error('Error updating moogles:', error);
+        });
+    }
+
+    // Helper to get CSRF token cookie (standard Django method)
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     function handleSquareClick(e) {
         if (!gameActive) return;
 
         const square = e.target;
         if (!toClick.has(square)) {
             alert("Game Over!");
+
             gameActive = false;
+
+            // SEND score before resetting
+            if (score > 0) {
+                sendScoreToServer(score);
+            }
+
             resetSquares();
             sequence = [];
             currentRound = 0;
             updateRoundDisplay();
+
+            // reset score for next game
+            score = 0;
+
             return;
         }
 
@@ -71,6 +124,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (toClick.size === 0) {
             gameActive = false;
+
+            // Update score each completed round successfully
+            score = currentRound;
+
             setTimeout(() => {
                 highlightSequence();
             }, 800);
@@ -84,6 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
     playButton.addEventListener("click", () => {
         sequence = [];
         currentRound = 0;
+        score = 0; // reset score at start of game
         updateRoundDisplay();
         highlightSequence();
     });
