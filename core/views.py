@@ -67,19 +67,3 @@ def update_profile_image(request):
         form = ProfileImageForm(instance=request.user.profile)
 
     return render(request, 'core/update_profile.html', {'form': form})
-
-
-@login_required
-def update_moogles(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        score = data.get('score', 0)
-
-        # Add score to user's moogles (assuming Profile model has `moogles` integer field)
-        profile = request.user.profile
-        profile.moogles += int(score)
-        profile.save()
-
-        return JsonResponse({'new_total': profile.moogles})
-
-    return JsonResponse({'error': 'Invalid request'}, status=400)
