@@ -108,7 +108,55 @@ h1 {
 }
 
 .footer-img {
-  height: 50px;
-  width: 50px;
-  justify-content: space-between;
+  height: 33px;
+  width: 31px;
+  padding: 3px;
+  display: flex;
+  justify-content: space-evenly;
+}
+
+/*MEDIA QUERRIES*/
+
+
+/* QURRIES MIN SCREEN 375*/
+@media screen and (min-width: 375px){
+
+  #logo img {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  left: 37%;
+  top: 35px;
+}
+}
+
+/* QURRIES MIN SCREEN 425*/
+@media screen and (min-width: 425px) {
+
+    #logo img {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  left: 40%;
+  top: 35px;
+}
+}
+
+
+/* QURRIES MIN SCREEN 768*/
+@media screen and (min-width: 768px) {
+
+      #logo img {
+  height: 100px;
+  width: 100px;
+  position: absolute;
+  left: 64%;
+  top: -10px;
+}
+
+.tittle {
+  font-size: xx-large;
+}
+
+
 }

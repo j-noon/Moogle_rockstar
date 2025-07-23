@@ -49,7 +49,7 @@ table {
 
 .Schedule {
   border: solid 3px black;
-  background-color: rgb(104, 95, 233);
+  background-color: rgb(159, 233, 219);
   padding: 5px;
 }
 
@@ -61,4 +61,43 @@ table {
 
 .schedule-wrapper {
   display: block; /* default for small screens */
+}
+
+
+/*MEDIA QUERRIES*/
+/* QURRIES MIN SCREEN 768*/
+@media screen and (min-width: 768px) {
+
+  #hero img {
+  margin-top: 30px;
+  height: 100%;
+  width: 100%;
+}
+
+  #shedule-week-2 {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+}
+}
+
+/* QURRIES MIN SCREEN 1024*/
+@media screen and (min-width: 1024px) {
+
+ #shedule-week-2 {
+  position: absolute;
+  left: 60%;
+  top: 539px;
+}
+}
+
+
+/* QURRIES MIN SCREEN 1440*/
+@media screen and (min-width: 1440px) {
+
+ #shedule-week-2 {
+  position: absolute;
+  left: 60%;
+  top: 678px;
+}
 }
