@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let toClick = new Set();
     let gameActive = false;
     let currentRound = 0;
-    let score = 0;  // <-- Added: track user's moogles earned this session
+    let score = 0;  // track user's moogles earned this session
 
     function updateRoundDisplay() {
         roundDisplay.textContent = `Round: ${currentRound}`;
@@ -53,13 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function sendScoreToServer(scoreToSend) {
         // AJAX POST to Django backend to update user moogles
-        fetch('/update_moogles/', {
+        return fetch('/lets-play/update_moogles/', {  // <-- return promise so caller can wait
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken'), // CSRF token for Django
             },
-            body: JSON.stringify({ score: scoreToSend }),  //
+            body: JSON.stringify({ score: scoreToSend }),
         })
         .then(response => {
             if (!response.ok) throw new Error('Network response was not ok.');
@@ -69,9 +69,11 @@ document.addEventListener("DOMContentLoaded", () => {
             console.log('Moogles updated:', data);
             const moogleDisplay = document.querySelector("#user-profile .user-text p:nth-child(2)");
             if (moogleDisplay && data.new_total !== undefined) {
-            moogleDisplay.textContent = `${data.new_total} 🪙`;
-    }
-            // Optionally update UI with new moogles count here
+                moogleDisplay.innerHTML = `
+                    <img src="your_moogle_image_url" alt="Moogle" width="30" height="30">                
+                    x${data.new_total}
+                `;
+            }
         })
         .catch(error => {
             console.error('Error updating moogles:', error);
@@ -103,9 +105,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
             gameActive = false;
 
-            // SEND score before resetting
+            // SEND score before resetting, then reload page when done
             if (score > 0) {
-                sendScoreToServer(score);
+                sendScoreToServer(score).finally(() => {
+                    location.reload();  // <-- Reload page after score is sent
+                });
+            } else {
+                // If no score to send, reload immediately
+                location.reload();
             }
 
             resetSquares();

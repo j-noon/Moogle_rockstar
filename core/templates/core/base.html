@@ -30,18 +30,23 @@
     <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp" alt="moogles logo" rel="noopener">
   </a>
 
-  {% if user.is_authenticated %}
+{% if user.is_authenticated %}
   <div id="user-profile">
     <div class="user-info">
       <img src="{{ user.profile.profile_image.url }}" alt="Profile Pic" class="profile-pic">
       <div class="user-text">
         <p><strong>{{ user.username }}</strong></p>
-        <p><strong>{{ user.profile.moogles }} 🪙</strong></p>
+        <span class="moogle-count">
+          <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp" alt="Moogle" style="width: 30px; height: 30px; vertical-align: middle;">
+            × {{ user.profile.moogles|default:0 }}
+        </span>
+        <br>
+        <br>
         <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
       </div>
     </div>
   </div>
-  {% endif %}
+{% endif %}
 
   {% if user.is_authenticated %}
     <button id="nav-btn">XX</button>
