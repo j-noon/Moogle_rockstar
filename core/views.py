@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from .forms import ProfileImageForm  # NEW: import the form
 from django.contrib import messages  # for optional feedback
 from .models import Profile
+from django.http import JsonResponse
 
 
 # 🔹 Login view (unchanged)
