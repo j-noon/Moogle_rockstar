@@ -30,23 +30,22 @@
     <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp" alt="moogles logo" rel="noopener">
   </a>
 
-{% if user.is_authenticated %}
+  {% if user.is_authenticated %}
   <div id="user-profile">
     <div class="user-info">
-      <img src="{{ user.profile.profile_image.url }}" alt="Profile Pic" class="profile-pic">
+      <img src="{{ user.profile.profile_image.url }}" alt="Profile Pic" class="profile-pic" id="currentProfilePic">
       <div class="user-text">
         <p><strong>{{ user.username }}</strong></p>
         <span class="moogle-count">
           <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp" alt="Moogle" style="width: 30px; height: 30px; vertical-align: middle;">
-            × {{ user.profile.moogles|default:0 }}
+          × {{ user.profile.moogles|default:0 }}
         </span>
-        <br>
-        <br>
+        <br><br>
         <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
       </div>
     </div>
   </div>
-{% endif %}
+  {% endif %}
 
   {% if user.is_authenticated %}
     <button id="nav-btn">XX</button>
@@ -86,7 +85,7 @@
 
   {% if user.is_authenticated %}
   <!-- Modal for Profile Picture Upload -->
-  <div id="profilePicModal">
+  <div id="profilePicModal" style="display: none;">
     <form id="profilePicForm" enctype="multipart/form-data" method="post">
       {% csrf_token %}
       <input type="file" name="profile_image" accept="image/*" required>
@@ -142,15 +141,15 @@
         const data = await response.json();
 
         if (response.ok) {
-          alert(data.message || 'Profile picture updated!');
           document.getElementById('profilePicModal').style.display = 'none';
 
-          // Optional: update profile pic on page dynamically
-          // const img = document.querySelector('#user-profile .profile-pic');
-          // const file = formData.get('profile_image');
-          // img.src = URL.createObjectURL(file);
+          // Update profile image dynamically
+          const file = formData.get('profile_image');
+          const updatedPic = URL.createObjectURL(file);
+          document.getElementById('currentProfilePic').src = updatedPic;
+
         } else {
-          alert('Error: ' + (data.errors || 'Unknown error'));
+          alert('Error: ' + (data.errors || 'Unknown error occurred.'));
         }
       } catch (err) {
         alert('Error uploading image.');
@@ -160,6 +159,5 @@
   {% endif %}
 
   {% endblock %}
-
 </body>
 </html>
