@@ -115,39 +115,54 @@ h1 {
   justify-content: space-evenly;
 }
 
-/*USER PROFILE*/
-
 #user-profile {
-  position: absolute;
-  top: 50px;
-  right: 10px;
+  height: 120px;
   display: flex;
   align-items: center;
   background: rgb(19, 209, 184);
-  padding: 8px 12px;
+  padding: 3px 8px; 
   border-radius: 10px;
   z-index: 1000;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  gap: 8px;
+  flex-direction: column; 
+  max-width: 250px; 
 }
 
 .profile-pic {
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 10px;
-  border: 2px solid #fff;
+  margin-right: 8px;
+  border: 2px solid white;
 }
 
 .user-text {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #fff;
   text-align: left;
+  line-height: 1.2;
+}
+
+.user-text p {
+  margin: 0;
+}
+
+.moogle-count img {
+  width: 24px;
+  height: 24px;
+  vertical-align: middle;
 }
 
 .edit-profile-link {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: blue;
   text-decoration: none;
+  display: inline-block;
+  margin-top: 2px;
 }
 
 .edit-profile-link:hover {
@@ -167,7 +182,19 @@ h1 {
   z-index:9999;
 }
 
+
+
+
 /*MEDIA QUERRIES*/
+
+/* QURRIES MIN SCREEN 320*/
+@media screen and (max-width: 320px){
+
+   .tittle {
+    font-size: 27px;
+    margin-left: -27px;
+   }
+}
 
 
 /* QURRIES MIN SCREEN 375*/
@@ -198,7 +225,7 @@ h1 {
 /* QURRIES MIN SCREEN 768*/
 @media screen and (min-width: 768px) {
 
-      #logo img {
+  #logo img {
   height: 100px;
   width: 100px;
   position: absolute;
@@ -206,9 +233,21 @@ h1 {
   top: -10px;
 }
 
-.tittle {
+  .tittle {
   font-size: xx-large;
 }
 
+/*profile section area*/
+  #user-profile {
+    flex-direction: row;
+    height: 90px;
+  }
+
+  .user-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+  }
 
 }
