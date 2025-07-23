@@ -115,6 +115,58 @@ h1 {
   justify-content: space-evenly;
 }
 
+/*USER PROFILE*/
+
+#user-profile {
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  background: rgb(19, 209, 184);
+  padding: 8px 12px;
+  border-radius: 10px;
+  z-index: 1000;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 10px;
+  border: 2px solid #fff;
+}
+
+.user-text {
+  font-size: 0.9rem;
+  color: #fff;
+  text-align: left;
+}
+
+.edit-profile-link {
+  font-size: 0.75rem;
+  color: blue;
+  text-decoration: none;
+}
+
+.edit-profile-link:hover {
+  text-decoration: underline;
+}
+
+#profilePicModal {
+  display:none;
+  position:fixed;
+  top:20%; 
+  left:50%; 
+  transform:translateX(-50%);
+  background-color: rgb(19, 209, 184);
+  padding:20px;
+  border: 1px solid black;
+  border-radius: 8px;
+  z-index:9999;
+}
+
 /*MEDIA QUERRIES*/
 
 

@@ -31,6 +31,19 @@
   </a>
 
   {% if user.is_authenticated %}
+  <div id="user-profile">
+    <div class="user-info">
+      <img src="{{ user.profile.profile_image.url }}" alt="Profile Pic" class="profile-pic">
+      <div class="user-text">
+        <p><strong>{{ user.username }}</strong></p>
+        <p><strong>{{ user.profile.moogles }} 🪙</strong></p>
+        <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  {% if user.is_authenticated %}
     <button id="nav-btn">XX</button>
     <ul id="nav-list">
       <li><a href="{% url 'home' %}"><strong>Home</strong></a></li>
@@ -66,10 +79,82 @@
     </footer>
   </div>
 
+  {% if user.is_authenticated %}
+  <!-- Modal for Profile Picture Upload -->
+  <div id="profilePicModal">
+    <form id="profilePicForm" enctype="multipart/form-data" method="post">
+      {% csrf_token %}
+      <input type="file" name="profile_image" accept="image/*" required>
+      <button type="submit">Upload</button>
+      <button type="button" id="closeModalBtn">Cancel</button>
+    </form>
+  </div>
+  {% endif %}
 
-    {% block extra_scripts %}
-    <script src="{% static 'core/js/navigation.js' %}"></script>
-    {% endblock %}
+  {% block extra_scripts %}
+  <script src="{% static 'core/js/navigation.js' %}"></script>
+
+  {% if user.is_authenticated %}
+  <script>
+    document.getElementById('openProfilePicModal').onclick = () => {
+      document.getElementById('profilePicModal').style.display = 'block';
+    };
+
+    document.getElementById('closeModalBtn').onclick = () => {
+      document.getElementById('profilePicModal').style.display = 'none';
+    };
+
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+          cookie = cookie.trim();
+          if (cookie.startsWith(name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    document.getElementById('profilePicForm').onsubmit = async (e) => {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+
+      try {
+        const response = await fetch("{% url 'upload_profile_image' %}", {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          alert(data.message || 'Profile picture updated!');
+          document.getElementById('profilePicModal').style.display = 'none';
+
+          // Optional: update profile pic on page dynamically
+          // const img = document.querySelector('#user-profile .profile-pic');
+          // const file = formData.get('profile_image');
+          // img.src = URL.createObjectURL(file);
+        } else {
+          alert('Error: ' + (data.errors || 'Unknown error'));
+        }
+      } catch (err) {
+        alert('Error uploading image.');
+      }
+    };
+  </script>
+  {% endif %}
+
+  {% endblock %}
 
 </body>
 </html>
