@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from .forms import ProfileImageForm  # NEW: import the form
 from django.contrib import messages  # for optional feedback
+from .models import Profile
 
 
 # 🔹 Login view (unchanged)
@@ -57,13 +58,11 @@ def logout_view(request):
 # 🔹 NEW: Profile image update view
 @login_required
 def update_profile_image(request):
-    if request.method == 'POST':
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
         form = ProfileImageForm(request.POST, request.FILES, instance=request.user.profile)
         if form.is_valid():
             form.save()
-            messages.success(request, "Profile picture updated!")
-            return redirect('home')
-    else:
-        form = ProfileImageForm(instance=request.user.profile)
-
-    return render(request, 'core/update_profile.html', {'form': form})
+            return JsonResponse({'message': 'Profile picture updated!'})
+        else:
+            return JsonResponse({'errors': form.errors}, status=400)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
