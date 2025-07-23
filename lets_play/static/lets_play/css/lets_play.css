@@ -8,16 +8,27 @@
 
 #lets-play-hero-img {
     width: 100%;
-    height: 100px;
+    height: 110px;
 }
 
 #memory-btn {
   border: solid black 2px;
   border-radius: 5px;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   color: black;
   padding: 5px;
   text-align: center;
+  font-size: larger;
+  margin-left: 20px;
+}
+
+#memory-game {
+  background-color: rgb(48, 235, 203);
+}
+
+#memory-btn:hover {
+  color: white;
+  background-color: black;
 }
 
 #memory-grid {
@@ -42,4 +53,70 @@
   font-weight: bold;
   font-size: 18px;
   margin-bottom: 10px;
+}
+
+
+/*MEADIA QUERRIES*/
+
+/*QURRIES 375*/
+@media screen and (min-width: 375px) {
+
+  #lets-play-hero-img {
+    height: 110%;
+  }
+
+  #memory-game {
+    margin-left: 20px;
+
+  }
+}
+
+/*QURRIES 425*/
+@media screen and (min-width: 425px) {
+
+  #lets-play-hero-img {
+    height: 115%;
+  }
+
+  #memory-game {
+    margin-left: 35px;
+
+  }
+}
+
+
+/*QURRIES 768*/
+@media screen and (min-width: 768px) {
+
+  #hero-letsplay {
+    height: 220px;
+    margin-top: 10px;
+  }
+
+  #lets-play-hero-img {
+    width: 100%;
+    height: 130%;
+}
+
+  #memory-game {
+    margin-left: 10px;
+  }
+
+  #game1 {
+    margin-top: 100px;
+  }
+}
+
+
+/*QURRIES 1440*/
+@media screen and (min-width: 1440px) {
+  
+  #game1 {
+  margin-top: 100px;
+  }
+
+  #lets-play-hero-img {
+  width: 100%;
+  height: 140%;
+}
 }
