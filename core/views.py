@@ -2,13 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
-from .forms import ProfileImageForm  # NEW: import the form
-from django.contrib import messages  # for optional feedback
+from .forms import ProfileImageForm
+from django.contrib import messages
 from .models import Profile
 from django.http import JsonResponse
 
 
-# 🔹 Login view (unchanged)
 def login_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -28,7 +27,6 @@ def login_view(request):
     return render(request, 'core/login.html')
 
 
-# 🔹 Register view (unchanged)
 def register_view(request):
     if request.user.is_authenticated:
         return redirect('home')
@@ -44,23 +42,25 @@ def register_view(request):
     return render(request, 'core/register.html', {'form': form})
 
 
-# 🔹 Home view (unchanged)
 @login_required
 def home_view(request):
     return render(request, 'core/home.html')
 
 
-# 🔹 Logout view (unchanged)
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 
-# 🔹 NEW: Profile image update view
 @login_required
 def update_profile_image(request):
     if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        form = ProfileImageForm(request.POST, request.FILES, instance=request.user.profile)
+        # Ensure the user has a profile, create if missing
+        profile = getattr(request.user, 'profile', None)
+        if profile is None:
+            profile = Profile.objects.create(user=request.user)
+        
+        form = ProfileImageForm(request.POST, request.FILES, instance=profile)
         if form.is_valid():
             form.save()
             return JsonResponse({'message': 'Profile picture updated!'})
