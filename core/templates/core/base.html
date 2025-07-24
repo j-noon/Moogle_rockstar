@@ -3,21 +3,22 @@
 <html lang="en-US">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="" />
-  <meta name="keywords" content="" />
-  <meta author="jodesius" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta author="jodesius">
 
   <!-- style sheet link -->
-  <link rel="stylesheet" href="{% static 'core/css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'comments/css/comments.css' %}">
 
   {% block head %}{% endblock %}
 
   <!-- fav icons -->
-  <link rel="icon" sizes="180x180" href="{% static 'core/favicons/favicon-dj-180x180.webp' %}" />
-  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicons/favicon-dj-16x16.webp' %}" />
-  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicons/favicon-dj-32x32.webp' %}" />
+  <link rel="icon" sizes="180x180" href="{% static 'core/favicons/favicon-dj-180x180.webp' %}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'core/favicons/favicon-dj-16x16.webp' %}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'core/favicons/favicon-dj-32x32.webp' %}">
 
   <title>{% block title %}Moogle-rockstar{% endblock %}</title>
 </head>
@@ -148,6 +149,7 @@
 
   {% if user.is_authenticated %}
   <script src="{% static 'core/js/profilePicUpload.js' %}"></script>
+  <script src="{% static 'comments/js/comments.js' %}"></script>
   {% endif %}
 
   {% endblock %}
