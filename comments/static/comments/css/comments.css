@@ -1,0 +1,164 @@
+/* comments section styled like a chat box */
+#comments-container {
+  width: 90vw;
+  max-width: 800px;
+  padding-left: 10px;
+}
+
+#coments-title {
+  color: white;
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 1.3em;
+}
+
+#comment-feed {
+  height: 200px;
+  width: 100%;
+  padding: 5px;
+  background-color: white; 
+  border: 2px solid black;
+  border-radius: 8px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 14px;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.1);
+}
+
+.single-comment {
+  color: black;
+  margin-bottom: -4px;
+  padding-bottom: 2px;
+  line-height: 1.2;
+}
+
+.single-comment strong {
+  color: #910883;
+  font-weight: bold;
+}
+
+/* Text input styling */
+#comments-container textarea {
+  color: black;
+  width: 100%;
+  margin: 5px auto 0;
+  padding: 8px;
+}
+#comments-container textarea::placeholder {
+  color: #910883;
+  font-style: italic;
+}
+
+/* Login prompt styling */
+#comments-container > p {
+  text-align: center;
+  margin-top: 10px;
+  color: black;
+}
+
+#comments-container > p a {
+  color: #f229de;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+#comments-container > p a:hover {
+  text-decoration: underline;
+}
+
+/* Message notification */
+#comment-message {
+  background-color: #910883;
+  color: white;
+  padding: 8px;
+  border: 2px solid black;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+  width: fit-content;
+  opacity: 1;
+  transform: translateX(0);
+  transition: transform 1s ease-out, opacity 1s ease-out;
+  z-index: 9000;
+}
+
+#li-to-hide {
+  list-style: none;
+}
+
+
+/*comment buttons*/
+#comment-btn {
+  background-color: #910883;
+  border: 2px solid black;
+  color: white;
+  padding: 8px 16px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 100px;
+  margin-left: 40%;
+  display: block;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  width: fit-content;
+}
+
+
+.button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+#delete-last-btn {
+  position: absolute;
+  top: 0px;
+  right: -4px;
+  border: solid black 2px;
+  border-radius: 8px;
+  background-color: #910883;
+  color: white;
+  padding: 10px; 
+}
+
+#delete-last-btn:hover {
+  background-color: red;
+}
+
+#edit-last-btn {
+  position: absolute;
+  top: 0px;
+  left: 22px;
+  border: solid black 2px;
+  border-radius: 8px;
+  background-color: #910883;
+  color: white;
+  padding: 10px; 
+}
+
+#edit-last-btn:hover {
+  background-color: orange;
+}
+
+
+
+#comment-btn:hover {
+  background-color: green;
+  color: white;
+  border-color: black;
+  transform: scale(1.02); /* Subtle "pop" effect */
+  box-shadow: 0 2px 5px black;
+}
+
+#id_text {
+  width: 96% !important;  /* Override any inline styles */
+  min-height: 80px;
+  padding: 10px !important;
+  border: 2px solid black !important;
+  border-radius: 8px;
+  margin: 5px 0;
+  font-family: monospace;
+}
