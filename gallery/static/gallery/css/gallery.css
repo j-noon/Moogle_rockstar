@@ -19,6 +19,13 @@
   border: solid black 2px;
 }
 
+.game-ss:hover {
+  transform: scale(2.0);
+  box-shadow: 0 12px 30px rgba(17, 218, 191, 0.6);
+  z-index: 10;
+  border: solid 2px white;
+}
+
 /*MEDIA QUERRIES*/
 
 
