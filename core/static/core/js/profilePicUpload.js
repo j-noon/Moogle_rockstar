@@ -53,7 +53,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'none';
 
         // Update profile image dynamically with the new uploaded image URL from server, if provided
-        // (Optional: your backend can return a new image URL in data.new_image_url)
         if (data.new_image_url) {
           currentPic.src = data.new_image_url;
         } else {

@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'gallery',
     'lets_play',
     'merchandise',
-    'comments',
 ]
 
 MIDDLEWARE = [
