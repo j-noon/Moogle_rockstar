@@ -75,11 +75,15 @@ function sendScoreToServer(scoreToSend) {
   })
   .then(data => {
     console.log('Moogles updated:', data);
-    const moogleDisplay = document.querySelector("#user-profile .user-text p:nth-child(2)");
+    const moogleDisplay = document.querySelector(".moogle-count");
     if (moogleDisplay && data.new_total !== undefined) {
       moogleDisplay.innerHTML = `
-        <img src="your_moogle_image_url" alt="Moogle" width="30" height="30">                
-        x${data.new_total}
+        <img
+          src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp"
+          alt="Moogle"
+          style="width: 30px; height: 30px; vertical-align: middle"
+        />
+        × ${data.new_total}
       `;
     }
   })
