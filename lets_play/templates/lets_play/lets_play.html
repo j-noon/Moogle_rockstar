@@ -86,7 +86,75 @@
     <br>
     <br>
 
+      <div id="memory-match-container">
+    <button id="memory-match-start-btn">Play</button>
+    <div id="memory-match-timer">Time: 60s</div>
+
+    <table id="memory-match-board">
+      <tbody>
+        <!-- 6 rows with 5 tiles each -->
+        <tr>
+          <td class="memory-tile" data-index="0"></td>
+          <td class="memory-tile" data-index="1"></td>
+          <td class="memory-tile" data-index="2"></td>
+          <td class="memory-tile" data-index="3"></td>
+          <td class="memory-tile" data-index="4"></td>
+        </tr>
+        <tr>
+          <td class="memory-tile" data-index="5"></td>
+          <td class="memory-tile" data-index="6"></td>
+          <td class="memory-tile" data-index="7"></td>
+          <td class="memory-tile" data-index="8"></td>
+          <td class="memory-tile" data-index="9"></td>
+        </tr>
+        <tr>
+          <td class="memory-tile" data-index="10"></td>
+          <td class="memory-tile" data-index="11"></td>
+          <td class="memory-tile" data-index="12"></td>
+          <td class="memory-tile" data-index="13"></td>
+          <td class="memory-tile" data-index="14"></td>
+        </tr>
+        <tr>
+          <td class="memory-tile" data-index="15"></td>
+          <td class="memory-tile" data-index="16"></td>
+          <td class="memory-tile" data-index="17"></td>
+          <td class="memory-tile" data-index="18"></td>
+          <td class="memory-tile" data-index="19"></td>
+        </tr>
+        <tr>
+          <td class="memory-tile" data-index="20"></td>
+          <td class="memory-tile" data-index="21"></td>
+          <td class="memory-tile" data-index="22"></td>
+          <td class="memory-tile" data-index="23"></td>
+          <td class="memory-tile" data-index="24"></td>
+        </tr>
+        <tr>
+          <td class="memory-tile" data-index="25"></td>
+          <td class="memory-tile" data-index="26"></td>
+          <td class="memory-tile" data-index="27"></td>
+          <td class="memory-tile" data-index="28"></td>
+          <td class="memory-tile" data-index="29"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p id="memory-match-score">Score: 0</p>
+  </div>
+
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
      <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
+     <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
    
 
 {% endblock %}

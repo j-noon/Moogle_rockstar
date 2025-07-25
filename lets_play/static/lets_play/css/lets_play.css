@@ -10,7 +10,7 @@
     width: 100%;
     height: 110px;
 }
-
+/*memeory game*/
 #memory-btn {
   border: solid black 2px;
   border-radius: 5px;
@@ -53,6 +53,53 @@
   font-weight: bold;
   font-size: 18px;
   margin-bottom: 10px;
+}
+
+/* MEMORY MATCH GAME */
+#memory-match-container {
+  text-align: center;
+}
+
+#memory-match-start-btn {
+  padding: 10px 20px;
+  font-size: 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+
+#memory-match-timer,
+#memory-match-score {
+  margin: 10px 0;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#memory-match-board {
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+.memory-tile {
+  width: 60px;
+  height: 60px;
+  border: 2px solid black;
+  background-color: white;
+  cursor: pointer;
+  text-align: center;
+  font-size: 30px;
+  transition: transform 0.3s ease;
+  user-select: none;
+}
+
+.memory-tile.flipped {
+  background-color: teal;
+  color: white;
+  transform: scale(1.1);
+}
+
+.memory-tile.matched {
+  background-color: lightgreen;
+  cursor: default;
 }
 
 
