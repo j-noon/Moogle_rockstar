@@ -45,11 +45,58 @@ function startTimer() {
   }, 1000);
 }
 
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+function sendScoreToServer(scoreToSend) {
+  return fetch('/lets-play/update_moogles/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': getCookie('csrftoken'),
+    },
+    body: JSON.stringify({ score: scoreToSend }),
+  })
+  .then(response => {
+    if (!response.ok) throw new Error('Failed to update moogles.');
+    return response.json();
+  })
+  .then(data => {
+    console.log('Moogles updated:', data);
+    const moogleDisplay = document.querySelector("#user-profile .user-text p:nth-child(2)");
+    if (moogleDisplay && data.new_total !== undefined) {
+      moogleDisplay.innerHTML = `
+        <img src="your_moogle_image_url" alt="Moogle" width="30" height="30">                
+        x${data.new_total}
+      `;
+    }
+  })
+  .catch(error => {
+    console.error('Error sending score:', error);
+  });
+}
+
 function endGame() {
   clearInterval(timer);
   gameActive = false;
   startBtn.disabled = false;
   alert(`Time's up! You scored ${score} moogles!`);
+
+  if (score > 0) {
+    sendScoreToServer(score);
+  }
 }
 
 function handleTileClick(e) {
