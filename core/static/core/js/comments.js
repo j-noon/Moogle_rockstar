@@ -1,12 +1,10 @@
-/* global document, FormData, fetch, window, confirm, console */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Delete button functionality (unchanged)
+  // Delete button functionality
   const deleteBtn = document.getElementById('delete-last-btn');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', function handleDeleteClick() {
       const commentId = this.getAttribute('data-comment-id');
-      // eslint-disable-next-line no-restricted-globals, no-alert
       if (confirm('Are you sure you want to delete this comment?')) {
         const formData = new FormData();
         const csrfTokenEl = document.querySelector('[name=csrfmiddlewaretoken]');
@@ -15,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
         formData.append('csrfmiddlewaretoken', csrfTokenEl.value);
         formData.append('comment_id', commentId);
 
-        fetch('/comments/delete/', {
+        fetch('/delete-comment/', {
           method: 'POST',
           body: formData,
           headers: {
@@ -23,12 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
           },
         })
           .then((response) => {
-            if (response.redirected) {
-              window.location.href = response.url;
+            if (response.ok) {
+              window.location.reload(); // 🔁 Refresh the page to reflect deletion
+            } else {
+              console.error('Delete failed with status:', response.status);
             }
           })
           .catch((error) => {
-            // eslint-disable-next-line no-console
             console.error('Delete error:', error);
           });
       }
@@ -44,7 +43,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!textInput) return;
 
-      textInput.value = '';
+      // === NEW: Find the comment text inside the comment list ===
+      const commentElements = document.querySelectorAll('.single-comment');
+      let commentText = '';
+
+      commentElements.forEach((el) => {
+        if (el.getAttribute('data-comment-id') === commentId) {
+          // Strip out username or anything before colon (:)
+          const fullText = el.textContent.trim();
+          commentText = fullText.split(':').slice(1).join(':').trim();
+        }
+      });
+
+      textInput.value = commentText;
       textInput.focus();
 
       let editInput = document.getElementById('edit_comment_id');

@@ -157,15 +157,44 @@
   </div>
 
   <h2>Highlights</h2>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
+  <br>
 
-  {% include 'comments/comments_section.html' %}
+  <!-- Comments Section-->
+<div id="comments-container">
+  <h2 id="coments-title">Comments and Suggestions</h2>
 
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
-  <br>
+
+  <div id="comment-feed">
+    {% for comment in comments %}
+      <div class="single-comment" data-comment-id="{{ comment.id }}">
+        <strong>{{ comment.user.username }}:</strong> {{ comment.text }}
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if user.is_authenticated %}
+    <form method="POST" id="comment-form">
+      {% csrf_token %}
+      {{ form.text }}
+      <div class="button-group">
+        <button id="comment-btn" type="submit">Send</button>
+        {% if comments.exists %}
+          <button type="button" id="delete-last-btn" class="action-btn" data-comment-id="{{ last_user_comment.id }}">Delete Last</button>
+                <button type="button" id="edit-last-btn" class="action-btn" data-comment-id="{{ last_user_comment.id }}">Edit Last</button>
+        {% endif %}
+      </div>
+    </form>
+  {% else %}
+    <p style="text-align: center;">Please <a href="{% url 'login' %}">log in</a> to comment.</p>
+  {% endif %}
+</div>
+
+
   <br>
   <br>
   <br>
@@ -183,5 +212,6 @@
 
 
   <script src="{% static 'core/js/aboutme.js' %}"></script>
+  <script src="{% static 'core/js/comments.js' %}"></script>
 
 {% endblock %}
