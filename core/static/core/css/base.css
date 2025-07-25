@@ -192,14 +192,18 @@ h1 {
 @media screen and (max-width: 320px){
 
    .tittle {
-    font-size: 27px;
-    margin-left: -27px;
+    font-size: 25px;
+    margin-left: -38px;
    }
 }
 
 
 /* QURRIES MIN SCREEN 375*/
 @media screen and (min-width: 375px){
+
+  .tittle {
+    margin-left: -20px;
+  }
 
   #logo img {
   height: 100px;
