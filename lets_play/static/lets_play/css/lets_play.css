@@ -111,6 +111,75 @@
   cursor: default;
 }
 
+/* words match game*/
+.typing-game-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 12px;
+  background-color: #f4f4f4;
+  text-align: center;
+  font-family: sans-serif;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.typing-box {
+  margin-top: 20px;
+  padding: 30px;
+  background-color: white;
+  border-radius: 10px;
+  min-height: 100px;
+  position: relative;
+}
+
+#word-display {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in;
+}
+
+#word-display.fade-in {
+  opacity: 1;
+}
+
+#typing-input {
+  width: 100%;
+  padding: 10px;
+  font-size: 1.2rem;
+  border-radius: 5px;
+  border: 1px solid #aaa;
+}
+
+.typing-score-panel {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  font-size: 1.1rem;
+}
+
+.word-log {
+  margin-top: 20px;
+  text-align: left;
+}
+
+.word-log ul {
+  list-style-type: none;
+  padding-left: 0;
+  margin-top: 10px;
+}
+
+.word-log li {
+  background: #e3e3e3;
+  padding: 6px 10px;
+  border-radius: 5px;
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
 
 /*MEADIA QUERRIES*/
 
