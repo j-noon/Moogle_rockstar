@@ -12,7 +12,7 @@
     <div id="hero-letsplay">
         <img id="lets-play-hero-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp" alt="hero image of moogle avatar">
     </div>
-
+<!-- memory game -->
     <div id="game1">
         <h2> Memory Game</h2>
         <button id="memory-btn">Play</button>
@@ -78,13 +78,15 @@
     </div>
     <p id="round-display">Round: 0</p>
 
+
+    <!-- memory match game -->
       <div id="memory-match-container">
     <button id="memory-match-start-btn">Play</button>
     <div id="memory-match-timer">Time: 60s</div>
 
     <table id="memory-match-board">
       <tbody>
-        <!-- 6 rows with 5 tiles each -->
+        
         <tr>
           <td class="memory-tile" data-index="0"></td>
           <td class="memory-tile" data-index="1"></td>
@@ -137,8 +139,30 @@
     <br>
     <br>
     <br>
-    <br>
-    <br>
+     <!-- words match game -->
+ <div class="typing-game-container">
+  <button id="typingGame_startBtn">Play Typing Speed Game</button>
+
+  <div class="typing-box">
+    <div id="typingGame_wordDisplay" class="fade-word">Press Play to Start</div>
+    <input type="text" id="typingGame_input" placeholder="Write what you see..." disabled />
+  </div>
+
+  <div class="typing-score-panel">
+    <div id="typingGame_score">Score: 0</div>
+    <div id="typingGame_timer">Time: 60s</div>
+  </div>
+
+  <div class="word-log">
+    <h4>Words you typed:</h4>
+    <ul id="typingGame_wordList"></ul>
+  </div>
+</div>
+  
+
+
+
+
     <br>
     <br>
     <br>
@@ -147,6 +171,7 @@
 
      <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
      <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
+     <script src="{% static 'lets_play/js/words-match.js' %}"></script>
    
 
 {% endblock %}
