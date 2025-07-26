@@ -157,14 +157,17 @@
     <ul id="typingGame_wordList"></ul>
   </div>
 </div>
+
+<!-- MATH GAME-->
+<section id="mathGame">
+  <h2>Quick Math Challenge</h2>
+  <button id="mathGame_startBtn">Start Game</button>
+  <div id="mathGame_sumDisplay" style="font-size: 2em; margin: 10px 0;">Press Start</div>
+  <input id="mathGame_answerInput" type="number" placeholder="Type your answer" disabled />
+  <div id="mathGame_scoreDisplay">Score: 0</div>
+  <div id="mathGame_timerDisplay">Time: 60s</div>
+</section>
   
-
-
-    <br>
-    <br>
-    <br>
-    <br>
-    <br>
 
     <!-- Games Results Modal -->
 <div id="gameResultModal" class="modal-overlay">
@@ -177,12 +180,19 @@
   </div>
 </div>
 
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+
 
 
      <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
      <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
      <script src="{% static 'lets_play/js/words-match.js' %}"></script>
      <script src="{% static 'lets_play/js/win-modal.js' %}"></script>
+     <script src="{% static 'lets_play/js/math-game.js' %}"></script>
    
 
 {% endblock %}
