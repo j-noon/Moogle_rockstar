@@ -96,10 +96,19 @@ function endGame() {
   clearInterval(timer);
   gameActive = false;
   startBtn.disabled = false;
-  alert(`Time's up! You scored ${score} moogles!`);
 
   if (score > 0) {
-    sendScoreToServer(score);
+    sendScoreToServer(score).then(() => {
+      // Show modal after moogles update
+      if (window.showGameResultModal) {
+        window.showGameResultModal();
+      }
+    });
+  } else {
+    // Show modal even if score is 0
+    if (window.showGameResultModal) {
+      window.showGameResultModal();
+    }
   }
 }
 
