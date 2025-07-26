@@ -136,6 +136,12 @@
   box-sizing: border-box; /* ensures padding doesn't cause overflow */
 }
 
+#typingGame_startBtn {
+  border: solid black 2px;
+  border-radius: 8px;
+  padding: 5px;
+}
+
 #typingGame_startBtn:hover {
   background-color: #df12a1;
   color: white;
@@ -144,10 +150,18 @@
 .typing-box {
   margin-top: 20px;
   padding: 30px;
-  background-color: white;
+  background-color: #df12a1;
   border-radius: 10px;
   min-height: 100px;
   position: relative;
+}
+
+#typingGame_input {
+  border: solid black 2px;
+  border-radius: 8px;
+  background-color: white;
+  height: 30px;
+  width: 90%;
 }
 
 #word-display {
@@ -166,7 +180,7 @@
   padding: 10px;
   font-size: 1.2rem;
   border-radius: 5px;
-  border: 1px solid #aaa;
+  border: 2px solid black;
 }
 
 .typing-score-panel {
@@ -197,6 +211,49 @@
 }
 
 
+
+
+
+/*MATH GAME*/
+#mathGame {
+  max-width: 400px;
+  margin: 20px auto;
+  padding: 10px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  text-align: center;
+  font-family: Arial, sans-serif;
+  background-color: #1bddac;
+}
+
+#mathGame_startBtn {
+  padding: 10px 20px;
+  font-size: 1em;
+  cursor: pointer;
+  border: solid black 2px;
+  border-radius: 8px;
+}
+
+#mathGame_sumDisplay {
+  margin: 15px 0;
+  font-weight: bold;
+}
+
+#mathGame_answerInput {
+  width: 100%;
+  padding: 8px;
+  font-size: 1.2em;
+  box-sizing: border-box;
+  border: solid black 2px;
+  background-color: white;
+}
+
+#mathGame_scoreDisplay,
+#mathGame_timerDisplay {
+  margin-top: 10px;
+  font-weight: bold;
+}
+/*STYLES FOR GAME END MODAL*/
 /*win modal styles*/
 .modal-overlay {
   position: fixed;
@@ -210,6 +267,7 @@
   align-items: center;
   z-index: 1000;
 }
+
 
 /* Modal Content Box */
 .modal-content {
