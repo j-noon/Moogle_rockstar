@@ -117,7 +117,7 @@ h1 {
 
 #user-profile {
   height: 120px;
-  display: flex;
+  display: none;
   align-items: center;
   background: rgb(19, 209, 184);
   padding: 3px 8px; 
@@ -192,8 +192,8 @@ h1 {
 @media screen and (max-width: 320px){
 
    .tittle {
-    font-size: 25px;
-    margin-left: -38px;
+    font-size: 30px;
+    margin-left: 10px;
    }
 }
 
@@ -202,7 +202,7 @@ h1 {
 @media screen and (min-width: 375px){
 
   .tittle {
-    margin-left: -20px;
+    margin-left: 20px;
   }
 
   #logo img {
@@ -223,6 +223,27 @@ h1 {
   position: absolute;
   left: 40%;
   top: 35px;
+}
+
+  .tittle {
+    margin-left: -40px;
+  }
+
+#user-profile {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  background: rgb(19, 209, 184);
+  padding: 3px 8px; 
+  border: solid black 2px;
+  border-radius: 10px;
+  z-index: 1000;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  gap: 8px;
+  flex-direction: column; 
+  max-width: 250px; 
 }
 }
 
