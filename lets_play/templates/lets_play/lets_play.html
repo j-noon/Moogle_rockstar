@@ -166,11 +166,23 @@
     <br>
     <br>
 
+    <!-- Games Results Modal -->
+<div id="gameResultModal" class="modal-overlay">
+  <div class="modal-content">
+    <h2>Nice Try! That was moogle-nificent!</h2>
+    <p>Can you beat your last run?</p>
+    <p>Why not try again!</p>
+    <button id="playAgainBtn">Play Again</button>
+    <button id="closeModalBtn">Close</button>
+  </div>
+</div>
+
 
 
      <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
      <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
      <script src="{% static 'lets_play/js/words-match.js' %}"></script>
+     <script src="{% static 'lets_play/js/win-modal.js' %}"></script>
    
 
 {% endblock %}

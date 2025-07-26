@@ -101,13 +101,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const square = e.target;
         if (!toClick.has(square)) {
-            alert("Game Over!");
 
             gameActive = false;
 
             // SEND score before resetting, then reload page when done
             if (score > 0) {
+                const finalScore = score;
                 sendScoreToServer(score).finally(() => {
+                    localStorage.setItem("showWinModal", score);  // store score before reload
                     location.reload();  // <-- Reload page after score is sent
                 });
             } else {

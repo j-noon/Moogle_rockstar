@@ -197,6 +197,51 @@
 }
 
 
+/*win modal styles*/
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: none; /* Hidden by default */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* Modal Content Box */
+.modal-content {
+  background: rgb(24, 212, 203);
+  color: black;
+  padding: 30px;
+  border: solid black 2px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+#playAgainBtn {
+  color: black;
+  background-color: white;
+  padding: 5px;
+  border-radius: 8px;
+  border: solid black 2px;
+}
+
+#closeModalBtn {
+  color: black;
+  background-color: white;
+  padding: 5px;
+  border-radius: 8px;
+  border: solid black 2px; 
+}
+
+
+
 /*MEADIA QUERRIES*/
 
 /*QURRIES 375*/
