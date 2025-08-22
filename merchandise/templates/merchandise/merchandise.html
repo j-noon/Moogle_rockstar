@@ -8,100 +8,54 @@
 {% endblock %}
 
 {% block content %}
-<!-- Your merchandise content here -->
 <h1 id="merch-page-title">Moogles Goodies</h1>
 
-<section class="merch-container">
-  <section class="merch-gallery">
-    <div class="merch-grid">
+<form method="get" action="" class="search-bar">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search products..." />
+  <select name="category">
+    <option value="">All Categories</option>
+    {% for value,label in categories %}
+      <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">Search</button>
+</form>
 
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753372549/LOL_Sphynx_puagem.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Emote</h3>
-          <p class="merch-desc">A high-quality custome emote ready for profile pics and more...</p>
-          <p class="merch-price">£2.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
+<div class="merch-grid">
+  {% for product in page_obj.object_list %}
+    <div class="merch-item">
+      <img class="merch-img" src="{{ product.image_url }}" alt="{{ product.name }}">
+      <div class="merch-details">
+        <h3 class="merch-title">{{ product.name }}</h3>
+        <p class="merch-desc">{{ product.description }}</p>
+        <p class="merch-price">£{{ product.price }}</p>
+        <form method="post" action="{% url 'merchandise:add_to_cart' product.id %}">
+          {% csrf_token %}
+          <input type="number" name="quantity" value="1" min="1" max="20">
+          <button type="submit" class="purchase-btn">Add to cart</button>
+        </form>
       </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753372549/pAInter_YIPEEE_YAHOO_ivhddh.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Poster</h3>
-          <p class="merch-desc">A high-quality poster ready for download...</p>
-          <p class="merch-price">£3.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>   
-      </div>
-    
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753372548/Lets_Get_Shwiffty_jesswz.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Emote</h3>
-          <p class="merch-desc">A high-quality custome emote ready for profile pics and more...</p>
-          <p class="merch-price">£2.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753372551/SPOILER_Waowzers_this_took_me_forever_im_so_proud_of_this_ddp3xy.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Poster</h3>
-          <p class="merch-desc">A high-quality poster ready for Download...</p>
-          <p class="merch-price">£3.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753364900/emote-3_dztsjv.png" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Emote</h3>
-          <p class="merch-desc">A high-quality custome emote ready for profile pics and more...</p>
-          <p class="merch-price">£2.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753364901/emote-6_zjpjgq.png" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Emote</h3>
-          <p class="merch-desc">A high-quality custome emote ready for profile pics and more...</p>
-          <p class="merch-price">£2.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753366952/file-Lm2clKI8es04J9tfyr8NEzYb_ukuvwg.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Hallows poster</h3>
-          <p class="merch-desc">A high-quality poster ready to download...</p>
-          <p class="merch-price">£3.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-      <div class="merch-item">
-        <img class="merch-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753371145/Moogleme1_ej13br.webp" alt="Cool Merch Item">
-        <div class="merch-details">
-          <h3 class="merch-title">Epic Emote</h3>
-          <p class="merch-desc">A high-quality custome emote ready for profile pics and more...</p>
-          <p class="merch-price">£2.99</p>
-          <button class="purchase-btn">Purchase</button>
-        </div>
-      </div>
-
-
-
     </div>
-  </section>
-</section>
+  {% empty %}
+    <p>No products found.</p>
+  {% endfor %}
+</div>
 
+<div class="pagination">
+  {% if page_obj.has_previous %}
+    <a href="?q={{ query }}&category={{ current_category }}&page={{ page_obj.previous_page_number }}">Previous</a>
+  {% endif %}
+  <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+  {% if page_obj.has_next %}
+    <a href="?q={{ query }}&category={{ current_category }}&page={{ page_obj.next_page_number }}">Next</a>
+  {% endif %}
+</div>
+
+<p>
+  <a href="{% url 'merchandise:cart' %}" class="view-cart-icon">
+    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">
+  </a>
+</p>
 
 
 

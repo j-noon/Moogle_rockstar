@@ -1,116 +1,150 @@
+/* Page title */
 #merch-page-title {
-    margin-top: 90px;
-    font-size: xx-large;
+    text-align: center;
+    font-size: 2em;
+    margin-top: 20px;
+    margin-bottom: 30px;
+    font-family: Arial, sans-serif;
 }
 
-.merch-container {
-  margin-top: 30px;
-  padding: 0 1rem;
-  box-sizing: border-box;
+/* Centered search bar */
+.search-bar {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
 }
 
-.merch-gallery {
-  max-width: 1200px; /* max width for large screens */
-  margin: 0 auto;
-  background-color: #db1f8a;
+.search-bar input[type="text"],
+.search-bar select {
+    padding: 8px 12px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
+.search-bar button {
+    padding: 8px 16px;
+    font-size: 1em;
+    background-color: #009688; /* teal-ish */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.search-bar button:hover {
+    background-color: #00796b;
+}
+
+/* Merchandise grid */
 .merch-grid {
-  column-count: 1;
-  column-gap: 1rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 0 20px;
+    margin-bottom: 40px;
 }
-
 
 .merch-item {
-  break-inside: avoid; /* avoid breaking items across columns */
-  margin-bottom: 1rem;
-  border: 2px solid black;
-  background-color: rgb(19, 209, 184);
-  padding: 0.5rem;
-  box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 10px;
+    text-align: center;
+    background-color: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-
 .merch-item:hover {
-  transform: scale(1.05);
-  box-shadow: 0 12px 30px rgb(19, 209, 184);
+    transform: translateY(-5px);
+    box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
 }
 
 .merch-img {
-  width: 100%;
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.merch-details {
-  text-align: center;
-  margin-top: 1rem;
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 5px;
+    margin-bottom: 10px;
 }
 
 .merch-title {
-  font-size: 1.2rem;
-  font-weight: bold;
-  margin-bottom: 0.5rem;
+    font-size: 1.1em;
+    margin-bottom: 5px;
 }
 
 .merch-desc {
-  font-size: 0.95rem;
-  color: black;
-  margin-bottom: 0.5rem;
+    font-size: 0.9em;
+    color: #555;
+    margin-bottom: 10px;
 }
 
 .merch-price {
-  font-size: 1.1rem;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 1rem;
+    font-weight: bold;
+    margin-bottom: 10px;
 }
 
 .purchase-btn {
-  background-color: #111;
-  color: #fff;
-  border: none;
-  padding: 0.6rem 1.2rem;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s ease;
+    padding: 6px 12px;
+    background-color: #ff9800;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .purchase-btn:hover {
-  background-color: #444;
+    background-color: #f57c00;
 }
 
-
-
-/*MEDIA QUERIES*/
-
-/* From 425px */
-@media screen and (min-width: 425px) {
-  .merch-grid {
-    column-count: 2;
-  }
+/* Cart icon link */
+a.view-cart-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 50px;
+    text-decoration: none;
 }
 
-/* From 768px */
-@media screen and (min-width: 768px) {
-  .merch-grid {
-    column-count: 3;
-  }
+a.view-cart-icon img {
+    width: 50px;
+    height: 50px;
 }
 
-/* From 1024px*/
-@media screen and (min-width: 1024px) {
-  .merch-grid {
-    column-count: 4;
-    column-gap: 2rem;
-  }
+/* Pagination */
+.pagination {
+    text-align: center;
+    margin-bottom: 40px;
 }
 
-/* From 1440px*/
-@media screen and (min-width: 1440px) {
-  .merch-grid {
-    column-count: 5;
-    column-gap: 2rem;
-  }
+.pagination a {
+    margin: 0 10px;
+    text-decoration: none;
+    color: #009688;
+}
+
+.pagination span {
+    margin: 0 10px;
+}
+
+/* Shopping cart icon in top-right corner */
+.view-cart-icon {
+    position: fixed;
+    top: 20px;
+    right: 15%;
+    z-index: 1000; /* ensures it stays above other elements */
+}
+
+.view-cart-icon img {
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .merch-grid {
+        grid-template-columns: 1fr;
+    }
 }
