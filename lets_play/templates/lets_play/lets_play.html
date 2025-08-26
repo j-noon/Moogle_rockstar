@@ -77,7 +77,7 @@
         </div>
     </div>
     <p id="round-display">Round: 0</p>
-    <hr>
+    <hr id="hr-1">
 
 
     <!-- memory match game -->
@@ -139,8 +139,10 @@
   <hr>
 
      <!-- words match game -->
- <div class="typing-game-container">
-  <button id="typingGame_startBtn">Play Typing Speed Game</button>
+      <h2> Speed Typing</h2>
+    <button id="typingGame_startBtn">Play Typing Speed Game</button>
+      <div class="typing-game-container">
+  
 
   <div class="typing-box">
     <div id="typingGame_wordDisplay" class="fade-word">Press Play to Start</div>
@@ -158,10 +160,14 @@
   </div>
 </div>
 
+<hr>
+
 <!-- MATH GAME-->
+ <h2>Math Challenge</h2>
+ <button id="mathGame_startBtn">Start Game</button>
 <section id="mathGame">
   <h2>Quick Math Challenge</h2>
-  <button id="mathGame_startBtn">Start Game</button>
+  
   <div id="mathGame_sumDisplay" style="font-size: 2em; margin: 10px 0;">Press Start</div>
   <input id="mathGame_answerInput" type="number" placeholder="Type your answer" disabled />
   <div id="mathGame_scoreDisplay">Score: 0</div>

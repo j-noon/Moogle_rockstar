@@ -117,7 +117,6 @@ h1 {
 
 #user-profile {
   height: 120px;
-  display: none;
   align-items: center;
   background: rgb(19, 209, 184);
   padding: 3px 8px; 
@@ -126,7 +125,7 @@ h1 {
   z-index: 1000;
   position: absolute;
   top: 10px;
-  right: 10px;
+  right: 3px;
   gap: 8px;
   flex-direction: column; 
   max-width: 250px; 
@@ -160,7 +159,7 @@ h1 {
 
 .edit-profile-link {
   font-size: 0.7rem;
-  color: blue;
+  color: white;
   text-decoration: none;
   display: inline-block;
   margin-top: 2px;
@@ -168,6 +167,7 @@ h1 {
 
 .edit-profile-link:hover {
   text-decoration: underline;
+  color: green;
 }
 
 #profilePicModal {
@@ -192,8 +192,8 @@ h1 {
 @media screen and (max-width: 320px){
 
    .tittle {
-    font-size: 30px;
-    margin-left: 10px;
+    font-size: 25px;
+    margin-left: -50px;
    }
 }
 
@@ -201,9 +201,10 @@ h1 {
 /* QURRIES MIN SCREEN 375*/
 @media screen and (min-width: 375px){
 
-  .tittle {
-    margin-left: 20px;
-  }
+   .tittle {
+    font-size: 25px;
+    margin-left: -50px;
+   }
 
   #logo img {
   height: 100px;
@@ -274,6 +275,10 @@ h1 {
     flex-direction: row;
     align-items: center;
     gap: 8px;
+  }
+
+  #currentProfilePic {
+    margin-top: -40px;
   }
 
 }

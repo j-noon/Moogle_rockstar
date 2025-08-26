@@ -364,7 +364,13 @@ table {
 
  #shedule-week-2 {
   position: absolute;
-  left: 60%;
-  top: 678px;
+  left: 30%;
+  top: 683px;
+}
+
+ #clip-3 {
+  position: absolute;
+  top: 130.3%;
+  left: 621px;
 }
 }

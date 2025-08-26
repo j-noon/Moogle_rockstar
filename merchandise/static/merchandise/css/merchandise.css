@@ -2,7 +2,7 @@
 #merch-page-title {
     text-align: center;
     font-size: 2em;
-    margin-top: 20px;
+    margin-top: 110px;
     margin-bottom: 30px;
     font-family: Arial, sans-serif;
 }
@@ -62,11 +62,13 @@
 }
 
 .merch-img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 5px;
-    margin-bottom: 10px;
+  width: 200px;      /* adjust as needed */
+  height: 200px;     /* keeps grid neat */
+  object-fit: contain;  /* show whole image */
+  border: 1px solid #ccc; 
+  border-radius: 8px;
+  background: #fff;   /* optional background if image doesn’t fill box */
+  padding: 5px;       /* gives breathing space */
 }
 
 .merch-title {
@@ -130,21 +132,54 @@ a.view-cart-icon img {
 
 /* Shopping cart icon in top-right corner */
 .view-cart-icon {
-    position: fixed;
+    position: absolute;
     top: 20px;
-    right: 15%;
-    z-index: 1000; /* ensures it stays above other elements */
+    right: 3%;
+    z-index: 1000;
 }
 
 .view-cart-icon img {
-    width: 50px;
-    height: 50px;
+    max-width: 30px;
+    max-height: 30px;
     cursor: pointer;
 }
 
-/* Responsive */
+/* MEDIA QUERRIES */
+/* 600 PLUS*/
 @media (max-width: 600px) {
     .merch-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* 1024 PLUS*/
+@media (min-width: 768px) {
+/* Shopping cart icon in top-right corner */
+.view-cart-icon {
+    position: absolute;
+    top: 70px;
+    right: 14%;
+    z-index: 1000;
+}
+}
+
+@media (min-width: 1024px) {
+/* Shopping cart icon in top-right corner */
+.view-cart-icon {
+    position: absolute;
+    top: 70px;
+    right: 10%;
+    z-index: 1000;
+}
+}
+
+/*1440 plus*/
+@media (min-width: 1440px) {
+/* Shopping cart icon in top-right corner */
+.view-cart-icon {
+    position: absolute;
+    top: 70px;
+    right: 7.5%;
+    z-index: 1000;
+}
 }
