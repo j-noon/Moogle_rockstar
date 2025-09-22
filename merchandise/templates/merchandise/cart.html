@@ -1,9 +1,16 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'merchandise/css/cart.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>Your Cart</h1>
+<h1 id="cart_title">Your Cart</h1>
+
 
 {% if items %}
+<div class="table-container">
 <table>
   <thead>
     <tr>
@@ -23,7 +30,7 @@
           <form method="post" action="{% url 'merchandise:update_cart' row.product.id %}">
             {% csrf_token %}
             <input type="number" name="quantity" value="{{ row.quantity }}" min="0" max="20">
-            <button type="submit">Update</button>
+            <button id="cartBtn" type="submit">Update</button>
           </form>
         </td>
         <td>£{{ row.subtotal }}</td>
@@ -37,14 +44,15 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
 
 <h3>Total: £{{ total }}</h3>
 <p>
-  <a href="{% url 'merchandise:checkout' %}" class="btn">Proceed to Checkout</a>
+  <a href="{% url 'checkouts:checkout' %}" class="btn">Proceed to Checkout</a>
 </p>
 {% else %}
 <p>Your cart is empty.</p>
 {% endif %}
 
-<p><a href="{% url 'merchandise:merchandise' %}">Continue shopping</a></p>
+<p id="continue_shopping"><a href="{% url 'merchandise:merchandise' %}">Continue shopping</a></p>
 {% endblock %}

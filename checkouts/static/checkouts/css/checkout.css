@@ -1,0 +1,325 @@
+.checkout-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    margin-top: 100px;
+    margin-bottom: 120px;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+}
+
+.checkout-summary {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.checkout-form {
+    background: white;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #e1e5e9;
+    border-radius: 6px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #007bff;
+}
+
+.address-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.address-grid .full-width {
+    grid-column: 1 / -1;
+}
+
+/* ===== ENHANCED CARD ELEMENT STYLING ===== */
+#card-element {
+    min-height: 50px;
+    padding: 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Force Stripe to show all three fields properly */
+.StripeElement {
+    width: 100% !important;
+}
+
+.StripeElement iframe {
+    width: 100% !important;
+}
+
+/* Individual field styling within the card element */
+.StripeElement .InputElement {
+    padding: 10px !important;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    margin: 2px !important;
+    background: white !important;
+}
+
+/* Make the internal fields more visible */
+.StripeElement .InputContainer {
+    display: flex !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+}
+
+/* Style the individual card fields */
+.StripeElement input[data-elements-stable-field-name="cardNumber"] {
+    flex: 2 !important;
+    min-width: 200px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+}
+
+.StripeElement input[data-elements-stable-field-name="cardExpiry"] {
+    flex: 1 !important;
+    min-width: 100px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+}
+
+.StripeElement input[data-elements-stable-field-name="cardCvc"] {
+    flex: 1 !important;
+    min-width: 80px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px !important;
+    padding: 10px !important;
+}
+
+/* Card element states */
+#card-element.StripeElement--focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+#card-element.StripeElement--invalid {
+    border-color: #dc3545;
+}
+
+#card-element.StripeElement--complete {
+    border-color: #28a745;
+}
+
+/* Stripe Element Internal Styling */
+.StripeElement {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+}
+
+.StripeElement input {
+    font-size: 16px !important;
+    font-family: inherit !important;
+}
+
+/* Card element will show as separate fields */
+.StripeElement .__PrivateStripeElement {
+    font-family: 'Helvetica Neue', Helvetica, sans-serif !important;
+}
+
+#card-errors {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #dc3545;
+    min-height: 20px;
+}
+
+/* Button styles */
+#pay-button {
+    width: 100%;
+    padding: 15px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+#pay-button:hover:not(:disabled) {
+    background: #0056b3;
+    transform: translateY(-1px);
+}
+
+#pay-button:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+/* Order summary styles */
+.order-items {
+    margin-bottom: 20px;
+}
+
+.order-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item-name {
+    flex: 1;
+}
+
+.order-item-price {
+    font-weight: bold;
+}
+
+.totals {
+    border-top: 2px solid #ddd;
+    padding-top: 20px;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.total-final {
+    font-size: 1.2em;
+    font-weight: bold;
+    border-top: 1px solid #ddd;
+    padding-top: 10px;
+}
+
+/* Payment Security Notice */
+.payment-security {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #6c757d;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .checkout-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+        margin-top: 80px;
+        margin-bottom: 80px;
+        padding: 15px;
+    }
+    
+    .address-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .checkout-summary,
+    .checkout-form {
+        padding: 20px;
+    }
+    
+    /* Mobile-specific card element styling */
+    .StripeElement input[data-elements-stable-field-name="cardNumber"],
+    .StripeElement input[data-elements-stable-field-name="cardExpiry"],
+    .StripeElement input[data-elements-stable-field-name="cardCvc"] {
+        min-width: 100% !important;
+        margin-bottom: 8px !important;
+    }
+}
+
+/* Processing Overlay */
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.65);
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 96px;
+    height: 96px;
+    border: 12px solid #f3f3f3;
+    border-top: 12px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Additional visual enhancements for card fields */
+.payment-field-hint {
+    font-size: 12px;
+    color: #6c757d;
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.card-field-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.card-field {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #e1e5e9;
+    border-radius: 4px;
+    background: #f8f9fa;
+    text-align: center;
+    font-size: 12px;
+    color: #6c757d;
+}

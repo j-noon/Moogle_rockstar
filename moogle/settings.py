@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'gallery',
     'lets_play',
     'merchandise',
+    'checkouts',
 ]
 
 MIDDLEWARE = [
@@ -92,6 +93,8 @@ WSGI_APPLICATION = 'moogle.wsgi.application'
 #    }
 # }
 
+
+# Database
 DATABASES = {
     'default': dj_database_url.parse(os.environ.get("DATABASE_URL"))
 }
@@ -136,6 +139,11 @@ STATICFILES_DIRS = [BASE_DIR / "core" / "static"]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+
+# Stripe settings
+STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

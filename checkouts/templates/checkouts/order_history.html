@@ -1,0 +1,18 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block content %}
+  <h1>Your orders</h1>
+  {% if orders %}
+    <ul>
+      {% for order in orders %}
+        <li>
+          Order #{{ order.id }} — {{ order.created_at }} — {{ order.status }} — £{{ order.total }}
+          <a href="{% url 'checkouts:success_order' order.id %}">View</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no previous orders.</p>
+  {% endif %}
+{% endblock %}

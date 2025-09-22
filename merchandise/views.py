@@ -54,7 +54,7 @@ def add_to_cart(request, product_id: int):
     except (TypeError, ValueError):
         qty = 1
     cart_utils.add_item(request, product.id, qty)
-    return redirect("merchandise:list")
+    return redirect("merchandise:cart")
 
 
 
@@ -94,4 +94,4 @@ def checkout(request):
     ids = [int(pid) for pid in request.session.get(cart_utils.CART_SESSION_KEY, {}).keys()]
     products = Product.objects.filter(id__in=ids, is_active=True)
     items, total = cart_utils.as_items(request.session, products)
-    return render(request, "merchandise/checkout.html", {"items": items, "total": total})
+    return render(request, "checkouts/checkout.html", {"items": items, "total": total})

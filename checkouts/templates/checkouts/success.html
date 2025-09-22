@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+
+
+{% block content %}
+<body>
+  <h1>Thank you!</h1>
+  {% if order %}
+    <p>Your order #{{ order.id }} has been received.</p>
+    <p>Status: {{ order.status }}</p>
+    <p>Total: £{{ order.total }}</p>
+
+    <h3>Downloads</h3>
+    <ul>
+      {% for item in order.items.all %}
+        <li>
+          {{ item.product_name }} — x{{ item.quantity }}
+          <a href="{% url 'merchandise:download' item.product_id %}">Download</a>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>Payment processed — check your email for receipt.</p>
+  {% endif %}
+</body>
+
+{% endblock %}

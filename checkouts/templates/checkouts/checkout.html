@@ -1,0 +1,124 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'checkouts/css/checkout.css' %}">
+{% endblock %}
+
+{% block extra_scripts %}
+{{ block.super }}
+<script src="https://js.stripe.com/v3/"></script>
+<script 
+    src="{% static 'checkouts/js/checkout.js' %}" 
+    data-stripe-public-key="{{ stripe_public_key|escapejs }}"
+    data-success-url="{% if order %}{% url 'checkouts:success_order' order.id %}{% else %}{% url 'checkouts:success' %}{% endif %}"
+></script>
+{% endblock %}
+
+{% block content %}
+<div class="checkout-container">
+    <div class="checkout-summary">
+        <h2>Order Summary</h2>
+        <div class="order-items">
+            {% if items %}
+                {% for it in items %}
+                    <div class="order-item">
+                        <span class="order-item-name">{{ it.name }} x{{ it.quantity }}</span>
+                        <span class="order-item-price">£{{ it.unit_price }}</span>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Your cart is empty.</p>
+            {% endif %}
+        </div>
+        
+        <div class="totals">
+            <div class="total-row">
+                <span>Subtotal:</span>
+                <span>£{{ subtotal }}</span>
+            </div>
+            <div class="total-row">
+                <span>Tax:</span>
+                <span>£{{ tax }}</span>
+            </div>
+            <div class="total-row">
+                <span>Shipping:</span>
+                <span>£{{ shipping }}</span>
+            </div>
+            <div class="total-row total-final">
+                <span>Total:</span>
+                <span>£{{ total }}</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-form">
+        <h2>Checkout Details</h2>
+        <form id="checkout-form" method="post">
+            {% csrf_token %}
+            
+            <h3>Personal Information</h3>
+            <div class="form-group">
+                {{ form.first_name.label_tag }}
+                {{ form.first_name }}
+            </div>
+            <div class="form-group">
+                {{ form.last_name.label_tag }}
+                {{ form.last_name }}
+            </div>
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+            </div>
+            <div class="form-group">
+                {{ form.phone.label_tag }}
+                {{ form.phone }}
+            </div>
+            
+            <h3>Delivery Address</h3>
+            <div class="address-grid">
+                <div class="form-group">
+                    {{ form.house_number.label_tag }}
+                    {{ form.house_number }}
+                </div>
+                <div class="form-group">
+                    {{ form.street_name.label_tag }}
+                    {{ form.street_name }}
+                </div>
+                <div class="form-group full-width">
+                    {{ form.city.label_tag }}
+                    {{ form.city }}
+                </div>
+                <div class="form-group">
+                    {{ form.postcode.label_tag }}
+                    {{ form.postcode }}
+                </div>
+                <div class="form-group">
+                    {{ form.country.label_tag }}
+                    {{ form.country }}
+                </div>
+            </div>
+
+            <h3>Payment Details</h3>
+            <div class="form-group">
+                <label for="card-element">Card Details</label>
+                <div id="card-element" style="padding: 12px; border: 2px solid #e1e5e9; border-radius: 6px; background: white; min-height: 44px;">
+                    <!-- Stripe will inject the card input here -->
+                </div>
+                <div id="card-errors" role="alert" style="color: red; margin-top: 8px;"></div>
+            </div>
+
+            <input type="hidden" id="client-secret" value="{{ client_secret|default:'' }}">
+            <button id="pay-button" type="button">Pay £{{ total }}</button>
+        </form>
+    </div>
+</div>
+
+<!-- Processing Overlay -->
+<div id="processing-overlay" class="overlay" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center;">
+    <div style="text-align:center">
+        <div class="spinner" style="width:96px; height:96px; border:12px solid #f3f3f3; border-top:12px solid #3498db; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;"></div>
+        <div class="text" style="color:white; margin-top:16px; font-size:1.1rem;">Processing payment — please do not close or refresh this window.</div>
+    </div>
+</div>
+{% endblock %}
