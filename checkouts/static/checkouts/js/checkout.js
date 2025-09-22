@@ -1,5 +1,5 @@
 function initializeStripeCheckout() {
-    console.log('=== STRIPE PAYMENT INITIALIZATION ===');
+    console.log('=== STRIPE PAYMENT DEBUG ===');
     
     // Get the script element by its src attribute instead of currentScript
     const scriptElement = document.querySelector('script[src*="checkout.js"]');
@@ -86,6 +86,7 @@ function initializeStripeCheckout() {
     if (payButton) {
         payButton.addEventListener('click', async function(event) {
             event.preventDefault();
+            console.log('=== PAY BUTTON CLICKED ===');
             
             if (processing) return;
             
@@ -95,6 +96,7 @@ function initializeStripeCheckout() {
             if (cardErrors) cardErrors.textContent = '';
 
             if (!clientSecretFromServer) {
+                console.error('No client secret available');
                 if (cardErrors) cardErrors.textContent = 'Payment session expired. Please refresh.';
                 if (overlay) overlay.style.display = 'none';
                 payButton.disabled = false;
@@ -103,6 +105,7 @@ function initializeStripeCheckout() {
             }
 
             try {
+                console.log('Confirming payment with client secret...');
                 const {paymentIntent, error} = await stripe.confirmCardPayment(clientSecretFromServer, {
                     payment_method: {
                         card: card,
@@ -113,10 +116,16 @@ function initializeStripeCheckout() {
                     }
                 });
 
+                console.log('Payment result - Error:', error);
+                console.log('Payment result - Status:', paymentIntent?.status);
+
                 if (error) {
+                    console.error('Payment failed:', error);
                     if (cardErrors) cardErrors.textContent = error.message;
-                } else if (paymentIntent.status === 'succeeded') {
-                    const successUrl = scriptElement ? scriptElement.getAttribute('data-success-url') : '/checkouts/success/';
+                } else if (paymentIntent && paymentIntent.status === 'succeeded') {
+                    console.log('✅ Payment succeeded! Redirecting...');
+                    const successUrl = scriptElement.getAttribute('data-success-url');
+                    console.log('Redirect URL:', successUrl);
                     window.location.href = successUrl;
                     return;
                 }

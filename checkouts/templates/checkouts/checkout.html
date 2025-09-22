@@ -12,7 +12,7 @@
     src="{% static 'checkouts/js/checkout.js' %}" 
     data-stripe-public-key="{{ stripe_public_key|escapejs }}"
     data-client-secret="{{ client_secret|escapejs }}"
-    data-orders-url="{% url 'checkouts:success' %}"
+    data-success-url="{% url 'checkouts:success' %}"
 ></script>
 {% endblock %}
 
@@ -108,6 +108,9 @@
                 </div>
                 <div id="card-errors" role="alert" class="error-message"></div>
             </div>
+
+            <!-- ADDED: Hidden input for client secret -->
+            <input type="hidden" id="client-secret" value="{{ client_secret|default:'' }}">
 
             <button id="pay-button" type="button">Pay £{{ total }}</button>
         </form>

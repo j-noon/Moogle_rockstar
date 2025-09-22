@@ -2,6 +2,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
+from decimal import Decimal  # THIS IS THE MISSING IMPORT
 from .forms import CheckoutForm
 from .models import Order, OrderItem
 from merchandise.models import Product
@@ -15,21 +16,23 @@ def checkout_page(request):
 
     # Compute totals
     items = []
-    subtotal = 0
+    subtotal = Decimal('0.00')  # Start with Decimal
     for product_id, quantity in session_cart.items():
         try:
             product = Product.objects.get(pk=product_id)
-            total_price = product.price * quantity
+            total_price = product.price * Decimal(quantity)
             items.append({'product': product, 'quantity': quantity, 'total_price': total_price})
             subtotal += total_price
         except Product.DoesNotExist:
             continue
 
-    tax = subtotal * 0.1
-    shipping = 5 if subtotal > 0 else 0
-    total = subtotal + tax + shipping
+    # FIXED: Clean calculations for digital products
+    tax_rate = Decimal('0.1')  # 10% VAT
+    tax = (subtotal * tax_rate).quantize(Decimal('0.01'))
+    shipping = Decimal('0.00')  # Free for digital downloads
+    total = (subtotal + tax + shipping).quantize(Decimal('0.01'))
 
-    # Always create a PaymentIntent if there’s something in the cart
+    # Always create a PaymentIntent if there's something in the cart
     client_secret = None
     if total > 0:
         intent = stripe.PaymentIntent.create(
@@ -59,8 +62,8 @@ def checkout_page(request):
             # Clear cart
             request.session['cart'] = {}
 
-            # ✅ Redirect user to their orders page
-            return redirect("orders:user_orders")  # adjust to your orders URL name
+            # Redirect to success page
+            return redirect("checkouts:success")
 
     else:
         form = CheckoutForm()

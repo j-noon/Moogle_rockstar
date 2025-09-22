@@ -1,28 +1,33 @@
 {% extends "core/base.html" %}
 {% load static %}
 
-
+{% block head %}
+<link rel="stylesheet" href="{% static 'checkouts/css/success.css' %}">
+{% endblock %}
 
 {% block content %}
-<body>
-  <h1>Thank you!</h1>
-  {% if order %}
-    <p>Your order #{{ order.id }} has been received.</p>
-    <p>Status: {{ order.status }}</p>
-    <p>Total: £{{ order.total }}</p>
-
-    <h3>Downloads</h3>
-    <ul>
-      {% for item in order.items.all %}
-        <li>
-          {{ item.product_name }} — x{{ item.quantity }}
-          <a href="{% url 'merchandise:download' item.product_id %}">Download</a>
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p>Payment processed — check your email for receipt.</p>
-  {% endif %}
-</body>
-
+<div class="success-container">
+    <div class="success-card">
+        <div class="success-icon">🎉</div>
+        <h1 class="success-title">Payment Successful!</h1>
+        
+        <div class="success-message">
+            <p>Thank you for your purchase from us here at Moogle-Rockstar.</p>
+            <p>A confirmation email has been sent to the email you provided.</p>
+        </div>
+        
+        <div class="success-actions">
+            <a href="{% url 'home' %}" class="btn btn-home">
+                🏠 Go to Home Page
+            </a>
+            <a href="{% url 'checkouts:history' %}" class="btn btn-history">
+                📦 View Order History & Downloads
+            </a>
+        </div>
+        
+        <div class="success-note">
+            <p>You can access your downloads anytime from your Order History page.</p>
+        </div>
+    </div>
+</div>
 {% endblock %}
