@@ -5,7 +5,6 @@ app_name = 'checkouts'
 
 urlpatterns = [
     path('', views.checkout_page, name='checkout'),
-    path('success/<int:order_id>/', views.success_page, name='success_order'),
     path('success/', views.success_page, name='success'),
     path('history/', views.order_history, name='history'),
     path('webhook/', views.stripe_webhook, name='webhook'),

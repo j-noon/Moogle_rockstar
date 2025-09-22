@@ -11,7 +11,8 @@
 <script 
     src="{% static 'checkouts/js/checkout.js' %}" 
     data-stripe-public-key="{{ stripe_public_key|escapejs }}"
-    data-success-url="{% if order %}{% url 'checkouts:success_order' order.id %}{% else %}{% url 'checkouts:success' %}{% endif %}"
+    data-client-secret="{{ client_secret|escapejs }}"
+    data-orders-url="{% url 'checkouts:success' %}"
 ></script>
 {% endblock %}
 
@@ -23,8 +24,8 @@
             {% if items %}
                 {% for it in items %}
                     <div class="order-item">
-                        <span class="order-item-name">{{ it.name }} x{{ it.quantity }}</span>
-                        <span class="order-item-price">£{{ it.unit_price }}</span>
+                        <span class="order-item-name">{{ it.product.name }} x{{ it.quantity }}</span>
+                        <span class="order-item-price">£{{ it.total_price }}</span>
                     </div>
                 {% endfor %}
             {% else %}
@@ -102,23 +103,22 @@
             <h3>Payment Details</h3>
             <div class="form-group">
                 <label for="card-element">Card Details</label>
-                <div id="card-element" style="padding: 12px; border: 2px solid #e1e5e9; border-radius: 6px; background: white; min-height: 44px;">
-                    <!-- Stripe will inject the card input here -->
+                <div id="card-element" class="stripe-card-element">
+                    <!-- Stripe injects card input here -->
                 </div>
-                <div id="card-errors" role="alert" style="color: red; margin-top: 8px;"></div>
+                <div id="card-errors" role="alert" class="error-message"></div>
             </div>
 
-            <input type="hidden" id="client-secret" value="{{ client_secret|default:'' }}">
             <button id="pay-button" type="button">Pay £{{ total }}</button>
         </form>
     </div>
 </div>
 
 <!-- Processing Overlay -->
-<div id="processing-overlay" class="overlay" style="display:none; position:fixed; inset:0; background: rgba(0,0,0,0.65); z-index:9999; align-items:center; justify-content:center;">
+<div id="processing-overlay" class="overlay">
     <div style="text-align:center">
-        <div class="spinner" style="width:96px; height:96px; border:12px solid #f3f3f3; border-top:12px solid #3498db; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto;"></div>
-        <div class="text" style="color:white; margin-top:16px; font-size:1.1rem;">Processing payment — please do not close or refresh this window.</div>
+        <div class="spinner"></div>
+        <div class="text">Processing payment — please do not close or refresh this window.</div>
     </div>
 </div>
 {% endblock %}
