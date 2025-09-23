@@ -33,6 +33,10 @@
                         <td>{{ item.quantity }}</td>
                         <td>£{{ item.unit_price|floatformat:2 }}</td>
                         <td>£{{ item.line_total|floatformat:2 }}</td>
+                        <td>
+                            <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image" style="width:80px;height:auto;">
+                            <br>{{ item.product_name }}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>

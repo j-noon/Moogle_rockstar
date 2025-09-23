@@ -36,6 +36,7 @@ class OrderItem(models.Model):
     product_name = models.CharField(max_length=250)
     quantity = models.IntegerField()
     unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    image_url = models.URLField(blank=True)
 
     @property
     def line_total(self):

@@ -156,6 +156,7 @@ def stripe_webhook(request):
                     product_name=product.name,
                     quantity=quantity,
                     unit_price=product.price,
+                    image_url=product.image_url,
                 )
                 print(f"Added {quantity} x {product.name} to Order {order.id}")
             except Product.DoesNotExist:
