@@ -16,6 +16,7 @@
             <p><strong>Date:</strong> {{ order.created_at|date:"D, d M Y H:i" }}</p>
             <p><strong>Status:</strong> {{ order.status }}</p>
 
+            {% if order.items.exists %}
             <table class="order-items">
                 <thead>
                     <tr>
@@ -30,15 +31,18 @@
                     <tr>
                         <td>{{ item.product_name }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>£{{ item.unit_price }}</td>
-                        <td>£{{ item.line_total }}</td>
+                        <td>£{{ item.unit_price|floatformat:2 }}</td>
+                        <td>£{{ item.line_total|floatformat:2 }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
 
-            <p><strong>Subtotal:</strong> £{{ order.subtotal }}</p>
-            <p><strong>Total:</strong> £{{ order.total }}</p>
+            <p><strong>Subtotal:</strong> £{{ order.subtotal|floatformat:2 }}</p>
+            <p><strong>Total:</strong> £{{ order.total|floatformat:2 }}</p>
+            {% else %}
+            <p>No items found for this order.</p>
+            {% endif %}
 
             <a href="{% url 'checkouts:success_order' order.id %}" class="btn-view">View / Download</a>
         </div>

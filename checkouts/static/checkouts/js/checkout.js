@@ -1,10 +1,10 @@
 function initializeStripeCheckout() {
     console.log('=== STRIPE PAYMENT DEBUG ===');
-    
-    // Get the script element by its src attribute instead of currentScript
+
     const scriptElement = document.querySelector('script[src*="checkout.js"]');
     const stripePublicKey = scriptElement ? scriptElement.getAttribute('data-stripe-public-key') : '';
     const clientSecretFromServer = document.getElementById('client-secret') ? document.getElementById('client-secret').value : '';
+    const successUrl = scriptElement ? scriptElement.getAttribute('data-success-url') : '/';
     const payButton = document.getElementById('pay-button');
     const overlay = document.getElementById('processing-overlay');
     const cardErrors = document.getElementById('card-errors');
@@ -12,7 +12,6 @@ function initializeStripeCheckout() {
 
     console.log('Stripe Public Key:', stripePublicKey ? 'Loaded' : 'MISSING');
     console.log('Client Secret:', clientSecretFromServer ? 'Present' : 'Not created yet');
-    console.log('Script element found:', !!scriptElement);
 
     if (!stripePublicKey || !stripePublicKey.startsWith('pk_')) {
         const errorMsg = 'Stripe not configured properly. Please contact support.';
@@ -27,11 +26,8 @@ function initializeStripeCheckout() {
         return;
     }
 
-    // Initialize Stripe
     const stripe = Stripe(stripePublicKey);
     const elements = stripe.elements();
-    
-    // Create card element - this should automatically show separate fields
     const card = elements.create('card', {
         style: {
             base: {
@@ -39,65 +35,43 @@ function initializeStripeCheckout() {
                 color: '#32325d',
                 fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
                 fontSmoothing: 'antialiased',
-                '::placeholder': {
-                    color: '#aab7c4'
-                }
+                '::placeholder': { color: '#aab7c4' }
             },
-            invalid: {
-                color: '#fa755a',
-                iconColor: '#fa755a'
-            }
+            invalid: { color: '#fa755a', iconColor: '#fa755a' }
         },
         hidePostalCode: true
     });
 
-    // Mount card element
     card.mount('#card-element');
-    console.log('Card element mounted - should show multi-field layout');
+    console.log('Card element mounted');
 
-    // Handle card element changes
     card.on('change', function(event) {
-        console.log('Card element change:', event);
-        if (cardErrors) {
-            if (event.error) {
-                cardErrors.textContent = event.error.message;
-            } else {
-                cardErrors.textContent = '';
-            }
-        }
-        
+        if (cardErrors) cardErrors.textContent = event.error ? event.error.message : '';
         if (payButton) {
             payButton.disabled = !event.complete;
             payButton.style.opacity = event.complete ? '1' : '0.7';
         }
     });
 
-    // Visual feedback
-    card.on('focus', function() {
-        cardElementContainer.style.borderColor = '#007bff';
-    });
-
-    card.on('blur', function() {
-        cardElementContainer.style.borderColor = '#e1e5e9';
-    });
+    card.on('focus', () => { cardElementContainer.style.borderColor = '#007bff'; });
+    card.on('blur', () => { cardElementContainer.style.borderColor = '#e1e5e9'; });
 
     let processing = false;
 
     if (payButton) {
         payButton.addEventListener('click', async function(event) {
             event.preventDefault();
-            console.log('=== PAY BUTTON CLICKED ===');
-            
             if (processing) return;
-            
+
             processing = true;
             payButton.disabled = true;
             if (overlay) overlay.style.display = 'flex';
             if (cardErrors) cardErrors.textContent = '';
 
             if (!clientSecretFromServer) {
-                console.error('No client secret available');
-                if (cardErrors) cardErrors.textContent = 'Payment session expired. Please refresh.';
+                const msg = 'Payment session expired. Please refresh.';
+                console.error(msg);
+                if (cardErrors) cardErrors.textContent = msg;
                 if (overlay) overlay.style.display = 'none';
                 payButton.disabled = false;
                 processing = false;
@@ -105,8 +79,7 @@ function initializeStripeCheckout() {
             }
 
             try {
-                console.log('Confirming payment with client secret...');
-                const {paymentIntent, error} = await stripe.confirmCardPayment(clientSecretFromServer, {
+                const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecretFromServer, {
                     payment_method: {
                         card: card,
                         billing_details: {
@@ -116,21 +89,18 @@ function initializeStripeCheckout() {
                     }
                 });
 
-                console.log('Payment result - Error:', error);
-                console.log('Payment result - Status:', paymentIntent?.status);
+                console.log('Payment result:', { paymentIntent, error });
 
                 if (error) {
-                    console.error('Payment failed:', error);
                     if (cardErrors) cardErrors.textContent = error.message;
+                    console.error('Payment failed:', error);
                 } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-                    console.log('✅ Payment succeeded! Redirecting...');
-                    const successUrl = scriptElement.getAttribute('data-success-url');
-                    console.log('Redirect URL:', successUrl);
+                    console.log('✅ Payment succeeded! Redirecting to success page...');
                     window.location.href = successUrl;
                     return;
                 }
-            } catch (error) {
-                console.error('Error:', error);
+            } catch (err) {
+                console.error('Unexpected error:', err);
                 if (cardErrors) cardErrors.textContent = 'An unexpected error occurred.';
             }
 
@@ -141,7 +111,7 @@ function initializeStripeCheckout() {
     }
 }
 
-// Initialize when DOM is loaded
+// Initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initializeStripeCheckout);
 } else {
