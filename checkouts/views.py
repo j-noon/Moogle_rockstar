@@ -5,12 +5,15 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import HttpResponse
+from django.contrib.auth import get_user_model
 from .forms import CheckoutForm
 from .models import Order, OrderItem
 from merchandise.models import Product
 import stripe
 
+User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
 
 def checkout_page(request):
     session_cart = request.session.get('cart', {})
@@ -29,7 +32,7 @@ def checkout_page(request):
 
     tax_rate = Decimal('0.1')  # 10% VAT
     tax = (subtotal * tax_rate).quantize(Decimal('0.01'))
-    shipping = Decimal('0.00' )  # digital products
+    shipping = Decimal('0.00')  # digital products
     total = (subtotal + tax + shipping).quantize(Decimal('0.01'))
 
     client_secret = None
@@ -38,7 +41,7 @@ def checkout_page(request):
             amount=int(total * 100),
             currency="gbp",
             metadata={
-                "user_id": request.user.id,
+                "user_id": str(request.user.id),
                 "cart": json.dumps(session_cart),
                 "subtotal": str(subtotal),
                 "total": str(total),
@@ -50,7 +53,6 @@ def checkout_page(request):
         client_secret = intent.client_secret
 
     form = CheckoutForm()
-
     context = {
         "form": form,
         "items": items,
@@ -66,6 +68,7 @@ def checkout_page(request):
 
 @login_required
 def order_history(request):
+    # Fetch orders linked to logged-in user
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'checkouts/order_history.html', {'orders': orders})
 
@@ -73,8 +76,7 @@ def order_history(request):
 @login_required
 def success_page(request, order_id=None):
     """
-    Simple success page after payment.
-    Clear the user's cart from session here.
+    Success page after payment. Clears session cart.
     """
     if 'cart' in request.session:
         del request.session['cart']
@@ -91,62 +93,73 @@ def stripe_webhook(request):
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
-        event = stripe.Webhook.construct_event(
-            payload, sig_header, endpoint_secret
-        )
-    except ValueError:
-        # Invalid payload
+        event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+    except (ValueError, stripe.error.SignatureVerificationError) as e:
+        print(f"Webhook error: {e}")
         return HttpResponse(status=400)
-    except stripe.error.SignatureVerificationError:
-        # Invalid signature
-        return HttpResponse(status=400)
+    
 
-    # Handle the event
+    print("⚡ Incoming Stripe event:", event['type'])
+    print("📦 Full metadata received:", event['data']['object'].get('metadata', {}))
+
     if event['type'] == 'payment_intent.succeeded':
         payment_intent = event['data']['object']
 
-        # Check if order already exists (avoid duplicates)
-        if not Order.objects.filter(stripe_payment_intent=payment_intent['id']).exists():
-            metadata = payment_intent.get('metadata', {})
-            user_id = metadata.get('user_id')
-            cart_json = metadata.get('cart', '{}')
-            subtotal = Decimal(metadata.get('subtotal', '0.00'))
-            total = Decimal(metadata.get('total', '0.00'))
-            first_name = metadata.get('first_name', '')
-            last_name = metadata.get('last_name', '')
-            email = metadata.get('email', '')
+        # Avoid duplicate orders
+        if Order.objects.filter(stripe_payment_intent=payment_intent['id']).exists():
+            print(f"Order already exists for PaymentIntent {payment_intent['id']}")
+            return HttpResponse(status=200)
 
-            # Recreate order
-            order = Order.objects.create(
-                user_id=user_id,
-                first_name=first_name,
-                last_name=last_name,
-                email=email,
-                address="",  # address fields not sent in metadata; you can adjust if needed
-                subtotal=subtotal,
-                total=total,
-                stripe_payment_intent=payment_intent['id'],
-                status='paid',
-            )
+        metadata = payment_intent.get('metadata', {})
+        user_id = metadata.get('user_id')
+        cart_json = metadata.get('cart', '{}')
+        subtotal = Decimal(metadata.get('subtotal', '0.00'))
+        total = Decimal(metadata.get('total', '0.00'))
+        first_name = metadata.get('first_name', '')
+        last_name = metadata.get('last_name', '')
+        email = metadata.get('email', '')
 
-            # Recreate items
+        # Ensure user exists
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            print(f"Webhook error: user {user_id} not found. Cannot create order.")
+            return HttpResponse(status=400)
+
+        # Create order
+        order = Order.objects.create(
+            user=user,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            address="",
+            subtotal=subtotal,
+            total=total,
+            stripe_payment_intent=payment_intent['id'],
+            status='paid',
+        )
+        print(f"Created Order {order.id} for user {user.email}")
+
+        # Create order items
+        try:
+            cart = json.loads(cart_json)
+        except json.JSONDecodeError:
+            cart = {}
+
+        for product_id_str, quantity in cart.items():
             try:
-                cart = json.loads(cart_json)
-            except json.JSONDecodeError:
-                cart = {}
-
-            for product_id_str, quantity in cart.items():
                 product_id = int(product_id_str)
-                try:
-                    product = Product.objects.get(pk=product_id)
-                    OrderItem.objects.create(
-                        order=order,
-                        product_id=product.id,
-                        product_name=product.name,
-                        quantity=quantity,
-                        unit_price=product.price,
-                    )
-                except Product.DoesNotExist:
-                    continue
+                product = Product.objects.get(pk=product_id)
+                OrderItem.objects.create(
+                    order=order,
+                    product_id=product.id,
+                    product_name=product.name,
+                    quantity=quantity,
+                    unit_price=product.price,
+                )
+                print(f"Added {quantity} x {product.name} to Order {order.id}")
+            except Product.DoesNotExist:
+                print(f"Product {product_id_str} not found. Skipping item.")
+                continue
 
     return HttpResponse(status=200)

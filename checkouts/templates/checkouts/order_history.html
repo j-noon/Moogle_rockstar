@@ -44,7 +44,7 @@
             <p>No items found for this order.</p>
             {% endif %}
 
-            <a href="{% url 'checkouts:success_order' order.id %}" class="btn-view">View / Download</a>
+            <a href="{% url 'checkouts:history' %}" class="btn-view">View / Download</a>
         </div>
         {% endfor %}
     {% else %}
