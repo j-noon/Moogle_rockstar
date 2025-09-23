@@ -1,10 +1,7 @@
 from django.db import models
 from django.conf import settings
-from django.utils import timezone
-
 
 User = settings.AUTH_USER_MODEL
-
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -14,7 +11,7 @@ class Order(models.Model):
         ('failed', 'Failed'),
     ]
 
-    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name='orders')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
     first_name = models.CharField(max_length=120)
     last_name = models.CharField(max_length=120)
     email = models.EmailField()
@@ -26,11 +23,12 @@ class Order(models.Model):
     stripe_payment_intent = models.CharField(max_length=255, blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_at = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Order #{self.id} — {self.email} — {self.status}"
+
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
