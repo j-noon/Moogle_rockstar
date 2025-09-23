@@ -24,6 +24,8 @@
                         <th>Quantity</th>
                         <th>Unit Price</th>
                         <th>Line Total</th>
+                        <th>Image</th>
+                        <th>Download</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,8 +36,18 @@
                         <td>£{{ item.unit_price|floatformat:2 }}</td>
                         <td>£{{ item.line_total|floatformat:2 }}</td>
                         <td>
-                            <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image" style="width:80px;height:auto;">
-                            <br>{{ item.product_name }}
+                            {% if item.image_url %}
+                                <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image" style="width:80px;height:auto;">
+                            {% else %}
+                                <span>No Image</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if item.image_url or item.asset_file %}
+                                <a href="{% url 'checkouts:download_asset' item.id %}" class="btn-view">Download</a>
+                            {% else %}
+                                <span class="no-asset">No Download Available</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -47,8 +59,6 @@
             {% else %}
             <p>No items found for this order.</p>
             {% endif %}
-
-            <a href="{% url 'checkouts:history' %}" class="btn-view">View / Download</a>
         </div>
         {% endfor %}
     {% else %}

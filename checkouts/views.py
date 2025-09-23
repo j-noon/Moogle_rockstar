@@ -1,4 +1,8 @@
 # checkouts/views.py
+import os
+import requests
+from django.http import FileResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404
 import json
 from decimal import Decimal
 from django.shortcuts import render, redirect
@@ -164,3 +168,41 @@ def stripe_webhook(request):
                 continue
 
     return HttpResponse(status=200)
+
+
+#VIEW FOR DOWNLOAD ASSESTS
+@login_required
+def download_asset(request, item_id):
+    order_item = get_object_or_404(OrderItem, id=item_id)
+
+    # Security check: must belong to this user
+    if order_item.order.user != request.user:
+        return HttpResponseForbidden("You don’t own this order.")
+
+    # Must be paid
+    if order_item.order.status != "paid":
+        return HttpResponseForbidden("Payment not confirmed.")
+
+    # Determine source: local file or Cloudinary URL
+    if order_item.asset_file:  # Local uploaded file
+        file_path = order_item.asset_file.path
+        return FileResponse(
+            open(file_path, "rb"),
+            as_attachment=True,
+            filename=os.path.basename(file_path)
+        )
+    elif order_item.image_url:  # Cloudinary URL
+        try:
+            response = requests.get(order_item.image_url, stream=True)
+            response.raise_for_status()
+            filename = os.path.basename(order_item.image_url)
+            resp = HttpResponse(
+                response.raw,
+                content_type=response.headers.get("Content-Type", "application/octet-stream")
+            )
+            resp['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return resp
+        except requests.RequestException:
+            return HttpResponse("Failed to fetch asset from Cloudinary.", status=500)
+    else:
+        return HttpResponse("No asset available.", status=404)

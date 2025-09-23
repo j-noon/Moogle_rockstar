@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.checkout_page, name='checkout'),
     path('success/', views.success_page, name='success'),
     path('history/', views.order_history, name='history'),
+    path("download/<int:item_id>/", views.download_asset, name="download_asset"),
     path("stripe-webhook/", views.stripe_webhook, name="stripe_webhook"),
 ]
