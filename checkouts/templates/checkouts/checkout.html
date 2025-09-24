@@ -55,48 +55,79 @@
 
     <div class="checkout-form">
         <h2>Checkout Details</h2>
+
+        <!-- short help / legend -->
+        <p class="required-note"><span class="required" aria-hidden="true">*</span> Required fields</p>
+
         <form id="checkout-form" method="post">
             {% csrf_token %}
             
             <h3>Personal Information</h3>
             <div class="form-group">
-                {{ form.first_name.label_tag }}
+                <label for="{{ form.first_name.id_for_label }}">
+                    {{ form.first_name.label }}{% if form.first_name.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                </label>
                 {{ form.first_name }}
+                {% if form.first_name.errors %}<div class="field-error">{{ form.first_name.errors }}</div>{% endif %}
             </div>
             <div class="form-group">
-                {{ form.last_name.label_tag }}
+                <label for="{{ form.last_name.id_for_label }}">
+                    {{ form.last_name.label }}{% if form.last_name.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                </label>
                 {{ form.last_name }}
+                {% if form.last_name.errors %}<div class="field-error">{{ form.last_name.errors }}</div>{% endif %}
             </div>
             <div class="form-group">
-                {{ form.email.label_tag }}
+                <label for="{{ form.email.id_for_label }}">
+                    {{ form.email.label }}{% if form.email.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                </label>
                 {{ form.email }}
+                {% if form.email.errors %}<div class="field-error">{{ form.email.errors }}</div>{% endif %}
             </div>
             <div class="form-group">
-                {{ form.phone.label_tag }}
+                <label for="{{ form.phone.id_for_label }}">
+                    {{ form.phone.label }}{% if form.phone.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                </label>
                 {{ form.phone }}
+                {% if form.phone.errors %}<div class="field-error">{{ form.phone.errors }}</div>{% endif %}
             </div>
             
             <h3>Delivery Address</h3>
             <div class="address-grid">
                 <div class="form-group">
-                    {{ form.house_number.label_tag }}
+                    <label for="{{ form.house_number.id_for_label }}">
+                        {{ form.house_number.label }}{% if form.house_number.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                    </label>
                     {{ form.house_number }}
+                    {% if form.house_number.errors %}<div class="field-error">{{ form.house_number.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.street_name.label_tag }}
+                    <label for="{{ form.street_name.id_for_label }}">
+                        {{ form.street_name.label }}{% if form.street_name.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                    </label>
                     {{ form.street_name }}
+                    {% if form.street_name.errors %}<div class="field-error">{{ form.street_name.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group full-width">
-                    {{ form.city.label_tag }}
+                    <label for="{{ form.city.id_for_label }}">
+                        {{ form.city.label }}{% if form.city.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                    </label>
                     {{ form.city }}
+                    {% if form.city.errors %}<div class="field-error">{{ form.city.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.postcode.label_tag }}
+                    <label for="{{ form.postcode.id_for_label }}">
+                        {{ form.postcode.label }}{% if form.postcode.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                    </label>
                     {{ form.postcode }}
+                    {% if form.postcode.errors %}<div class="field-error">{{ form.postcode.errors }}</div>{% endif %}
                 </div>
                 <div class="form-group">
-                    {{ form.country.label_tag }}
+                    <label for="{{ form.country.id_for_label }}">
+                        {{ form.country.label }}{% if form.country.field.required %}<span class="required" aria-hidden="true">*</span>{% endif %}
+                    </label>
                     {{ form.country }}
+                    {% if form.country.errors %}<div class="field-error">{{ form.country.errors }}</div>{% endif %}
                 </div>
             </div>
 

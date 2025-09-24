@@ -31,18 +31,18 @@
                 <tbody>
                     {% for item in order.items.all %}
                     <tr>
-                        <td>{{ item.product_name }}</td>
-                        <td>{{ item.quantity }}</td>
-                        <td>£{{ item.unit_price|floatformat:2 }}</td>
-                        <td>£{{ item.line_total|floatformat:2 }}</td>
-                        <td>
+                        <td data-label="Item">{{ item.product_name }}</td>
+                        <td data-label="Quantity">{{ item.quantity }}</td>
+                        <td data-label="Unit Price">£{{ item.unit_price|floatformat:2 }}</td>
+                        <td data-label="Line Total">£{{ item.line_total|floatformat:2 }}</td>
+                        <td data-label="Image">
                             {% if item.image_url %}
-                                <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image" style="width:80px;height:auto;">
+                                <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image">
                             {% else %}
                                 <span>No Image</span>
                             {% endif %}
                         </td>
-                        <td>
+                        <td data-label="Download">
                             {% if item.image_url or item.asset_file %}
                                 <a href="{% url 'checkouts:download_asset' item.id %}" class="btn-view">Download</a>
                             {% else %}
