@@ -27,7 +27,7 @@ def checkout_page(request):
     subtotal = Decimal('0.00')
     for product_id, quantity in session_cart.items():
         try:
-            product = Product.objects.get(pk=product_id)
+            product = Product.objects.get(pk=product_id, is_active=True)
             total_price = product.price * Decimal(quantity)
             items.append({'product': product, 'quantity': quantity, 'total_price': total_price})
             subtotal += total_price

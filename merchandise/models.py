@@ -10,8 +10,9 @@ class Product(models.Model):
     class Category(models.TextChoices):
         EMOTES = "emotes", "Emotes"
         POSTERS = "posters", "Posters"
-        CUPS = "cups", "Coffee Cups"
-        SHIRTS = "shirts", "T-Shirts"
+        BANNERS = "banners", "Banners"
+        BADGES  = "badges", "Badges"
+        MEDIA_KITS = "media_kits", "Media Kits"
 
 
     name = models.CharField(max_length=120)
