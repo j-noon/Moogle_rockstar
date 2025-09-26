@@ -133,10 +133,21 @@
 
             <h3>Payment Details</h3>
             <div class="form-group">
-                <label for="card-element">Card Details</label>
-                <div id="card-element" class="stripe-card-element">
-                    <!-- Stripe injects card input here -->
-                </div>
+                <label>Card Details</label>
+                <div class="card-fields-container">
+                    <div class="card-field-wrapper large-field">
+                        <div id="card-number" class="stripe-card-field"></div>
+                        <span class="field-label">Card Number</span>
+                    </div>
+                    <div class="card-field-wrapper">
+                        <div id="card-expiry" class="stripe-card-field"></div>
+                        <span class="field-label">Expiry Date</span>
+                    </div>
+                        <div class="card-field-wrapper">
+                            <div id="card-cvc" class="stripe-card-field"></div>
+                            <span class="field-label">CVC</span>
+                        </div>
+                    </div>
                 <div id="card-errors" role="alert" class="error-message"></div>
             </div>
 

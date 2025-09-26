@@ -1,41 +1,37 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const stripe = Stripe(document.currentScript.getAttribute("data-stripe-public-key"));
-    const clientSecret = document.currentScript.getAttribute("data-client-secret");
-    const successUrl = document.currentScript.getAttribute("data-success-url");
+    const scriptElement = document.querySelector('script[data-stripe-public-key]');
+    if (!scriptElement) {
+        console.error("Stripe script element not found");
+        return;
+    }
+
+    const stripe = Stripe(scriptElement.getAttribute("data-stripe-public-key"));
+    const clientSecret = scriptElement.getAttribute("data-client-secret");
+    const successUrl = scriptElement.getAttribute("data-success-url");
 
     const elements = stripe.elements();
-    const cardElement = elements.create("card");
-    cardElement.mount("#card-element");
+
+    // Mount separate card fields
+    const cardNumber = elements.create("cardNumber", { placeholder: "1234 1234 1234 1234" });
+    cardNumber.mount("#card-number");
+
+    const cardExpiry = elements.create("cardExpiry", { placeholder: "MM / YY" });
+    cardExpiry.mount("#card-expiry");
+
+    const cardCvc = elements.create("cardCvc", { placeholder: "CVC" });
+    cardCvc.mount("#card-cvc");
 
     const payButton = document.getElementById("pay-button");
     const form = document.getElementById("checkout-form");
-    const requiredInputs = form.querySelectorAll("input[required], select[required]");
 
-    // --- NEW FUNCTION: check if all required fields are filled ---
-    function togglePayButton() {
-        let allFilled = true;
-        requiredInputs.forEach(input => {
-            if (!input.value.trim()) {
-                allFilled = false;
-            }
-        });
-        payButton.disabled = !allFilled;
-    }
-
-    // Run validation whenever user types or changes a field
-    requiredInputs.forEach(input => {
-        input.addEventListener("input", togglePayButton);
-        input.addEventListener("change", togglePayButton);
-    });
-
-    // Initial check on page load
-    togglePayButton();
-
-    // Handle payment click
     payButton.addEventListener("click", async function () {
-        // --- EXTRA SAFETY: check validity before submitting ---
-        if (!form.checkValidity()) {
-            form.reportValidity(); // show built-in browser validation
+        const firstName = form.querySelector('[name="first_name"]').value.trim();
+        const lastName = form.querySelector('[name="last_name"]').value.trim();
+        const email = form.querySelector('[name="email"]').value.trim();
+        const phone = form.querySelector('[name="phone"]').value.trim();
+
+        if (!firstName || !lastName || !email) {
+            alert("Please fill in your first name, last name, and email before paying.");
             return;
         }
 
@@ -45,11 +41,11 @@ document.addEventListener("DOMContentLoaded", function () {
         try {
             const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
                 payment_method: {
-                    card: cardElement,
+                    card: cardNumber,
                     billing_details: {
-                        name: `${form.querySelector('[name="first_name"]').value} ${form.querySelector('[name="last_name"]').value}`,
-                        email: form.querySelector('[name="email"]').value,
-                        phone: form.querySelector('[name="phone"]').value,
+                        name: `${firstName} ${lastName}`,
+                        email: email,
+                        phone: phone || undefined,
                     },
                 },
             });

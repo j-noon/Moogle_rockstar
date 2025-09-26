@@ -116,7 +116,8 @@ h1 {
 }
 
 #user-profile {
-  height: 120px;
+  display: flex;
+  flex-direction: column;
   align-items: center;
   background: rgb(19, 209, 184);
   padding: 3px 8px; 
@@ -127,8 +128,19 @@ h1 {
   top: 10px;
   right: 3px;
   gap: 8px;
-  flex-direction: column; 
-  max-width: 250px; 
+  max-width: 120px; 
+  min-width: 90px;
+  box-sizing: border-box;
+}
+
+
+.edit-profile-link {
+  font-size: 0.7rem;
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin-top: 4px;
+  text-align: center;
 }
 
 .profile-pic {
@@ -230,22 +242,13 @@ h1 {
     margin-left: -40px;
   }
 
-#user-profile {
-  height: 120px;
-  display: flex;
-  align-items: center;
-  background: rgb(19, 209, 184);
-  padding: 3px 8px; 
-  border: solid black 2px;
-  border-radius: 10px;
-  z-index: 1000;
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  gap: 8px;
-  flex-direction: column; 
-  max-width: 250px; 
-}
+  #user-profile {
+    flex-direction: column;
+    align-items: center;
+    max-width: 140px;
+    min-width: 100px;
+    height: auto;
+  }
 }
 
 
@@ -267,7 +270,7 @@ h1 {
 /*profile section area*/
   #user-profile {
     flex-direction: row;
-    height: 90px;
+    height: 110px;
   }
 
   .user-info {
