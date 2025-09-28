@@ -35,8 +35,9 @@ h1 {
 
 #nav-btn {
   height: 30px;
-  width: 35px;
+  width: fit-content;
   font-size: 100%;
+  font-weight: bold;
   position: absolute;
   top: 20px;
   border: solid 2px black;
@@ -207,6 +208,22 @@ h1 {
     font-size: 25px;
     margin-left: -50px;
    }
+}
+
+/*media qurries*/
+
+@media screen and (max-width: 320px){
+
+  #nav-btn {
+  height: 30px;
+  width: fit-content;
+  font-size: 100%;
+  font-weight: bold;
+  position: absolute;
+  top: 50px;
+  border: solid 2px black;
+  border-radius: 5px;
+}
 }
 
 
