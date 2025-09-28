@@ -1,1 +1,1 @@
-web: gunicorn moogle.wsgi:application
+web: gunicorn moogle.wsgi
