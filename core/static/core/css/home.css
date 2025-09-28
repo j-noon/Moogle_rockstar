@@ -238,13 +238,13 @@ table {
   align-items: center;
   gap: 1rem;
   margin: 2rem auto;
-  max-width: 1200px;        /* keeps it from stretching too far on 4K */
+  max-width: 1200px;
 }
 
 .clip {
   width: 100%;
-  max-width: 320px;         /* each video capped */
-  aspect-ratio: 1 / 1;      /* keeps them square-ish */
+  max-width: 320px;
+  aspect-ratio: 1 / 1;
   object-fit: cover;
   border: solid black 2px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -324,7 +324,9 @@ table {
 }
 
 .sub-nav .dropbtn:hover {
-  background-color: #f3f3f3;
+  background-color: black;
+  color: white;
+  border: solid white 2px;
 }
 
 /* Shared dropdown-content styles */
@@ -332,7 +334,8 @@ table {
   display: none;
   position: absolute;
   top: 100%;
-  background: white;
+  font-weight: bold;
+  background: rgb(13, 246, 215);
   border: solid 3px black;
   padding: 15px;
   z-index: 999;
@@ -449,16 +452,15 @@ table {
   margin-bottom: 100px;
   width: 100%;
   height: 600px;
+  border: solid black 2px;
 }
 
 
 
 
-
-
-
-
 /*MEDIA QUERRIES*/
+
+
 /* QURRIES MIN SCREEN 768*/
 @media screen and (min-width: 768px) {
 
@@ -483,7 +485,7 @@ table {
 }
 
 #comments-container {
-  margin-top: 240px;
+  margin-top: 50px;
 }
 
 #delete-last-btn {
@@ -521,12 +523,12 @@ table {
 
 #clips-div {
   flex-direction: row;
-  justify-content: center;   /* center videos */
-  flex-wrap: wrap;           /* allow wrap if not enough space */
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
 .clip {
-  flex: 1 1 30%;             /* take ~30% each, responsive */
+  flex: 1 1 30%;
   max-width: 300px;
   }
 }
@@ -536,16 +538,16 @@ table {
 
   .schedule-wrapper {
     flex-direction: row;
-    justify-content: flex-start;  /* push to left */
+    justify-content: flex-start;
     align-items: flex-start;
-    gap: 2rem;                     /* spacing between the two tables */
-    margin-left: 20px;             /* anchor left */
+    gap: 2rem;
+    margin-left: 20px;
     margin-right: auto;
   }
 
   .schedule-week {
     flex: 1;
-    max-width: 500px;              /* keeps each table neat */
+    max-width: 500px;
   }
 
 
@@ -593,10 +595,145 @@ table {
   .clip {
     max-width: 360px;
   }
+
+  /* Align schedules + sub benefits in one row */
+  .schedule-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 1rem;
+  }
+
+  .schedule-week {
+    flex: 1;
+    max-width: 400px;
+  }
+
+  #sub-ben-tittle {
+    position: absolute;
+    top: 620px;
+    right: 180px;
+  }
+  #sub-rewards {
+    position: absolute;
+    top: 700px;
+    right: 50px;
+    width: 28%;
+  
+  }
+
+  #Schedule-title{
+    position: absolute;
+    top:650px;
+    left:180px;
+
+  }
+
+  #Schedule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #schedule-p {
+    position: absolute;
+    left: 50px;
+    top: 1025px;
+  }
+
+  #rewards-bkground-img {
+    position: absolute;
+    top: 900px;
+    right: 50px;
+    max-width: 400px;
+    max-height: 325px;
+  }
+
+  #comments-container {
+    margin-bottom: 170px;
+  }
 }
+
 
 /* QURRIES MIN SCREEN 2560*/
 @media screen and (min-width: 2560px) {
+
+  h1, h2, h3 {
+    font-size: 40px;
+  }
+
+    .schedule-wrapper {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 10rem;
+  }
+
+  .schedule-week {
+    flex: 1;
+    max-width: 600px;
+  }
+
+  #sub-ben-tittle {
+    position: absolute;
+    top: 1020px;
+    right: 220px;
+    font-size: 40px;
+  }
+  #sub-rewards {
+    position: absolute;
+    top: 1170px;
+    right: 50px;
+    width: 32%;
+  }
+
+  .dropbtn {
+    height: 50px;
+  }
+
+  .dropdown-content {
+    font-size: 50px;
+  }
+
+  #Schedule-title{
+    position: absolute;
+    top:1030px;
+    left:180px;
+
+  }
+
+  #Schedule {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  #schedule-p {
+    position: absolute;
+    left: 50px;
+    top: 1925px;
+    font-size: 28px;
+  }
+
+  .schedule-week table {
+
+    height: 700px;
+    width: 700px;
+  }
+
+  #rewards-bkground-img {
+    position: absolute;
+    top: 1380px;
+    right: 50px;
+    max-width: 810px;
+    max-height: 925px;
+  }
+
+  #about-para {
+    font-size: 40px;
+  }
 
 
 }
