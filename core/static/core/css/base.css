@@ -212,7 +212,7 @@ h1 {
 
 /*media qurries*/
 
-@media screen and (max-width: 320px){
+@media screen and (max-width: 384px){
 
   #nav-btn {
   height: 30px;

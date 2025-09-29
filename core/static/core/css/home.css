@@ -257,31 +257,23 @@ table {
 }
 
 
-
-
-
-
-
-
-
 /* Rewards Section */
 #sub-ben-tittle {
   margin-top: 2rem;
   margin-bottom: 0.5rem;
   text-align: center;
   font-weight: bold;
+  color: red;
 }
 
-
 #sub-rewards {
-  width: 100%;
+  width: 90%;
   max-width: 100%;
   background-color: rgb(159, 233, 219);
   border: solid 3px black;
   border-radius: 6px;
   margin-top: 0.5rem;
   margin-bottom: 8rem;
-  box-sizing: border-box;
   overflow: visible;
   position: relative;
   background-size: cover;
@@ -455,11 +447,7 @@ table {
   border: solid black 2px;
 }
 
-
-
-
 /*MEDIA QUERRIES*/
-
 
 /* QURRIES MIN SCREEN 768*/
 @media screen and (min-width: 768px) {
@@ -531,6 +519,14 @@ table {
   flex: 1 1 30%;
   max-width: 300px;
   }
+
+#sub-rewards {
+  width: 90%;
+}
+
+#rewards-bkground-img {
+  width: 90%;
+}
 }
 
 /* QURRIES MIN SCREEN 1024*/
