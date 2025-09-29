@@ -66,26 +66,20 @@ def logout_view(request):
 
 
 @login_required
-@require_POST
 def update_profile_image(request):
     profile, _ = Profile.objects.get_or_create(user=request.user)
     form = ProfileImageForm(request.POST, request.FILES, instance=profile)
-
     if form.is_valid():
         profile = form.save()
-
-        # AJAX request: return JSON with the **Cloudinary URL**
+        # If AJAX, return JSON with the new Cloudinary URL
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({
                 'message': 'Profile picture updated!',
-                'image_url': profile.profile_image.url,  # <— the key your JS will use
+                'image_url': profile.profile_image.url
             })
-
-        # Non-AJAX: redirect back so the template pulls the new URL
         messages.success(request, "Profile picture updated!")
         return redirect('home')
 
-    # Invalid form:
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({'errors': form.errors}, status=400)
     return HttpResponseBadRequest("Invalid form")
