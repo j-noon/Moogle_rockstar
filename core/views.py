@@ -74,10 +74,6 @@ def update_profile_image(request):
     if form.is_valid():
         profile = form.save()
 
-    import logging
-    logger = logging.getLogger(__name__)
-    logger.warning("Saved profile image: name=%s url=%s", profile.profile_image.name, getattr(profile.profile_image, 'url', None))
-
         # AJAX request: return JSON with the **Cloudinary URL**
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
             return JsonResponse({

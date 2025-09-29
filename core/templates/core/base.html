@@ -37,8 +37,15 @@
   <div id="user-profile">
     <div class="user-info">
       <img
-          id="currentProfilePic" class="profile-pic" alt="Profile Pic"
-          src="{% if user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png{% endif %}">
+        src="{% if user.profile.profile_image %}
+                {{ user.profile.profile_image.url }}
+              {% else %}
+                https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png
+              {% endif %}"
+        alt="Profile Pic"
+        class="profile-pic"
+        id="currentProfilePic"
+      />
       <div class="user-text">
         <p><strong>{{ user.username }}</strong></p>
         <span class="moogle-count">
