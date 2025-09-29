@@ -6,7 +6,7 @@ class Profile(models.Model):
     moogles = models.IntegerField(default=0)
     profile_image = models.ImageField(
         upload_to='profile_images/',
-        default='profile_images/default_profile.jpg'
+        default='https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png'
     )
 
     def __str__(self):
