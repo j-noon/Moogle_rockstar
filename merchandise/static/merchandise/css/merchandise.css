@@ -133,16 +133,37 @@ a.view-cart-icon img {
 /* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
-    top: 20px;
-    right: 3%;
+    top: 80px;
+    left: 0.3rem;
     z-index: 1000;
+    color: black;
+    font-weight: bold;
 }
 
 .view-cart-icon img {
-    max-width: 30px;
-    max-height: 30px;
+    max-width: 50px;
+    max-height: 50px;
     cursor: pointer;
 }
+
+.back-to-top a {
+    text-decoration: none;
+    color: black;
+    background-color: white;
+    width: fit-content;
+    border: solid 2px black;
+    border-radius: 8px;
+    padding: 5px;
+    font-weight: bold;
+}
+
+.back-to-top a:hover {
+    color: white;
+    background-color: black;
+    border: solid white 2px;
+
+}
+
 
 /* MEDIA QUERRIES */
 /* 600 PLUS*/
@@ -157,9 +178,9 @@ a.view-cart-icon img {
 /* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
-    top: 70px;
-    right: 14%;
+    top: 120px;
     z-index: 1000;
+    left: 83%;
 }
 }
 
@@ -167,8 +188,8 @@ a.view-cart-icon img {
 /* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
-    top: 70px;
-    right: 10%;
+    top: 120px;
+    left: 87%;
     z-index: 1000;
 }
 }
@@ -178,8 +199,8 @@ a.view-cart-icon img {
 /* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
-    top: 70px;
-    right: 7.5%;
+    top: 120px;
+    left:91%;
     z-index: 1000;
 }
 }

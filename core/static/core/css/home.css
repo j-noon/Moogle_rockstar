@@ -263,11 +263,10 @@ table {
   margin-bottom: 0.5rem;
   text-align: center;
   font-weight: bold;
-  color: red;
 }
 
 #sub-rewards {
-  width: 90%;
+  width: 100%;
   max-width: 100%;
   background-color: rgb(159, 233, 219);
   border: solid 3px black;
@@ -521,10 +520,12 @@ table {
   }
 
 #sub-rewards {
+  margin-left: 30px;
   width: 90%;
 }
 
 #rewards-bkground-img {
+  margin-left: 30px;
   width: 90%;
 }
 }

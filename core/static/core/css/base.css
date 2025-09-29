@@ -224,6 +224,10 @@ h1 {
   border: solid 2px black;
   border-radius: 5px;
 }
+
+.tittle {
+  margin-left: -70px;
+}
 }
 
 
