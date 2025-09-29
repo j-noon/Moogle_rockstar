@@ -28,4 +28,4 @@ urlpatterns = [
     path('lets-play/', include('lets_play.urls')),
     path('merchandise/', include('merchandise.urls')),
     path('checkouts/', include('checkouts.urls')),
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]
