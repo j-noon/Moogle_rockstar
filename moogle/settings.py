@@ -44,9 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'django.contrib.staticfiles',
     'cloudinary',
     'cloudinary_storage',
-    'django.contrib.staticfiles',
     'core.apps.CoreConfig',
     'gallery',
     'lets_play',
@@ -170,7 +170,7 @@ CLOUDINARY_STORAGE = {
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-#MEDIA_URL = '/media/'
+MEDIA_URL = '/media/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
