@@ -5,17 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('profilePicForm');
   const currentPic = document.getElementById('currentProfilePic');
 
-  // Safety check in case elements are missing (e.g. user not logged in)
+  // If not logged in or elements missing, bail quietly
   if (!openBtn || !modal || !closeBtn || !form || !currentPic) return;
 
-  openBtn.onclick = () => {
-    modal.style.display = 'block';
-  };
+  // Open/close modal
+  openBtn.addEventListener('click', () => (modal.style.display = 'block'));
+  closeBtn.addEventListener('click', () => (modal.style.display = 'none'));
 
-  closeBtn.onclick = () => {
-    modal.style.display = 'none';
-  };
-
+  // CSRF helper
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -31,41 +28,52 @@ document.addEventListener('DOMContentLoaded', () => {
     return cookieValue;
   }
 
-  form.onsubmit = async (e) => {
+  form.addEventListener('submit', async (e) => {
+    // Progressive enhancement:
+    // If fetch isn't available, let the browser do a normal POST.
+    const canAjax = typeof window.fetch === 'function';
+    if (!canAjax) return; // no preventDefault -> normal submit
+
     e.preventDefault();
 
-    const formData = new FormData(form);
-    const uploadUrl = form.dataset.uploadUrl; // URL passed from data attribute
+    const url = form.dataset.uploadUrl || form.action;
+    const fd = new FormData(form);
 
     try {
-      const response = await fetch(uploadUrl, {
+      const res = await fetch(url, {
         method: 'POST',
-        body: formData,
+        body: fd,
         headers: {
           'X-CSRFToken': getCookie('csrftoken'),
-          'X-Requested-With': 'XMLHttpRequest',
+          'X-Requested-With': 'XMLHttpRequest', // tells the view to return JSON
         },
       });
 
-      const data = await response.json();
+      // If server redirected (non-AJAX path somehow), just reload
+      const ctype = res.headers.get('content-type') || '';
+      if (!ctype.includes('application/json')) {
+        window.location.reload();
+        return;
+      }
 
-      if (response.ok) {
+      const data = await res.json();
+
+      if (!res.ok) {
+        const err = data?.errors ? JSON.stringify(data.errors) : 'Upload failed.';
+        alert(err);
+        return;
+      }
+
+      // ✅ Use the **server-provided Cloudinary URL** only.
+      if (data.image_url) {
+        currentPic.src = data.image_url + '?v=' + Date.now(); // cache-bust so you see it immediately
         modal.style.display = 'none';
-
-        // Update profile image dynamically with the new uploaded image URL from server, if provided
-        if (data.new_image_url) {
-          currentPic.src = data.new_image_url;
-        } else {
-          // Fallback: update from local file (may not reflect actual saved image on server)
-          const file = formData.get('profile_image');
-          const updatedPic = URL.createObjectURL(file);
-          currentPic.src = updatedPic;
-        }
       } else {
-        alert('Error: ' + (data.errors || 'Unknown error occurred.'));
+        // If the backend didn't give us a URL, reload to let the template render it.
+        window.location.reload();
       }
     } catch (err) {
-      alert('Error uploading image.');
+      alert('Network error uploading image.');
     }
-  };
+  });
 });

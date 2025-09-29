@@ -66,20 +66,29 @@ def logout_view(request):
 
 
 @login_required
+@require_POST
 def update_profile_image(request):
-    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        # Ensure the user has a profile, create if missing
-        profile = getattr(request.user, 'profile', None)
-        if profile is None:
-            profile = Profile.objects.create(user=request.user)
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    form = ProfileImageForm(request.POST, request.FILES, instance=profile)
 
-        form = ProfileImageForm(request.POST, request.FILES, instance=profile)
-        if form.is_valid():
-            form.save()
-            return JsonResponse({'message': 'Profile picture updated!'})
-        else:
-            return JsonResponse({'errors': form.errors}, status=400)
-    return JsonResponse({'error': 'Invalid request'}, status=400)
+    if form.is_valid():
+        profile = form.save()
+
+        # AJAX request: return JSON with the **Cloudinary URL**
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({
+                'message': 'Profile picture updated!',
+                'image_url': profile.profile_image.url,  # <— the key your JS will use
+            })
+
+        # Non-AJAX: redirect back so the template pulls the new URL
+        messages.success(request, "Profile picture updated!")
+        return redirect('home')
+
+    # Invalid form:
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'errors': form.errors}, status=400)
+    return HttpResponseBadRequest("Invalid form")
 
 
 @login_required
