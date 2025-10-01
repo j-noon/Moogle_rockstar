@@ -16,6 +16,7 @@ from merchandise.models import Product
 import stripe
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
+from django.utils import timezone
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -216,6 +217,7 @@ def stripe_webhook(request):
                 print(f"Product {product_id_str} not found. Skipping item.")
                 continue
 
+    # ----- SUBSCRIPTIONS -----
     elif event['type'] == 'customer.subscription.created':
         sub = event['data']['object']
         stripe_sub_id = sub['id']
@@ -223,10 +225,23 @@ def stripe_webhook(request):
         current_period_end = sub['current_period_end']
 
         try:
-            # NOTE: you must attach email in subscription metadata when creating it
-            user_id = sub['metadata'].get('user_id')
-            user = User.objects.get(id=user_id)
             from subscriptions.models import Subscription
+
+            # --- Resolve user (user_id → email fallback) ---
+            user = None
+            user_id = sub.get('metadata', {}).get('user_id')
+            if user_id:
+                user = User.objects.filter(id=user_id).first()
+
+            if not user:
+                email = sub.get('customer_email') or sub.get('email')
+                if email:
+                    user = User.objects.filter(email=email).first()
+
+            if not user:
+                print(f"⚠️ No matching user found for subscription {stripe_sub_id}")
+                return HttpResponse(status=200)
+
             Subscription.objects.update_or_create(
                 user=user,
                 defaults={
@@ -249,16 +264,9 @@ def stripe_webhook(request):
 
         try:
             from subscriptions.models import Subscription
-            subscription, created = Subscription.objects.get_or_create(
-                stripe_subscription_id=stripe_sub_id,
-                defaults={
-                    "status": status,
-                    "current_period_end": timezone.datetime.fromtimestamp(
-                        current_period_end, tz=timezone.utc
-                    ),
-                },
-            )
-            if not created:
+            subscription = Subscription.objects.filter(stripe_subscription_id=stripe_sub_id).first()
+
+            if subscription:
                 subscription.status = status
                 subscription.current_period_end = timezone.datetime.fromtimestamp(
                     current_period_end, tz=timezone.utc
@@ -266,37 +274,62 @@ def stripe_webhook(request):
                 subscription.save()
                 print(f"🔄 Subscription {stripe_sub_id} updated to {status}")
             else:
-                # If created (first time we saw it), attach to user via metadata fallback
-                user_id = sub['metadata'].get('user_id')
+                # fallback: create and link user
+                user = None
+                user_id = sub.get('metadata', {}).get('user_id')
                 if user_id:
-                    subscription.user = User.objects.get(id=user_id)
-                    subscription.save()
-                    print(f"🔄 Subscription {stripe_sub_id} created+linked to {subscription.user.email}")
+                    user = User.objects.filter(id=user_id).first()
+                if not user:
+                    email = sub.get('customer_email') or sub.get('email')
+                    if email:
+                        user = User.objects.filter(email=email).first()
+
+                Subscription.objects.create(
+                    user=user,
+                    stripe_subscription_id=stripe_sub_id,
+                    status=status,
+                    current_period_end=timezone.datetime.fromtimestamp(
+                        current_period_end, tz=timezone.utc
+                    ),
+                )
+                print(f"🔄 Created new subscription {stripe_sub_id} for {user.email if user else 'unknown user'}")
         except Exception as e:
             print(f"⚠️ Failed to update subscription: {e}")
 
     elif event['type'] == 'customer.subscription.deleted':
         sub = event['data']['object']
         stripe_sub_id = sub['id']
+
         try:
             from subscriptions.models import Subscription
-            subscription, created = Subscription.objects.get_or_create(
-                stripe_subscription_id=stripe_sub_id,
-                defaults={"status": "canceled"},
-            )
-            if not created:
+            subscription = Subscription.objects.filter(stripe_subscription_id=stripe_sub_id).first()
+
+            if subscription:
                 subscription.status = "canceled"
                 subscription.save()
                 print(f"❌ Subscription {stripe_sub_id} canceled")
             else:
-                # If canceled event arrives before created, still tie to user
-                user_id = sub['metadata'].get('user_id')
+                # fallback: create + tie to user
+                user = None
+                user_id = sub.get('metadata', {}).get('user_id')
                 if user_id:
-                    subscription.user = User.objects.get(id=user_id)
-                    subscription.save()
-                    print(f"❌ Subscription {stripe_sub_id} auto-created as canceled for {subscription.user.email}")
+                    user = User.objects.filter(id=user_id).first()
+                if not user:
+                    email = sub.get('customer_email') or sub.get('email')
+                    if email:
+                        user = User.objects.filter(email=email).first()
+
+                Subscription.objects.create(
+                    user=user,
+                    stripe_subscription_id=stripe_sub_id,
+                    status="canceled"
+                )
+                print(f"❌ Auto-created canceled subscription {stripe_sub_id} for {user.email if user else 'unknown user'}")
         except Exception as e:
             print(f"⚠️ Failed to cancel subscription: {e}")
+
+    return HttpResponse(status=200)
+
 
 
 @login_required
