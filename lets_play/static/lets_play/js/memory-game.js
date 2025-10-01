@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let toClick = new Set();
     let gameActive = false;
     let currentRound = 0;
-    let score = 0;  // track user's moogles earned this session
+    let score = 0;
 
     function updateRoundDisplay() {
         roundDisplay.textContent = `Round: ${currentRound}`;
@@ -52,12 +52,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function sendScoreToServer(scoreToSend) {
-        // AJAX POST to Django backend to update user moogles
-        return fetch('/lets-play/update_moogles/', {  // <-- return promise so caller can wait
+        return fetch('/lets-play/update_moogles/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'), // CSRF token for Django
+                'X-CSRFToken': getCookie('csrftoken'),
             },
             body: JSON.stringify({ score: scoreToSend }),
         })
@@ -80,7 +79,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Helper to get CSRF token cookie (standard Django method)
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -104,15 +102,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             gameActive = false;
 
-            // SEND score before resetting, then reload page when done
             if (score > 0) {
                 const finalScore = score;
                 sendScoreToServer(score).finally(() => {
-                    localStorage.setItem("showWinModal", score);  // store score before reload
-                    location.reload();  // <-- Reload page after score is sent
+                    localStorage.setItem("showWinModal", score);
+                    location.reload();
                 });
             } else {
-                // If no score to send, reload immediately
                 location.reload();
             }
 
@@ -121,7 +117,6 @@ document.addEventListener("DOMContentLoaded", () => {
             currentRound = 0;
             updateRoundDisplay();
 
-            // reset score for next game
             score = 0;
 
             return;
@@ -133,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (toClick.size === 0) {
             gameActive = false;
 
-            // Update score each completed round successfully
             score = currentRound;
 
             setTimeout(() => {
@@ -149,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
     playButton.addEventListener("click", () => {
         sequence = [];
         currentRound = 0;
-        score = 0; // reset score at start of game
+        score = 0;
         updateRoundDisplay();
         highlightSequence();
     });

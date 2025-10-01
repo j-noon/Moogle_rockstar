@@ -2,7 +2,6 @@ from decimal import Decimal
 from django.shortcuts import get_object_or_404
 
 
-# import Product model from merchandise
 from merchandise.models import Product
 
 
@@ -23,7 +22,7 @@ def cart_subtotal_and_items(session_cart):
             continue
         try:
             p = get_object_or_404(Product, pk=pid)
-            price = Decimal(p.price)  # make sure your Product.price is numeric/DecimalField
+            price = Decimal(p.price)
             name = getattr(p, 'title', getattr(p, 'name', str(p)))
         except Exception:
             price = Decimal('0.00')

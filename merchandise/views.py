@@ -23,13 +23,13 @@ def merchandise_view(request):
         products = products.filter(category=category)
     elif category:
         # Unknown category supplied -> ignore rather than error
-        category = "" # reset for template state
+        category = "" 
 
 
     products = products.order_by("name")
 
 
-    paginator = Paginator(products, 12) # 12 items per page
+    paginator = Paginator(products, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
@@ -48,7 +48,6 @@ def merchandise_view(request):
 @require_POST
 def add_to_cart(request, product_id: int):
     product = get_object_or_404(Product, id=product_id, is_active=True)
-    # Qty comes from POST but we never trust price/anything else from client
     try:
         qty = int(request.POST.get("quantity", 1))
     except (TypeError, ValueError):
@@ -62,7 +61,7 @@ def add_to_cart(request, product_id: int):
 @require_POST
 def update_cart(request, product_id: int):
     # Update quantity for a specific product
-    get_object_or_404(Product, id=product_id) # ensure product exists
+    get_object_or_404(Product, id=product_id) 
     try:
         qty = int(request.POST.get("quantity", 1))
     except (TypeError, ValueError):

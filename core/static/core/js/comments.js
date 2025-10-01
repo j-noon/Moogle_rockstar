@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Delete button functionality
+  
   const deleteBtn = document.getElementById('delete-last-btn');
   if (deleteBtn) {
     deleteBtn.addEventListener('click', function handleDeleteClick() {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })
           .then((response) => {
             if (response.ok) {
-              window.location.reload(); // 🔁 Refresh the page to reflect deletion
+              window.location.reload();
             } else {
               console.error('Delete failed with status:', response.status);
             }
@@ -43,13 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!textInput) return;
 
-      // === NEW: Find the comment text inside the comment list ===
+      
       const commentElements = document.querySelectorAll('.single-comment');
       let commentText = '';
 
       commentElements.forEach((el) => {
         if (el.getAttribute('data-comment-id') === commentId) {
-          // Strip out username or anything before colon (:)
           const fullText = el.textContent.trim();
           commentText = fullText.split(':').slice(1).join(':').trim();
         }

@@ -16,7 +16,7 @@ import dj_database_url
 if os.path.isfile('env.py'):
     import env
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -68,9 +68,9 @@ MIDDLEWARE = [
 ]
 
 # Authentication settings
-LOGIN_URL = 'login'  # URL name from your core/urls.py
-LOGIN_REDIRECT_URL = 'home'  # After successful login
-LOGOUT_REDIRECT_URL = 'login'  # After logout
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'login'
 
 ROOT_URLCONF = 'moogle.urls'
 
@@ -165,6 +165,3 @@ DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-
-

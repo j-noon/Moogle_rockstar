@@ -5,14 +5,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('profilePicForm');
   const currentPic = document.getElementById('currentProfilePic');
 
-  // If not logged in or elements missing, bail quietly
+  
   if (!openBtn || !modal || !closeBtn || !form || !currentPic) return;
 
   // Open/close modal
   openBtn.addEventListener('click', () => (modal.style.display = 'block'));
   closeBtn.addEventListener('click', () => (modal.style.display = 'none'));
 
-  // CSRF helper
+  
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -29,10 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   form.addEventListener('submit', async (e) => {
-    // Progressive enhancement:
-    // If fetch isn't available, let the browser do a normal POST.
     const canAjax = typeof window.fetch === 'function';
-    if (!canAjax) return; // no preventDefault -> normal submit
+    if (!canAjax) return;
 
     e.preventDefault();
 
@@ -45,11 +43,11 @@ document.addEventListener('DOMContentLoaded', () => {
         body: fd,
         headers: {
           'X-CSRFToken': getCookie('csrftoken'),
-          'X-Requested-With': 'XMLHttpRequest', // tells the view to return JSON
+          'X-Requested-With': 'XMLHttpRequest',
         },
       });
 
-      // If server redirected (non-AJAX path somehow), just reload
+      
       const ctype = res.headers.get('content-type') || '';
       if (!ctype.includes('application/json')) {
         window.location.reload();
@@ -64,12 +62,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // ✅ Use the **server-provided Cloudinary URL** only.
+      
       if (data.image_url) {
-        currentPic.src = data.image_url + '?v=' + Date.now(); // cache-bust so you see it immediately
+        currentPic.src = data.image_url + '?v=' + Date.now();
         modal.style.display = 'none';
       } else {
-        // If the backend didn't give us a URL, reload to let the template render it.
         window.location.reload();
       }
     } catch (err) {

@@ -17,7 +17,7 @@ function shuffle(array) {
 }
 
 function resetBoard() {
-  boardIcons = shuffle([...icons, ...icons]); // 15 pairs = 30 icons
+  boardIcons = shuffle([...icons, ...icons]);
   tiles.forEach(tile => {
     tile.textContent = '';
     tile.classList.remove('flipped', 'matched');
@@ -99,13 +99,11 @@ function endGame() {
 
   if (score > 0) {
     sendScoreToServer(score).then(() => {
-      // Show modal after moogles update
       if (window.showGameResultModal) {
         window.showGameResultModal();
       }
     });
   } else {
-    // Show modal even if score is 0
     if (window.showGameResultModal) {
       window.showGameResultModal();
     }

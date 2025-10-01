@@ -7,7 +7,7 @@
 #game-sshots-div {
   column-count: 1;
   padding: 0 1rem;
-  max-width: 800px; /* You can adjust this */
+  max-width: 800px;
   margin-top: 20px;
   box-sizing: border-box;
 }

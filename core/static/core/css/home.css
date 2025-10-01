@@ -70,7 +70,7 @@ table {
   margin: 2rem auto;
 }
 
-/* comments section styled like a chat box */
+/* comments section */
 #comments-container {
   width: 90vw;
   max-width: 800px;
@@ -108,8 +108,7 @@ table {
   padding-bottom: 10px;
 }
 
-/*coments section*/
-/* Text input styling */
+
 #comments-container textarea {
   color: black;
   width: 100%;
@@ -139,7 +138,7 @@ table {
   text-decoration: underline;
 }
 
-/* Message notification */
+
 #comment-message {
   background-color: white;
   color: black;
@@ -161,7 +160,6 @@ table {
 }
 
 
-/*comment buttons*/
 #comment-btn {
   background-color: white;
   border: 2px solid black;
@@ -221,7 +219,7 @@ table {
   background-color: green;
   color: white;
   border-color: black;
-  transform: scale(1.02); /* Subtle "pop" effect */
+  transform: scale(1.02);
   box-shadow: 0 2px 5px black;
 }
 
@@ -234,7 +232,7 @@ table {
 /* === Clips Section === */
 #clips-div {
   display: flex;
-  flex-direction: column;   /* mobile default */
+  flex-direction: column;
   align-items: center;
   gap: 1rem;
   margin: 2rem auto;
@@ -320,7 +318,6 @@ table {
   border: solid white 2px;
 }
 
-/* Shared dropdown-content styles */
 .dropdown-content {
   display: none;
   position: absolute;
@@ -332,8 +329,6 @@ table {
   z-index: 999;
   border-radius: 0 0 4px 4px;
   box-sizing: border-box;
-
-  /* sizing guards so nothing flows off-screen */
   min-width: 250px;
   max-width: min(90vw, 520px);
 }
@@ -363,8 +358,6 @@ table {
 }
 
 
-
-/* Text inside dropdown */
 .dropdown-content p,
 .dropdown-content ul {
   color: black;
@@ -373,7 +366,7 @@ table {
   text-align: left;
 }
 
-/* Links inside dropdown */
+
 .dropdown-content a {
   color: black;
   text-decoration: none;
@@ -384,7 +377,7 @@ table {
   text-decoration: underline;
 }
 
-/* Social list */
+
 .dropdown-content ul {
   list-style: none;
   padding: 0;
@@ -394,7 +387,7 @@ table {
   margin: 6px 0;
 }
 
-/* Badge grid */
+
 .badges {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -404,7 +397,7 @@ table {
 
 .badges {
   display: grid;
-  grid-template-columns: repeat(2, auto); /* 2 auto-width columns */
+  grid-template-columns: repeat(2, auto);
   gap: 20px;
   margin: 10px 0;
 }
@@ -593,7 +586,6 @@ table {
     max-width: 360px;
   }
 
-  /* Align schedules + sub benefits in one row */
   .schedule-wrapper {
     display: flex;
     flex-direction: row;
@@ -653,7 +645,7 @@ table {
 }
 
 
-/* QURRIES MIN SCREEN 2560*/
+/* QURRIES 2560*/
 @media screen and (min-width: 2560px) {
 
   h1, h2, h3 {
@@ -731,6 +723,4 @@ table {
   #about-para {
     font-size: 40px;
   }
-
-
 }

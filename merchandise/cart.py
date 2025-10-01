@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import Dict
 
 
-CART_SESSION_KEY = "cart" # {product_id: quantity}
+CART_SESSION_KEY = "cart" 
 MAX_QTY_PER_ITEM = 20
 
 

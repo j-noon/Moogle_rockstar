@@ -28,7 +28,7 @@
     font-size: 1rem;
 }
 
-/* Buttons */
+
 .auth-btn {
     padding: 0.8rem;
     background-color: green;
@@ -46,7 +46,6 @@
     color: white;
 }
 
-/* Links */
 .auth-link {
     text-align: center;
     margin-top: 1.5rem;
@@ -62,7 +61,6 @@
     text-decoration: underline;
 }
 
-/* Error messages */
 .error-message {
     color: #d32f2f;
     background-color: #ffebee;

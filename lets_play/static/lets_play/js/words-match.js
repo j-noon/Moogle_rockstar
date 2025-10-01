@@ -38,7 +38,7 @@ function typingGame_displayNewWord() {
   typingGame_currentWord = typingGame_getWordForTime(typingGame_timeLeft);
   typingGame_wordDisplay.textContent = typingGame_currentWord;
   typingGame_wordDisplay.classList.remove('fade-word');
-  void typingGame_wordDisplay.offsetWidth; // trigger reflow
+  void typingGame_wordDisplay.offsetWidth;
   typingGame_wordDisplay.classList.add('fade-word');
 }
 

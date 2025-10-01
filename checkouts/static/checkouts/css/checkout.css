@@ -13,11 +13,11 @@ html { box-sizing: border-box; }
   box-sizing: border-box;
 }
 
-/* Make sure flex children can shrink to avoid forcing horizontal scroll */
+
 .checkout-summary,
 .checkout-form {
   width: 100%;
-  min-width: 0;             /* CRITICAL: allow shrinking in flexbox */
+  min-width: 0;
   box-sizing: border-box;
   background: #fff;
   padding: 1.2rem;
@@ -29,7 +29,7 @@ html { box-sizing: border-box; }
 .checkout-summary h2,
 .checkout-form h2 { margin-bottom: 1rem; }
 
-/* ==== Form basics ==== */
+/* Form basics */
 .form-group {
   margin-bottom: 1rem;
   display: flex;
@@ -57,7 +57,7 @@ html { box-sizing: border-box; }
 label { font-weight: 600; margin-bottom: 0.3rem; }
 label .required { color: red; margin-left: 3px; }
 
-/* ==== Stripe Card Fields ==== */
+/* Stripe Card Fields */
 .card-fields-container {
   display: flex;
   flex-direction: column;
@@ -103,7 +103,7 @@ label .required { color: red; margin-left: 3px; }
   font-size: 0.9rem;
 }
 
-/* ==== Pay Button ==== */
+/* Pay Button */
 #pay-button {
   background: #007bff;
   color: #fff;
@@ -134,7 +134,7 @@ label .required { color: red; margin-left: 3px; }
 
 /* MEDIA QURRIES */
 
-/* Tablet and up: 2-column layout (summary + form side-by-side), address grid becomes 2 columns */
+
 @media (min-width: 768px) {
   .checkout-container {
     flex-direction: row;
@@ -161,13 +161,13 @@ label .required { color: red; margin-left: 3px; }
   .card-field-wrapper.large-field { flex: 2 1 0%; }
 }
 
-/* Desktop/Large screens */
+
 @media (min-width: 1024px) {
   .checkout-container { max-width: 1200px; gap: 2rem; padding: 0 1.5rem; }
   .checkout-summary, .checkout-form { padding: 1.4rem; }
 }
 
-/* small tweak for very narrow phones */
+
 @media (max-width: 380px) {
   .checkout-container { padding: 0 0.6rem; }
   .field-label { font-size: 0.75rem; }

@@ -1,17 +1,17 @@
 /* Cart Page Title */
 #cart_title {
-  margin-top: 100px; /* Smaller top margin for mobile */
+  margin-top: 100px;
   text-align: center;
   font-size: 1.4rem;
 }
 
-/* Table Container */
+
 .table-container {
   width: 100%;
   margin: 0 auto 30px auto;
 }
 
-/* Cart Table */
+
 table {
   width: 100%;
   border-collapse: collapse;
@@ -19,7 +19,7 @@ table {
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-  font-size: 0.7rem; /* Smallest base font for mobile */
+  font-size: 0.7rem;
 }
 
 thead {
@@ -42,7 +42,7 @@ td form {
   margin: 0 3px;
 }
 
-/* Inputs */
+
 input[type="number"] {
   width: 30px;
   padding: 2px;
@@ -81,14 +81,14 @@ a.btn:hover {
   background-color: #00796b;
 }
 
-/* Total Section */
+
 h3 {
   text-align: center;
   margin: 15px 0;
   font-size: 1rem;
 }
 
-/* Continue Shopping */
+
 #continue_shopping {
   margin-bottom: 100px;
 }

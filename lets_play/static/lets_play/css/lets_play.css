@@ -1,4 +1,3 @@
-/*LETS PLAY PAGE*/
 /* HERO SECCTION */
 #hero-letsplay {
     margin-top: 100px;
@@ -124,7 +123,7 @@
 /* words match game*/
 .typing-game-container {
   width: 100%;
-  max-width: 100vw; /* prevents overflow */
+  max-width: 100vw;
   margin: 30px auto;
   padding: 20px;
   border: 2px solid black;
@@ -133,7 +132,7 @@
   text-align: center;
   font-family: sans-serif;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box; /* ensures padding doesn't cause overflow */
+  box-sizing: border-box;
 }
 
 #typingGame_startBtn {
@@ -276,7 +275,7 @@
   width: 100vw;
   height: 100vh;
   background: rgba(0, 0, 0, 0.5);
-  display: none; /* Hidden by default */
+  display: none;
   justify-content: center;
   align-items: center;
   z-index: 1000;

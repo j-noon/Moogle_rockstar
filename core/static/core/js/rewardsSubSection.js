@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   buttons.forEach(button => {
     button.addEventListener("click", function (e) {
-      e.stopPropagation(); // prevent window click from closing immediately
+      e.stopPropagation();
 
       const dropdown = this.nextElementSibling;
 
@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 
-  // Close dropdowns if user clicks outside
   window.addEventListener("click", function (e) {
     if (!e.target.matches('.dropbtn')) {
       document.querySelectorAll(".dropdown-content").forEach(dc => {

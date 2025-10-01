@@ -15,9 +15,8 @@ def update_moogles(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            score = int(data.get('score', 0))  # Your JS sends 'score'
+            score = int(data.get('score', 0))
 
-            # ✅ SAFE: Get or create profile in case it's missing
             profile, _ = Profile.objects.get_or_create(user=request.user)
             profile.moogles += score
             profile.save()

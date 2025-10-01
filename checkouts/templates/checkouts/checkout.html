@@ -46,9 +46,13 @@
                 <span>Shipping:</span>
                 <span>£{{ shipping }}</span>
             </div>
+            <div class="total-row">
+                <span>Discount (moogles):</span>
+                <span>- £{{ discount }}</span>
+            </div>
             <div class="total-row total-final">
-                <span>Total:</span>
-                <span>£{{ total }}</span>
+                <span>Final Total:</span>
+                <span>£{{ final_total }}</span>
             </div>
         </div>
     </div>
@@ -56,11 +60,23 @@
     <div class="checkout-form">
         <h2>Checkout Details</h2>
 
-        <!-- short help / legend -->
+        
         <p class="required-note"><span class="required" aria-hidden="true">*</span> Required fields</p>
 
         <form id="checkout-form" method="post">
             {% csrf_token %}
+
+            <h3>Moogle Balance</h3>
+            <p>You have <strong>{{ moogles_balance }}</strong> moogles (1000 = £1)</p>
+            <div class="form-group">
+                <label for="{{ form.moogles_to_spend.id_for_label }}">
+                    {{ form.moogles_to_spend.label }}
+                </label>
+                {{ form.moogles_to_spend }}
+                {% if form.moogles_to_spend.errors %}
+                    <div class="field-error">{{ form.moogles_to_spend.errors }}</div>
+                {% endif %}
+            </div>
             
             <h3>Personal Information</h3>
             <div class="form-group">
@@ -151,7 +167,7 @@
                 <div id="card-errors" role="alert" class="error-message"></div>
             </div>
 
-            <!-- ADDED: Hidden input for client secret -->
+            <!-- Hidden input for client secret -->
             <input type="hidden" id="client-secret" value="{{ client_secret|default:'' }}">
 
             <button id="pay-button" type="button">Pay £{{ total }}</button>

@@ -64,7 +64,7 @@ h1 {
 }
 
 #nav-list.show {
-  left: 10px; /* slide into view */
+  left: 10px;
 }
 
 #nav-list li {
@@ -115,6 +115,8 @@ h1 {
   display: flex;
   justify-content: space-evenly;
 }
+
+/* user profile */
 
 #user-profile {
   display: flex;

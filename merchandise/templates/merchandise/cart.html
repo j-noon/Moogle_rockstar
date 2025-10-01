@@ -47,6 +47,9 @@
 </div>
 
 <h3>Total: £{{ total }}</h3>
+
+<p>You have <strong>{{ request.user.profile.moogles }}</strong> moogles (1000 = £1).  
+You can spend them at checkout!</p>
 <p>
   <a href="{% url 'checkouts:checkout' %}" class="btn">Proceed to Checkout</a>
 </p>

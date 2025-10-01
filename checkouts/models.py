@@ -25,6 +25,7 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    moogles_spent = models.IntegerField(default=0)
 
     def __str__(self):
         return f"Order #{self.id} — {self.email} — {self.status}"

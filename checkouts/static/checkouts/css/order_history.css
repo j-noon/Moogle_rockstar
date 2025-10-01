@@ -12,14 +12,14 @@
     background-color: #f9f9f9;
 }
 
-/* Mobile First - stack items */
+
 .order-items {
     width: 100%;
     border-collapse: collapse;
 }
 
 .order-items thead {
-    display: none; /* Hide headers on mobile */
+    display: none;
 }
 
 .order-items tr {
@@ -72,28 +72,28 @@
     margin-top: 5px;
 }
 
-/* Desktop view - switch back to table layout */
+/* media qurries */
 @media (min-width: 769px) {
     .order-items thead {
-        display: table-header-group; /* Show headers on desktop */
+        display: table-header-group;
     }
     
     .order-items tr {
-        display: table-row; /* Back to table rows */
+        display: table-row;
         border: none;
         margin-bottom: 0;
         padding: 0;
     }
     
     .order-items td {
-        display: table-cell; /* Back to table cells */
+        display: table-cell;
         text-align: center;
         border: 1px solid #ccc;
         padding: 5px 10px;
     }
     
     .order-items td::before {
-        display: none; /* Hide labels on desktop */
+        display: none;
     }
     
     .order-item-image {

@@ -34,10 +34,31 @@ def checkout_page(request):
         except Product.DoesNotExist:
             continue
 
-    tax_rate = Decimal('0.1')  # 10% VAT
+    tax_rate = Decimal('0.1')
     tax = (subtotal * tax_rate).quantize(Decimal('0.01'))
-    shipping = Decimal('0.00')  # digital products
+    shipping = Decimal('0.00')
     total = (subtotal + tax + shipping).quantize(Decimal('0.01'))
+
+    profile = request.user.profile
+    moogles_balance = profile.moogles
+    moogles_to_spend = 0
+    discount = Decimal('0.00')
+
+    if request.method == "POST":
+        form = CheckoutForm(request.POST)
+        if form.is_valid():
+            moogles_to_spend = min(
+                form.cleaned_data.get('moogles_to_spend') or 0,
+                moogles_balance
+            )
+            discount = Decimal(moogles_to_spend) / Decimal(1000)
+            if discount > total:
+                discount = total
+                moogles_to_spend = int(total * 1000)
+    else:
+        form = CheckoutForm()
+
+    final_total = (total - discount).quantize(Decimal('0.01'))
 
     client_secret = None
     if total > 0:
@@ -109,7 +130,6 @@ def stripe_webhook(request):
     if event['type'] == 'payment_intent.succeeded':
         payment_intent = event['data']['object']
 
-        # Avoid duplicate orders
         if Order.objects.filter(stripe_payment_intent=payment_intent['id']).exists():
             print(f"Order already exists for PaymentIntent {payment_intent['id']}")
             return HttpResponse(status=200)
@@ -122,15 +142,15 @@ def stripe_webhook(request):
         first_name = metadata.get('first_name', '')
         last_name = metadata.get('last_name', '')
         email = metadata.get('email', '')
+        moogles_spent = int(metadata.get('moogles_spent', 0))
 
-        # Ensure user exists
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             print(f"Webhook error: user {user_id} not found. Cannot create order.")
             return HttpResponse(status=400)
 
-        # Create order
+
         order = Order.objects.create(
             user=user,
             first_name=first_name,
@@ -141,10 +161,16 @@ def stripe_webhook(request):
             total=total,
             stripe_payment_intent=payment_intent['id'],
             status='paid',
+            moogles_spent=moogles_spent,
         )
         print(f"Created Order {order.id} for user {user.email}")
 
-        # Create order items
+        if moogles_spent > 0:
+            profile = user.profile
+            profile.moogles = max(0, profile.moogles - moogles_spent)
+            profile.save()
+
+        
         try:
             cart = json.loads(cart_json)
         except json.JSONDecodeError:
@@ -170,28 +196,25 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 
-#VIEW FOR DOWNLOAD ASSESTS
+
 @login_required
 def download_asset(request, item_id):
     order_item = get_object_or_404(OrderItem, id=item_id)
 
-    # Security check: must belong to this user
     if order_item.order.user != request.user:
         return HttpResponseForbidden("You don’t own this order.")
 
-    # Must be paid
     if order_item.order.status != "paid":
         return HttpResponseForbidden("Payment not confirmed.")
 
-    # Determine source: local file or Cloudinary URL
-    if order_item.asset_file:  # Local uploaded file
+    if order_item.asset_file:
         file_path = order_item.asset_file.path
         return FileResponse(
             open(file_path, "rb"),
             as_attachment=True,
             filename=os.path.basename(file_path)
         )
-    elif order_item.image_url:  # Cloudinary URL
+    elif order_item.image_url:
         try:
             response = requests.get(order_item.image_url, stream=True)
             response.raise_for_status()

@@ -27,7 +27,7 @@
 .search-bar button {
     padding: 8px 16px;
     font-size: 1em;
-    background-color: #009688; /* teal-ish */
+    background-color: #009688;
     color: white;
     border: none;
     border-radius: 5px;
@@ -62,13 +62,13 @@
 }
 
 .merch-img {
-  width: 200px;      /* adjust as needed */
-  height: 200px;     /* keeps grid neat */
-  object-fit: contain;  /* show whole image */
+  width: 200px;
+  height: 200px;
+  object-fit: contain;
   border: 1px solid #ccc; 
   border-radius: 8px;
-  background: #fff;   /* optional background if image doesn’t fill box */
-  padding: 5px;       /* gives breathing space */
+  background: #fff;
+  padding: 5px;
 }
 
 .merch-title {
@@ -175,7 +175,6 @@ a.view-cart-icon img {
 
 /* 1024 PLUS*/
 @media (min-width: 768px) {
-/* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
     top: 120px;
@@ -185,7 +184,6 @@ a.view-cart-icon img {
 }
 
 @media (min-width: 1024px) {
-/* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
     top: 120px;
@@ -196,7 +194,6 @@ a.view-cart-icon img {
 
 /*1440 plus*/
 @media (min-width: 1440px) {
-/* Shopping cart icon in top-right corner */
 .view-cart-icon {
     position: absolute;
     top: 120px;

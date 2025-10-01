@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const elements = stripe.elements();
 
-    // Mount separate card fields
+
     const cardNumber = elements.create("cardNumber", { placeholder: "1234 1234 1234 1234" });
     cardNumber.mount("#card-number");
 
