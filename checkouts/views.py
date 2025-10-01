@@ -17,6 +17,7 @@ import stripe
 from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.utils import timezone
+from django.views.decorators.csrf import csrf_exempt
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -117,44 +118,54 @@ from django.views.decorators.csrf import csrf_exempt
 @csrf_exempt
 def stripe_webhook(request):
     payload = request.body
-    sig_header = request.META.get('HTTP_STRIPE_SIGNATURE')
+    sig_header = request.META.get("HTTP_STRIPE_SIGNATURE")
     endpoint_secret = settings.STRIPE_WEBHOOK_SECRET
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
-        print("⚡ Event type:", event['type'])
-        print("📦 Event data:", json.dumps(event['data']['object'], indent=2))
     except (ValueError, stripe.error.SignatureVerificationError) as e:
         print(f"Webhook error: {e}")
         return HttpResponse(status=400)
-    
 
-    print("⚡ Incoming Stripe event:", event['type'])
-    print("📦 Full metadata received:", event['data']['object'].get('metadata', {}))
+    event_type = event["type"]
+    obj = event["data"]["object"]
+    print(f"⚡ Event: {event_type}")
 
-    if event['type'] == 'payment_intent.succeeded':
-        payment_intent = event['data']['object']
+    # ------------------------------------------------------------------
+    # SHOP PAYMENTS (PaymentIntent) ✅
+    # ------------------------------------------------------------------
+    if event_type == "payment_intent.succeeded":
+        # NEW: subscription/recurring charges have an attached invoice → skip
+        if obj.get("invoice"):                                  # NEW
+            print("ℹ️ PI is for an invoice (subscription). Skipping shop order.")  # NEW
+            return HttpResponse(status=200)                     # NEW
 
-        if Order.objects.filter(stripe_payment_intent=payment_intent['id']).exists():
-            print(f"Order already exists for PaymentIntent {payment_intent['id']}")
+        md = obj.get("metadata") or {}
+        # NEW: only treat as shop order if our expected shop metadata exists
+        required = ("user_id", "cart", "subtotal", "total")     # NEW
+        if not all(k in md for k in required):                  # NEW
+            print("ℹ️ PI missing shop metadata. Skipping shop order.")             # NEW
+            return HttpResponse(status=200)                     # NEW
+
+        # --- your existing order creation (unchanged) ---
+        if Order.objects.filter(stripe_payment_intent=obj["id"]).exists():
+            print(f"Order already exists for PaymentIntent {obj['id']}")
             return HttpResponse(status=200)
 
-        metadata = payment_intent.get('metadata', {})
-        user_id = metadata.get('user_id')
-        cart_json = metadata.get('cart', '{}')
-        subtotal = Decimal(metadata.get('subtotal', '0.00'))
-        total = Decimal(metadata.get('total', '0.00'))
-        first_name = metadata.get('first_name', '')
-        last_name = metadata.get('last_name', '')
-        email = metadata.get('email', '')
-        moogles_spent = int(metadata.get('moogles_spent', 0))
+        user_id = md.get("user_id")
+        cart_json = md.get("cart", "{}")
+        subtotal = Decimal(md.get("subtotal", "0.00"))
+        total = Decimal(md.get("total", "0.00"))
+        first_name = md.get("first_name", "")
+        last_name  = md.get("last_name",  "")
+        email      = md.get("email", "")
+        moogles_spent = int(md.get("moogles_spent", 0))
 
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
             print(f"Webhook error: user {user_id} not found. Cannot create order.")
             return HttpResponse(status=400)
-
 
         order = Order.objects.create(
             user=user,
@@ -164,27 +175,16 @@ def stripe_webhook(request):
             address="",
             subtotal=subtotal,
             total=total,
-            stripe_payment_intent=payment_intent['id'],
-            status='paid',
+            stripe_payment_intent=obj["id"],
+            status="paid",
             moogles_spent=moogles_spent,
         )
-        print(f"Created Order {order.id} for user {user.email}")
-
+        print(f"🧾 Created Order {order.id} for {user.email}")
 
         try:
-            context = {
-                "first_name": first_name,
-                "site_url": "https://moogle-rockstar-6c50ea141b04.herokuapp.com",  # your site
-            }
-            message = render_to_string("checkouts/email_order_confirmation.txt", context)
-
-            send_mail(
-                subject="Your Moogle-Rockstar Order Confirmation",
-                message=message,
-                from_email=None,  # uses DEFAULT_FROM_EMAIL
-                recipient_list=[order.email],
-                fail_silently=False,
-            )
+            ctx = {"first_name": first_name, "site_url": "https://moogle-rockstar-6c50ea141b04.herokuapp.com"}
+            msg = render_to_string("checkouts/email_order_confirmation.txt", ctx)
+            send_mail("Your Moogle-Rockstar Order Confirmation", msg, None, [order.email], fail_silently=False)
             print(f"✅ Confirmation email sent to {order.email}")
         except Exception as e:
             print(f"⚠️ Failed to send confirmation email: {e}")
@@ -194,7 +194,6 @@ def stripe_webhook(request):
             profile.moogles = max(0, profile.moogles - moogles_spent)
             profile.save()
 
-        
         try:
             cart = json.loads(cart_json)
         except json.JSONDecodeError:
@@ -202,8 +201,7 @@ def stripe_webhook(request):
 
         for product_id_str, quantity in cart.items():
             try:
-                product_id = int(product_id_str)
-                product = Product.objects.get(pk=product_id)
+                product = Product.objects.get(pk=int(product_id_str))
                 OrderItem.objects.create(
                     order=order,
                     product_id=product.id,
@@ -215,32 +213,33 @@ def stripe_webhook(request):
                 print(f"Added {quantity} x {product.name} to Order {order.id}")
             except Product.DoesNotExist:
                 print(f"Product {product_id_str} not found. Skipping item.")
-                continue
+        return HttpResponse(status=200)
 
-    # ----- SUBSCRIPTIONS -----
-    elif event['type'] == 'customer.subscription.created':
-        sub = event['data']['object']
-        stripe_sub_id = sub['id']
-        status = sub['status']
-        current_period_end = sub['current_period_end']
+    # ------------------------------------------------------------------
+    # SUBSCRIPTIONS (created / updated / deleted) ✅
+    # ------------------------------------------------------------------
+    elif event_type == "customer.subscription.created":
+        sub = obj
+        stripe_sub_id = sub["id"]
+        status = sub["status"]
+        current_period_end = sub.get("current_period_end")
 
         try:
             from subscriptions.models import Subscription
 
-            # --- Resolve user (user_id → email fallback) ---
+            # NEW: resolve user robustly (metadata user_id → email fallback)
             user = None
-            user_id = sub.get('metadata', {}).get('user_id')
-            if user_id:
-                user = User.objects.filter(id=user_id).first()
-
+            md = sub.get("metadata") or {}
+            uid = md.get("user_id")
+            if uid:
+                user = User.objects.filter(id=uid).first()
             if not user:
-                email = sub.get('customer_email') or sub.get('email')
+                email = sub.get("customer_email") or sub.get("email")
                 if email:
                     user = User.objects.filter(email=email).first()
-
             if not user:
                 print(f"⚠️ No matching user found for subscription {stripe_sub_id}")
-                return HttpResponse(status=200)
+                return HttpResponse(status=200)  # don't 500 Stripe
 
             Subscription.objects.update_or_create(
                 user=user,
@@ -249,38 +248,43 @@ def stripe_webhook(request):
                     "status": status,
                     "current_period_end": timezone.datetime.fromtimestamp(
                         current_period_end, tz=timezone.utc
-                    ),
+                    ) if current_period_end else None,
                 },
             )
             print(f"✅ Subscription created for {user.email}")
         except Exception as e:
             print(f"⚠️ Failed to create subscription record: {e}")
+        return HttpResponse(status=200)
 
-    elif event['type'] == 'customer.subscription.updated':
-        sub = event['data']['object']
-        stripe_sub_id = sub['id']
-        status = sub['status']
-        current_period_end = sub['current_period_end']
+    elif event_type == "customer.subscription.updated":
+        sub = obj
+        stripe_sub_id = sub["id"]
+        status = sub["status"]
+        current_period_end = sub.get("current_period_end")
 
         try:
             from subscriptions.models import Subscription
-            subscription = Subscription.objects.filter(stripe_subscription_id=stripe_sub_id).first()
+
+            subscription = Subscription.objects.filter(
+                stripe_subscription_id=stripe_sub_id
+            ).first()
 
             if subscription:
                 subscription.status = status
                 subscription.current_period_end = timezone.datetime.fromtimestamp(
                     current_period_end, tz=timezone.utc
-                )
+                ) if current_period_end else None
                 subscription.save()
                 print(f"🔄 Subscription {stripe_sub_id} updated to {status}")
             else:
-                # fallback: create and link user
+                # NEW: out-of-order fallback – create and try to link user
                 user = None
-                user_id = sub.get('metadata', {}).get('user_id')
-                if user_id:
-                    user = User.objects.filter(id=user_id).first()
+                md = sub.get("metadata") or {}
+                uid = md.get("user_id")
+                if uid:
+                    user = User.objects.filter(id=uid).first()
                 if not user:
-                    email = sub.get('customer_email') or sub.get('email')
+                    email = sub.get("customer_email") or sub.get("email")
                     if email:
                         user = User.objects.filter(email=email).first()
 
@@ -290,44 +294,51 @@ def stripe_webhook(request):
                     status=status,
                     current_period_end=timezone.datetime.fromtimestamp(
                         current_period_end, tz=timezone.utc
-                    ),
+                    ) if current_period_end else None,
                 )
-                print(f"🔄 Created new subscription {stripe_sub_id} for {user.email if user else 'unknown user'}")
+                print(f"🔄 Created new subscription {stripe_sub_id} for {user.email if user else 'unknown'}")
         except Exception as e:
             print(f"⚠️ Failed to update subscription: {e}")
+        return HttpResponse(status=200)
 
-    elif event['type'] == 'customer.subscription.deleted':
-        sub = event['data']['object']
-        stripe_sub_id = sub['id']
+    elif event_type == "customer.subscription.deleted":
+        sub = obj
+        stripe_sub_id = sub["id"]
 
         try:
             from subscriptions.models import Subscription
-            subscription = Subscription.objects.filter(stripe_subscription_id=stripe_sub_id).first()
+
+            subscription = Subscription.objects.filter(
+                stripe_subscription_id=stripe_sub_id
+            ).first()
 
             if subscription:
                 subscription.status = "canceled"
                 subscription.save()
                 print(f"❌ Subscription {stripe_sub_id} canceled")
             else:
-                # fallback: create + tie to user
+                # NEW: out-of-order fallback – create canceled row and link if possible
                 user = None
-                user_id = sub.get('metadata', {}).get('user_id')
-                if user_id:
-                    user = User.objects.filter(id=user_id).first()
+                md = sub.get("metadata") or {}
+                uid = md.get("user_id")
+                if uid:
+                    user = User.objects.filter(id=uid).first()
                 if not user:
-                    email = sub.get('customer_email') or sub.get('email')
+                    email = sub.get("customer_email") or sub.get("email")
                     if email:
                         user = User.objects.filter(email=email).first()
 
                 Subscription.objects.create(
                     user=user,
                     stripe_subscription_id=stripe_sub_id,
-                    status="canceled"
+                    status="canceled",
                 )
-                print(f"❌ Auto-created canceled subscription {stripe_sub_id} for {user.email if user else 'unknown user'}")
+                print(f"❌ Auto-created canceled subscription {stripe_sub_id} for {user.email if user else 'unknown'}")
         except Exception as e:
             print(f"⚠️ Failed to cancel subscription: {e}")
+        return HttpResponse(status=200)
 
+    # Politely ignore everything else
     return HttpResponse(status=200)
 
 
