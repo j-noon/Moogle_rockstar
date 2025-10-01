@@ -14,6 +14,8 @@ from .forms import CheckoutForm
 from .models import Order, OrderItem
 from merchandise.models import Product
 import stripe
+from django.template.loader import render_to_string
+from django.core.mail import send_mail
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -164,6 +166,25 @@ def stripe_webhook(request):
             moogles_spent=moogles_spent,
         )
         print(f"Created Order {order.id} for user {user.email}")
+
+
+        try:
+            context = {
+                "first_name": first_name,
+                "site_url": "https://moogle-rockstar-6c50ea141b04.herokuapp.com",  # your site
+            }
+            message = render_to_string("checkouts/email_order_confirmation.txt", context)
+
+            send_mail(
+                subject="Your Moogle-Rockstar Order Confirmation",
+                message=message,
+                from_email=None,  # uses DEFAULT_FROM_EMAIL
+                recipient_list=[order.email],
+                fail_silently=False,
+            )
+            print(f"✅ Confirmation email sent to {order.email}")
+        except Exception as e:
+            print(f"⚠️ Failed to send confirmation email: {e}")
 
         if moogles_spent > 0:
             profile = user.profile

@@ -1,0 +1,16 @@
+Hello {{ first_name }},
+
+Thank you for your purchase from us here at Moogle-Rockstar! 🎉
+
+This is a confirmation email of the order you made (not a receipt).
+
+To access the digital asset(s) you purchased, please log in to your account:
+👉 {{ site_url }}
+
+Then visit your **Orders & History** page, where you’ll find a download button for your assets.
+
+Have a great day and keep feeling moogalistic! 😎✨
+
+---
+Moogle-Rockstar Inc.
+The universe’s #1 source of moogles
