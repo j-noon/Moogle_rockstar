@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'lets_play',
     'merchandise',
     'checkouts',
+    'subscriptions',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +149,8 @@ STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 STRIPE_SECRET_KEY = os.environ.get('STRIPE_SECRET_KEY')
 STRIPE_PUBLIC_KEY = os.environ.get('STRIPE_PUBLIC_KEY')
 STRIPE_WEBHOOK_SECRET = os.environ.get('STRIPE_WEBHOOK_SECRET', '')
+
+STRIPE_SUB_PRICE_ID = os.environ.get("STRIPE_SUB_PRICE_ID")
 
 
 # Cloudinary media storage

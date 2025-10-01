@@ -214,6 +214,60 @@ def stripe_webhook(request):
                 print(f"Product {product_id_str} not found. Skipping item.")
                 continue
 
+    elif event['type'] == 'customer.subscription.created':
+        sub = event['data']['object']
+        stripe_sub_id = sub['id']
+        status = sub['status']
+        current_period_end = sub['current_period_end']
+
+        try:
+            # NOTE: you must attach email in subscription metadata when creating it
+            user = User.objects.get(email=sub['metadata']['email'])
+            from subscriptions.models import Subscription
+            Subscription.objects.update_or_create(
+                user=user,
+                defaults={
+                    "stripe_subscription_id": stripe_sub_id,
+                    "status": status,
+                    "current_period_end": timezone.datetime.fromtimestamp(
+                        current_period_end, tz=timezone.utc
+                    ),
+                },
+            )
+            print(f"✅ Subscription created for {user.email}")
+        except Exception as e:
+            print(f"⚠️ Failed to create subscription record: {e}")
+
+    elif event['type'] == 'customer.subscription.updated':
+        sub = event['data']['object']
+        stripe_sub_id = sub['id']
+        status = sub['status']
+        current_period_end = sub['current_period_end']
+
+        try:
+            from subscriptions.models import Subscription
+            subscription = Subscription.objects.get(stripe_subscription_id=stripe_sub_id)
+            subscription.status = status
+            subscription.current_period_end = timezone.datetime.fromtimestamp(
+                current_period_end, tz=timezone.utc
+            )
+            subscription.save()
+            print(f"🔄 Subscription {stripe_sub_id} updated to {status}")
+        except Exception as e:
+            print(f"⚠️ Failed to update subscription: {e}")
+
+    elif event['type'] == 'customer.subscription.deleted':
+        sub = event['data']['object']
+        stripe_sub_id = sub['id']
+        try:
+            from subscriptions.models import Subscription
+            subscription = Subscription.objects.get(stripe_subscription_id=stripe_sub_id)
+            subscription.status = "canceled"
+            subscription.save()
+            print(f"❌ Subscription {stripe_sub_id} canceled")
+        except Exception as e:
+            print(f"⚠️ Failed to cancel subscription: {e}")
+
     return HttpResponse(status=200)
 
 

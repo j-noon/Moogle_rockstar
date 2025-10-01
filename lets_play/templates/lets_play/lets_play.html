@@ -215,12 +215,18 @@
     <br>
 
 
+    <script>
+      window.IS_SUBSCRIBED = {% if request.user.is_authenticated and request.user.subscription and request.user.subscription.status == "active" %}true{% else %}false{% endif %};
+      window.SUBSCRIBE_URL = "{% url 'subscriptions:manage' %}";
+    </script>
+
 
      <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
      <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
      <script src="{% static 'lets_play/js/words-match.js' %}"></script>
      <script src="{% static 'lets_play/js/win-modal.js' %}"></script>
      <script src="{% static 'lets_play/js/math-game.js' %}"></script>
+     <script src="{% static 'lets_play/js/subscription-gate.js' %}"></script>
    
 
 {% endblock %}

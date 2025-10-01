@@ -28,4 +28,5 @@ urlpatterns = [
     path('lets-play/', include('lets_play.urls')),
     path('merchandise/', include('merchandise.urls')),
     path('checkouts/', include('checkouts.urls')),
+    path("subscriptions/", include("subscriptions.urls", namespace="subscriptions")),
 ]

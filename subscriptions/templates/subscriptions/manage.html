@@ -1,0 +1,28 @@
+{% extends "core/base.html" %}
+{% block content %}
+<div class="auth-container" style="max-width:700px; margin:5rem auto 8rem auto; padding:2rem; background:rgba(34,231,215,.9); border:2px solid black; border-radius:10px;">
+  <h1>Manage Subscription</h1>
+
+  {% if subscription.status == "active" %}
+    <p><strong>Status:</strong> Active</p>
+    {% if subscription.current_period_end %}
+      <p><strong>Active until:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
+    {% endif %}
+    <form method="post" action="{% url 'subscriptions:cancel' %}">
+      {% csrf_token %}
+      <button class="auth-btn" type="submit">Cancel at period end</button>
+    </form>
+  {% elif subscription.status == "canceled" %}
+    <p><strong>Status:</strong> Canceled</p>
+    <a class="auth-btn" href="{% url 'subscriptions:subscribe' %}">Subscribe</a>
+  {% elif subscription.status == "past_due" %}
+    <p><strong>Status:</strong> Past due — please update your payment method</p>
+    <a class="auth-btn" href="{% url 'subscriptions:subscribe' %}">Retry Subscription</a>
+  {% else %}
+    <p><strong>Status:</strong> Inactive</p>
+    <a class="auth-btn" href="{% url 'subscriptions:subscribe' %}">Subscribe</a>
+  {% endif %}
+
+  <p class="auth-link" style="margin-top:1rem;"><a href="{% url 'home' %}">Back to Home</a></p>
+</div>
+{% endblock %}
