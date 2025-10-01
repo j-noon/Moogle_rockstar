@@ -12,4 +12,6 @@ urlpatterns = [
     path('profile/upload-pic/', update_profile_image, name='upload_profile_image'),
     path('update-profile/', views.update_profile_image, name='update_profile'),
     path('delete-comment/', views.delete_comment, name='delete_comment'),
+    path('forgot-password/', views.forgot_password, name='forgot_password'),
+    path('reset-password/<uidb64>/<token>/', views.reset_password, name='reset_password'),
 ]
