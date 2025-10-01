@@ -121,6 +121,8 @@ def stripe_webhook(request):
 
     try:
         event = stripe.Webhook.construct_event(payload, sig_header, endpoint_secret)
+        print("⚡ Event type:", event['type'])
+        print("📦 Event data:", json.dumps(event['data']['object'], indent=2))
     except (ValueError, stripe.error.SignatureVerificationError) as e:
         print(f"Webhook error: {e}")
         return HttpResponse(status=400)
