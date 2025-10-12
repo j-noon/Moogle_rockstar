@@ -18,6 +18,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from datetime import timezone as dt_tz
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -307,7 +308,7 @@ def stripe_webhook(request):
             "status": status,
         }
         if cpe_unix:
-            defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=timezone.utc)
+            defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
 
         if subscription:
             for k, v in defaults.items():
@@ -366,8 +367,10 @@ def stripe_webhook(request):
                     "status": status,
                 }
                 if cpe_unix:
-                    defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=timezone.utc)
-                    Subscription.objects.update_or_create(user=user, defaults=defaults)
+                    defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
+
+
+                Subscription.objects.update_or_create(user=user, defaults=defaults)
                 print(f"🔄 Created+linked subscription {stripe_sub_id} for {user.email} (status={status})")
             else:
                 print(f"⚠️ Failed to update or link subscription {stripe_sub_id}")
@@ -458,6 +461,29 @@ def stripe_webhook(request):
                 print(f"💚 Forced active via invoice.payment_succeeded for sub={sub_row.stripe_subscription_id}")
             else:
                 print(f"ℹ️ No Subscription row found for invoice; sub={subscription_id}, customer={customer_id}")
+
+
+    # ✅ INVOICE PAYMENT FAILED (renewal didn’t get paid)
+    elif event['type'] == 'invoice.payment_failed':
+        inv = event['data']['object']
+        customer_id = inv.get('customer')
+        stripe_sub_id = (inv.get('subscription') 
+                        or (inv.get('subscription_details') or {}).get('subscription'))
+
+        from subscriptions.models import Subscription
+        sub = None
+        if stripe_sub_id:
+            sub = Subscription.objects.filter(stripe_subscription_id=stripe_sub_id).first()
+        if not sub and customer_id:
+            sub = Subscription.objects.filter(stripe_customer_id=customer_id).first()
+
+        if sub:
+            # Stripe may later flip to 'unpaid' or keep 'past_due' based on your settings
+            sub.status = "past_due"
+            sub.save(update_fields=["status"])
+            print(f"⛔ Payment failed; marked subscription {stripe_sub_id} as past_due")
+        else:
+            print("⚠️ invoice.payment_failed received, but no local subscription found.")
 
     return HttpResponse(status=200)
 
