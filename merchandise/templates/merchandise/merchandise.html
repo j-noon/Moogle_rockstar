@@ -10,8 +10,8 @@
 {% block content %}
 <h1 id="merch-page-title">Moogles Goodies</h1>
 
-<form method="get" action="" class="search-bar">
-  <input type="text" name="q" value="{{ query }}" placeholder="Search products..." />
+<form method="get" class="search-bar">
+  <input type="text" name="q" value="{{ query }}" placeholder="Search products...">
   <select name="category">
     <option value="">All Categories</option>
     {% for value,label in categories %}

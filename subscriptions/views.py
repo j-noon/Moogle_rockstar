@@ -31,6 +31,8 @@ def create_subscription_checkout(request):
         customer_email=request.user.email,
         client_reference_id=str(request.user.id),
         metadata={"user_id": str(request.user.id)},
+        subscription_data={"metadata": {"user_id": str(request.user.id)}
+        }
     )
     return redirect(session.url, code=303)
 

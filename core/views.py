@@ -11,6 +11,8 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 from .forms import ProfileImageForm, CommentForm, ResetPasswordForm
 from .models import Profile, Comment
@@ -58,12 +60,36 @@ def register_view(request):
 
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
+
+        email = (request.POST.get('email') or '').strip()
+        if not email:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect('register')
+        try:
+            validate_email(email)
+        except ValidationError:
+            messages.error(request, "Please enter a valid email address.")
+            return redirect('register')
+
+
+        if User.objects.filter(email__iexact=email).exists():
+            messages.success(
+                request,
+                "Thanks for registering. If an account needs action, we’ve emailed you."
+            )
+            return redirect('login')
+
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+            user = form.save(commit=False)
+            user.email = email
+            user.save()
+            messages.success(request, "Thanks for registering. Please check your email.")
+            return redirect('login')
+
+        
     else:
         form = UserCreationForm()
+
     return render(request, 'core/register.html', {'form': form})
 
 

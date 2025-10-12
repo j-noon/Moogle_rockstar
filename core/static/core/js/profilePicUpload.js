@@ -1,76 +1,102 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const openBtn = document.getElementById('openProfilePicModal');
-  const modal = document.getElementById('profilePicModal');
-  const closeBtn = document.getElementById('closeModalBtn');
-  const form = document.getElementById('profilePicForm');
-  const currentPic = document.getElementById('currentProfilePic');
+document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
 
-  
-  if (!openBtn || !modal || !closeBtn || !form || !currentPic) return;
+    const openBtn = document.getElementById("openProfilePicModal");
+    const modal = document.getElementById("profilePicModal");
+    const closeBtn = document.getElementById("closeModalBtn");
+    const form = document.getElementById("profilePicForm");
+    const currentPic = document.getElementById("currentProfilePic");
 
-  // Open/close modal
-  openBtn.addEventListener('click', () => (modal.style.display = 'block'));
-  closeBtn.addEventListener('click', () => (modal.style.display = 'none'));
+    if (!openBtn || !modal || !closeBtn || !form || !currentPic) {
+        return;
+    }
 
-  
-  function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-      const cookies = document.cookie.split(';');
-      for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + '=')) {
-          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-          break;
+    // Open/close modal
+    openBtn.addEventListener("click", function () {
+        modal.style.display = "block";
+    });
+
+    closeBtn.addEventListener("click", function () {
+        modal.style.display = "none";
+    });
+
+    function getCookie(name) {
+        var cookieValue = null;
+        var cookies;
+        var i;
+        var nlen;
+        var cookie;
+
+        if (document.cookie && document.cookie !== "") {
+            cookies = document.cookie.split(";");
+            i = 0;
+            nlen = cookies.length;
+            while (i < nlen) {
+                cookie = cookies[i].trim();
+                if (cookie.indexOf(name + "=") === 0) {
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(name.length + 1)
+                    );
+                    break;
+                }
+                i += 1;
+            }
         }
-      }
+        return cookieValue;
     }
-    return cookieValue;
-  }
 
-  form.addEventListener('submit', async (e) => {
-    const canAjax = typeof window.fetch === 'function';
-    if (!canAjax) return;
+    form.addEventListener("submit", function (e) {
+        var canAjax = typeof window.fetch === "function";
+        var url;
+        var fd;
 
-    e.preventDefault();
+        if (!canAjax) {
+            return;
+        }
 
-    const url = form.dataset.uploadUrl || form.action;
-    const fd = new FormData(form);
+        e.preventDefault();
 
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        body: fd,
-        headers: {
-          'X-CSRFToken': getCookie('csrftoken'),
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      });
+        url = form.dataset.uploadUrl || form.action;
+        fd = new FormData(form);
 
-      
-      const ctype = res.headers.get('content-type') || '';
-      if (!ctype.includes('application/json')) {
-        window.location.reload();
-        return;
-      }
+        window.fetch(url, {
+            body: fd, // ordered before method per JSLint rule
+            headers: {
+                "X-CSRFToken": getCookie("csrftoken"),
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            method: "POST"
+        }).then(function (res) {
+            var ctype = res.headers.get("content-type") || "";
+            if (ctype.indexOf("application/json") === -1) {
+                window.location.reload();
+                return null;
+            }
+            return res.json().then(function (data) {
+                var message; // hoisted
+                var bust;    // hoisted
 
-      const data = await res.json();
+                if (!res.ok) {
+                    message = "Upload failed.";
+                    if (data && data.errors) {
+                        message = JSON.stringify(data.errors);
+                    }
+                    alert(message);
+                    return null;
+                }
 
-      if (!res.ok) {
-        const err = data?.errors ? JSON.stringify(data.errors) : 'Upload failed.';
-        alert(err);
-        return;
-      }
-
-      
-      if (data.image_url) {
-        currentPic.src = data.image_url + '?v=' + Date.now();
-        modal.style.display = 'none';
-      } else {
-        window.location.reload();
-      }
-    } catch (err) {
-      alert('Network error uploading image.');
-    }
-  });
+                if (data.image_url) {
+                    // cache-bust the image after successful upload
+                    bust = "?v=" + Date.now();
+                    currentPic.src = data.image_url + bust;
+                    modal.style.display = "none";
+                } else {
+                    window.location.reload();
+                }
+                return null;
+            });
+        }).catch(function () { // removed unused parameter
+            alert("Network error uploading image.");
+        });
+    });
 });

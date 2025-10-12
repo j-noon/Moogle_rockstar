@@ -1,27 +1,64 @@
 document.addEventListener("DOMContentLoaded", function () {
-  const buttons = document.querySelectorAll(".dropbtn");
+    "use strict";
 
-  buttons.forEach(button => {
-    button.addEventListener("click", function (e) {
-      e.stopPropagation();
+    const buttons = document.querySelectorAll(".dropbtn");
 
-      const dropdown = this.nextElementSibling;
+    // Attach click handlers to each dropdown button
+    (function attachHandlers() {
+        var i = 0;
+        var len = buttons.length;
 
-      // Close other dropdowns first
-      document.querySelectorAll(".dropdown-content").forEach(dc => {
-        if (dc !== dropdown) dc.style.display = "none";
-      });
+        while (i < len) {
+            buttons[i].addEventListener("click", function (e) {
+                // hoisted declarations
+                var current;
+                var dropdown;
+                var allMenus;
+                var j = 0;
+                var mlen;
+                var isOpen;
 
-      // Toggle current dropdown
-      dropdown.style.display = (dropdown.style.display === "block") ? "none" : "block";
+                e.stopPropagation();
+
+                current = e.currentTarget;
+                dropdown = current.nextElementSibling;
+
+                // Close other dropdowns first
+                allMenus = document.querySelectorAll(".dropdown-content");
+                mlen = allMenus.length;
+                while (j < mlen) {
+                    if (allMenus[j] !== dropdown) {
+                        allMenus[j].style.display = "none";
+                    }
+                    j += 1;
+                }
+
+                // Toggle current dropdown (no ternary to satisfy linter)
+                isOpen = dropdown.style.display === "block";
+                if (isOpen) {
+                    dropdown.style.display = "none";
+                } else {
+                    dropdown.style.display = "block";
+                }
+            });
+            i += 1;
+        }
+    }());
+
+    // Click anywhere else closes all dropdowns
+    window.addEventListener("click", function (e) {
+        // hoisted declarations
+        var allMenus;
+        var k = 0;
+        var glen;
+
+        if (!e.target.matches(".dropbtn")) {
+            allMenus = document.querySelectorAll(".dropdown-content");
+            glen = allMenus.length;
+            while (k < glen) {
+                allMenus[k].style.display = "none";
+                k += 1;
+            }
+        }
     });
-  });
-
-  window.addEventListener("click", function (e) {
-    if (!e.target.matches('.dropbtn')) {
-      document.querySelectorAll(".dropdown-content").forEach(dc => {
-        dc.style.display = "none";
-      });
-    }
-  });
 });

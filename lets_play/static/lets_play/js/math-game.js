@@ -1,4 +1,6 @@
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
+
     const startBtn = document.getElementById("mathGame_startBtn");
     const questionDisplay = document.getElementById("mathGame_sumDisplay");
     const answerInput = document.getElementById("mathGame_answerInput");
@@ -12,14 +14,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getCookie(name) {
         let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let cookie of cookies) {
-                cookie = cookie.trim();
-                if (cookie.startsWith(name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        let cookies;
+        let i = 0;
+        let nlen;
+        let cookie;
+
+        if (document.cookie && document.cookie !== "") {
+            cookies = document.cookie.split(";");
+            nlen = cookies.length;
+            while (i < nlen) {
+                cookie = cookies[i].trim();
+                if (cookie.indexOf(name + "=") === 0) {
+                    cookieValue = decodeURIComponent(
+                        cookie.substring(name.length + 1)
+                    );
                     break;
                 }
+                i += 1;
             }
         }
         return cookieValue;
@@ -29,40 +40,54 @@ document.addEventListener("DOMContentLoaded", () => {
         const a = Math.floor(Math.random() * 10) + 1;
         const b = Math.floor(Math.random() * 10) + 1;
         currentAnswer = a + b;
-        questionDisplay.textContent = `${a} + ${b}`;
+        questionDisplay.textContent = a + " + " + b;
     }
 
     function updateScore() {
-        scoreDisplay.textContent = `Score: ${score}`;
+        scoreDisplay.textContent = "Score: " + score;
     }
 
     function updateTimer() {
-        timerDisplay.textContent = `Time: ${timeLeft}s`;
+        timerDisplay.textContent = "Time: " + timeLeft + "s";
     }
 
     function sendScoreToServer(scoreToSend) {
-        return fetch('/lets-play/update_moogles/', {
-            method: 'POST',
+        return fetch("/lets-play/update_moogles/", {
+            body: JSON.stringify({score: scoreToSend}),
             headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie("csrftoken")
             },
-            body: JSON.stringify({ score: scoreToSend }),
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network error');
-            return response.json();
-        })
-        .then(data => {
-            const moogleDisplay = document.querySelector("#user-profile .user-text .moogle-count");
-            if (moogleDisplay && data.new_total !== undefined) {
-                moogleDisplay.innerHTML = `
-                    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp" 
-                         alt="Moogle" width="30" height="30"> x${data.new_total}
-                `;
+            method: "POST"
+        }).then(function (response) {
+            if (!response.ok) {
+                throw new Error("Network error");
             }
-        })
-        .catch(err => console.error("Failed to update moogles:", err));
+            return response.json();
+        }).then(function (data) {
+            const sel = "#user-profile .user-text .moogle-count";
+            const moogleDisplay = document.querySelector(sel);
+            if (moogleDisplay && data.new_total !== undefined) {
+                // build markup via DOM nodes
+                const imgEl = document.createElement("img");
+                const baseUrl = "https://res.cloudinary.com/ddmslr9na/image/upload/";
+                const imgPath = "v1752501444/medievil-castle-web180x180_dzlrhv.webp";
+                imgEl.src = baseUrl + imgPath;
+                imgEl.alt = "Moogle";
+                imgEl.width = 30;
+                imgEl.height = 30;
+
+                moogleDisplay.innerHTML = "";
+                moogleDisplay.appendChild(imgEl);
+                moogleDisplay.appendChild(
+                    document.createTextNode(" x" + data.new_total)
+                );
+            }
+            return null;
+        }).catch(function () {
+            alert("Failed to update moogles.");
+            return null;
+        });
     }
 
     function startGame() {
@@ -75,14 +100,17 @@ document.addEventListener("DOMContentLoaded", () => {
         answerInput.disabled = false;
         answerInput.focus();
 
-        if (timer) clearInterval(timer);
-        timer = setInterval(() => {
-            timeLeft--;
+        if (timer) {
+            clearInterval(timer);
+        }
+        timer = setInterval(function () {
+            timeLeft -= 1;
             updateTimer();
 
             if (timeLeft <= 0) {
                 clearInterval(timer);
-                questionDisplay.textContent = `Time's up! Final Score: ${score}`;
+                const overMsg = "Time's up! Final Score: " + score;
+                questionDisplay.textContent = overMsg;
                 answerInput.disabled = true;
                 sendScoreToServer(score);
             }
@@ -90,18 +118,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleAnswerSubmit() {
-        const userAnswer = parseInt(answerInput.value);
-        if (!isNaN(userAnswer) && userAnswer === currentAnswer) {
-            score++;
+        const userAnswer = parseInt(answerInput.value, 10);
+        if (!Number.isNaN(userAnswer) && userAnswer === currentAnswer) {
+            score += 1;
             updateScore();
             generateQuestion();
-            answerInput.value = '';
+            answerInput.value = "";
             answerInput.focus();
         }
     }
 
-    startBtn.addEventListener("click", startGame);
-    answerInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") handleAnswerSubmit();
+    startBtn.addEventListener("click", function () {
+        startGame();
+    });
+
+    answerInput.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") {
+            handleAnswerSubmit();
+        }
     });
 });

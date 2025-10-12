@@ -303,7 +303,7 @@
   border: solid black 2px;
 }
 
-#closeModalBtn {
+#closeGameModalBtn {
   color: black;
   background-color: white;
   padding: 5px;
@@ -430,7 +430,6 @@
   }
 
   #memory-match-board {
-    height: px;
     width: 300px;
   }
 

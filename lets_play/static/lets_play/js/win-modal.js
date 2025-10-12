@@ -13,7 +13,7 @@ function closeModal() {
 window.showGameResultModal = showGameResultModal;
 
 document.addEventListener("DOMContentLoaded", () => {
-    const closeBtn = document.getElementById("closeModalBtn");
+    const closeBtn = document.getElementById("closeGameModalBtn");
     const playAgainBtn = document.getElementById("playAgainBtn");
 
     if (closeBtn) closeBtn.addEventListener("click", closeModal);

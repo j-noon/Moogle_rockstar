@@ -1,76 +1,86 @@
+document.addEventListener("DOMContentLoaded", function () {
+    "use strict";
 
-document.addEventListener('DOMContentLoaded', () => {
-  
-  const deleteBtn = document.getElementById('delete-last-btn');
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', function handleDeleteClick() {
-      const commentId = this.getAttribute('data-comment-id');
-      if (confirm('Are you sure you want to delete this comment?')) {
-        const formData = new FormData();
-        const csrfTokenEl = document.querySelector('[name=csrfmiddlewaretoken]');
-        if (!csrfTokenEl) return;
+    const deleteBtn = document.getElementById("delete-last-btn");
+    if (deleteBtn) {
+        deleteBtn.addEventListener("click", function handleDeleteClick(event) {
+            const target = event.currentTarget;
+            const commentId = target.getAttribute("data-comment-id");
+            if (confirm("Are you sure you want to delete this comment?")) {
+                const formData = new FormData();
 
-        formData.append('csrfmiddlewaretoken', csrfTokenEl.value);
-        formData.append('comment_id', commentId);
+                const csrfSelector = "[name=csrfmiddlewaretoken]";
+                const csrfTokenEl = document.querySelector(csrfSelector);
+                if (!csrfTokenEl) {
+                    return;
+                }
 
-        fetch('/delete-comment/', {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest',
-          },
-        })
-          .then((response) => {
-            if (response.ok) {
-              window.location.reload();
-            } else {
-              console.error('Delete failed with status:', response.status);
+                formData.append("csrfmiddlewaretoken", csrfTokenEl.value);
+                formData.append("comment_id", commentId);
+
+                fetch("/delete-comment/", {
+                    body: formData,
+                    headers: { "X-Requested-With": "XMLHttpRequest" },
+                    method: "POST"
+                }).then(function (response) {
+                    if (response.ok) {
+                        window.location.reload();
+                    } else {
+                        const status = response.status;
+                        console.error("Delete failed with status:", status);
+                    }
+                }).catch(function (error) {
+                    console.error("Delete error:", error);
+                });
             }
-          })
-          .catch((error) => {
-            console.error('Delete error:', error);
-          });
-      }
-    });
-  }
+        });
+    }
 
-  // Edit button functionality
-  const editBtn = document.getElementById('edit-last-btn');
-  if (editBtn) {
-    editBtn.addEventListener('click', function handleEditClick() {
-      const commentId = this.getAttribute('data-comment-id');
-      const textInput = document.getElementById('id_text');
+    // Edit button functionality
+    const editBtn = document.getElementById("edit-last-btn");
+    if (editBtn) {
+        editBtn.addEventListener("click", function handleEditClick(event) {
+            const target = event.currentTarget;
+            const commentId = target.getAttribute("data-comment-id");
+            const textInput = document.getElementById("id_text");
+            if (!textInput) {
+                return;
+            }
 
-      if (!textInput) return;
+            const singleCommentSel = ".single-comment";
+            const commentElements = document.querySelectorAll(singleCommentSel);
+            let commentText = "";
 
-      
-      const commentElements = document.querySelectorAll('.single-comment');
-      let commentText = '';
+            commentElements.forEach(function (el) {
+                if (el.getAttribute("data-comment-id") === commentId) {
+                    const fullText = el.textContent.trim();
+                    const parts = fullText.split(":");
+                    const joined = parts.slice(1).join(":");
+                    commentText = joined.trim();
+                }
+            });
 
-      commentElements.forEach((el) => {
-        if (el.getAttribute('data-comment-id') === commentId) {
-          const fullText = el.textContent.trim();
-          commentText = fullText.split(':').slice(1).join(':').trim();
-        }
-      });
+            textInput.value = commentText;
+            textInput.focus();
 
-      textInput.value = commentText;
-      textInput.focus();
+            let editInput = document.getElementById("edit_comment_id");
+            if (!editInput) {
+                editInput = document.createElement("input");
+                editInput.type = "hidden";
+                editInput.name = "edit_comment_id";
+                editInput.id = "edit_comment_id";
+                const form = document.getElementById("comment-form");
+                if (form) {
+                    form.appendChild(editInput);
+                }
+            }
 
-      let editInput = document.getElementById('edit_comment_id');
-      if (!editInput) {
-        editInput = document.createElement('input');
-        editInput.type = 'hidden';
-        editInput.name = 'edit_comment_id';
-        editInput.id = 'edit_comment_id';
-        const form = document.getElementById('comment-form');
-        if (form) form.appendChild(editInput);
-      }
+            editInput.value = commentId;
 
-      editInput.value = commentId;
-
-      const commentBtn = document.getElementById('comment-btn');
-      if (commentBtn) commentBtn.textContent = 'Update Comment';
-    });
-  }
+            const commentBtn = document.getElementById("comment-btn");
+            if (commentBtn) {
+                commentBtn.textContent = "Update Comment";
+            }
+        });
+    }
 });

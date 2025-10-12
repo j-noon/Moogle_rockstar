@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="">
   <meta name="keywords" content="">
-  <meta author="jodesius">
+  <meta name="author" content="jodesius">
 
   <!-- style sheet link -->
   <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
@@ -29,8 +29,7 @@
     <img
       src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp"
       alt="moogles logo"
-      rel="noopener"
-    />
+    >
   </a>
 
   {% if user.is_authenticated %}
@@ -45,7 +44,7 @@
         alt="Profile Pic"
         class="profile-pic"
         id="currentProfilePic"
-      />
+      >
       <div class="user-text">
         <p><strong>{{ user.username }}</strong></p>
         <span class="moogle-count">
@@ -53,10 +52,10 @@
             src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp"
             alt="Moogle"
             style="width: 30px; height: 30px; vertical-align: middle"
-          />
+          >
           × {{ user.profile.moogles|default:0 }}
         </span>
-        <br /><br />
+        <br><br>
         <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
       </div>
     </div>
@@ -91,7 +90,8 @@
             <img
               class="footer-img"
               src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp"
-            />
+              alt="Discord"
+            >
           </a>
         </li>
         <li class="footer-icons">
@@ -99,7 +99,8 @@
             <img
               class="footer-img"
               src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp"
-            />
+              alt="TikTok"
+            >
           </a>
         </li>
         <li class="footer-icons">
@@ -107,7 +108,8 @@
             <img
               class="footer-img"
               src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp"
-            />
+              alt="Instagram"
+            >
           </a>
         </li>
         <li class="footer-icons">
@@ -115,7 +117,8 @@
             <img
               class="footer-img"
               src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp"
-            />
+              alt="YouTube"
+            >
           </a>
         </li>
         <li class="footer-icons">
@@ -123,7 +126,8 @@
             <img
               class="footer-img"
               src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp"
-            />
+              alt="Twitch"
+            >
           </a>
         </li>
       </ul>
@@ -141,7 +145,7 @@
       action="{% url 'upload_profile_image' %}"
     >
       {% csrf_token %}
-      <input type="file" name="profile_image" accept="image/*" required />
+      <input type="file" name="profile_image" accept="image/*" required>
       <button type="submit">Upload</button>
       <button type="button" id="closeModalBtn">Cancel</button>
     </form>
