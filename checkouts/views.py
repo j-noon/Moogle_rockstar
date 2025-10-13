@@ -18,7 +18,7 @@ from django.template.loader import render_to_string
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
-from datetime import timezone as dt_tz
+from datetime import datetime, timezone as dt_tz
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -113,8 +113,34 @@ def success_page(request, order_id=None):
     return render(request, 'checkouts/success.html')
 
 
+      # get timezone for sub fallback
+def _extract_cpe_from_subscription(sub_obj):
+    """
+    Try to get current period end (UNIX timestamp) from a Subscription.
+    Falls back to fetching latest invoice lines when needed.
+    """
+    if not sub_obj:
+        return None
+
+    cpe = sub_obj.get("current_period_end")
+    if cpe:
+        return cpe
+
+    latest_invoice_id = sub_obj.get("latest_invoice")
+    if latest_invoice_id:
+        try:
+            inv = stripe.Invoice.retrieve(latest_invoice_id, expand=["lines"])
+            lines = (inv.get("lines") or {}).get("data") or []
+            if lines:
+                return (lines[0].get("period") or {}).get("end")
+        except Exception:
+            pass
+    return None
+
+
 # --- Webhook that creates orders after payment succeeds and sub activation ---
 from django.views.decorators.csrf import csrf_exempt
+
 
 @csrf_exempt
 def stripe_webhook(request):
@@ -246,14 +272,11 @@ def stripe_webhook(request):
                     }
                     if stripe_sub:
                         defaults["status"] = stripe_sub.get("status", "active")
-                        cpe = stripe_sub.get("current_period_end")
+                        cpe = _extract_cpe_from_subscription(stripe_sub)
                         if cpe:
-                            defaults["current_period_end"] = timezone.datetime.fromtimestamp(
-                                cpe, tz=timezone.utc
-                            )
+                            defaults["current_period_end"] = datetime.fromtimestamp(cpe, tz=dt_tz.utc)
 
                     else:
-                        # If we can't retrieve yet, assume active when the session is paid
                         defaults["status"] = "active" if session.get("payment_status") == "paid" else "inactive"
 
                     Subscription.objects.update_or_create(
@@ -288,6 +311,7 @@ def stripe_webhook(request):
         if not subscription and customer_id:
             subscription = Subscription.objects.filter(stripe_customer_id=customer_id).first()
 
+
         user = None
         if subscription:
             user = subscription.user
@@ -307,8 +331,10 @@ def stripe_webhook(request):
             "stripe_subscription_id": stripe_sub_id,
             "status": status,
         }
+        cpe_unix = _extract_cpe_from_subscription(sub) or cpe_unix
         if cpe_unix:
-            defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
+            defaults["current_period_end"] = datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
+
 
         if subscription:
             for k, v in defaults.items():
@@ -341,8 +367,13 @@ def stripe_webhook(request):
             subscription.status = status
             if customer_id:
                 subscription.stripe_customer_id = customer_id
+
+
+            cpe_unix = _extract_cpe_from_subscription(sub) or cpe_unix
             if cpe_unix:
-                subscription.current_period_end = timezone.datetime.fromtimestamp(cpe_unix, tz=timezone.utc)
+                subscription.current_period_end = datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
+
+
             subscription.save()
             print(f"🔄 Subscription {stripe_sub_id} updated to {status}")
         else:
@@ -366,8 +397,11 @@ def stripe_webhook(request):
                     "stripe_subscription_id": stripe_sub_id,
                     "status": status,
                 }
+
+
+                cpe_unix = _extract_cpe_from_subscription(sub) or cpe_unix
                 if cpe_unix:
-                    defaults["current_period_end"] = timezone.datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
+                    defaults["current_period_end"] = datetime.fromtimestamp(cpe_unix, tz=dt_tz.utc)
 
 
                 Subscription.objects.update_or_create(user=user, defaults=defaults)
@@ -469,7 +503,7 @@ def stripe_webhook(request):
         customer_id = inv.get('customer')
         stripe_sub_id = (inv.get('subscription') 
                         or (inv.get('subscription_details') or {}).get('subscription'))
-
+        
         from subscriptions.models import Subscription
         sub = None
         if stripe_sub_id:
