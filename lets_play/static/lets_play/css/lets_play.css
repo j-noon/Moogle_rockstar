@@ -1,8 +1,6 @@
-/* =========================
-   HERO
-   ========================= */
+/* HERO */
 #hero-letsplay {
-  margin-top: 0;              /* header gives us spacing */
+  margin-top: 0;
   width: 100%;
   height: 120px;
 }
@@ -14,12 +12,10 @@
   display: block;
 }
 
-/* =========================
-   LAYOUT FOR GAMES
-   ========================= */
+/* LAYOUT FOR GAMES */
 .games-grid {
   display: grid;
-  grid-template-columns: 1fr;  /* single column on mobile */
+  grid-template-columns: 1fr;
   gap: 24px;
   margin-top: 16px;
 }
@@ -28,9 +24,7 @@
   grid-column: auto / span 1;
 }
 
-/* =========================
-   MEMORY SEQUENCE (Game 1)
-   ========================= */
+/* MEMORY SEQUENCE (Game 1) */
 #memory-btn {
   border: 2px solid black;
   border-radius: 5px;
@@ -75,9 +69,7 @@
   margin: 8px 0 0;
 }
 
-/* =========================
-   MEMORY MATCH (Game 2)
-   ========================= */
+/* MEMORY MATCH (Game 2) */
 #memory-match-container {
   text-align: center;
 }
@@ -137,9 +129,7 @@
   cursor: default;
 }
 
-/* =========================
-   SPEED TYPING (Game 3)
-   ========================= */
+/* SPEED TYPING (Game 3) */
 #typingGame_startBtn {
   border: 2px solid #000;
   border-radius: 8px;
@@ -231,9 +221,7 @@
   font-size: 1rem;
 }
 
-/* =========================
-   MATH CHALLENGE (Game 4)
-   ========================= */
+/* MATH CHALLENGE (Game 4) */
 #mathGame_startBtn {
   padding: 8px 16px;
   font-size: 1em;
@@ -287,9 +275,7 @@
   font-weight: bold;
 }
 
-/* =========================
-   MODAL (Shared)
-   ========================= */
+/* MODAL (Shared) */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -323,9 +309,7 @@
   cursor: pointer;
 }
 
-/* =========================
-   INSTRUCTIONS
-   ========================= */
+/* INSTRUCTIONS */
 .words-game-instructions,
 .math-game-instructions {
   padding: 8px;
@@ -338,9 +322,7 @@
   margin: 8px 0 24px 10px;
 }
 
-/* =========================
-   SUBSCRIPTION LOCK UI
-   ========================= */
+/* SUBSCRIPTION LOCK UI  */
 [data-locked="true"] {
   position: relative;
   box-shadow: 0 0 0 2px rgba(255,0,0,.15) inset;
@@ -360,20 +342,27 @@ button[data-locked="true"] {
   gap: .25rem;
 }
 
-/* =========================
-   MEDIA QUERIES
-   ========================= */
+/* MEDIA QUERIES */
 
-/* Tablet and up: 2 columns, keep everything in normal flow */
 @media (min-width: 768px) {
+
+  #hero-letsplay {
+    margin-top: 70px;
+  }
+
+  #lets-play-hero-img {
+    height: 200px;
+  }
   .games-grid {
+    margin-top: 80px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: start;
   }
 }
 
-/* Large screens: small polish if needed */
+/* screen size 1024*/ 
 @media (min-width: 1024px) {
-  /* Examples if you want larger boards/containers later */
-  #memory-match-board { width: 300px; }
+  #memory-match-board {
+     width: 300px; 
+  }
 }

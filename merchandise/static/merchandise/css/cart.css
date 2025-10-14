@@ -5,6 +5,10 @@
   font-size: 1.4rem;
 }
 
+#merch-page-title {
+  margin-top: -100px;
+}
+
 
 .table-container {
   width: 100%;

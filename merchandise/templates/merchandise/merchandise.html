@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block content %}
+
 <h1 id="merch-page-title">Moogles Goodies</h1>
+
+<p id="basket">
+  <a href="{% url 'merchandise:cart' %}" class="view-cart-icon">
+    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">Your cart
+  </a>
+</p>
 
 <form method="get" class="search-bar">
   <input type="text" name="q" value="{{ query }}" placeholder="Search products...">
@@ -54,16 +61,6 @@
 <p class="back-to-top">
   <a href="#top">⬆ Back to top</a>
 </p>
-
-
-<p id="basket">
-  <a href="{% url 'merchandise:cart' %}" class="view-cart-icon">
-    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">Your cart
-  </a>
-</p>
-
-
-
 
 <br>
 <br>

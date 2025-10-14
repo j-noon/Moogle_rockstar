@@ -2,7 +2,7 @@
 #merch-page-title {
     text-align: center;
     font-size: 2em;
-    margin-top: 110px;
+    margin-top: 20px;
     margin-bottom: 30px;
     font-family: Arial, sans-serif;
 }
@@ -10,9 +10,10 @@
 /* Centered search bar */
 .search-bar {
     display: flex;
-    justify-content: center;
+    justify-content: right;
     gap: 10px;
-    margin-bottom: 40px;
+    margin-top: -65px;
+    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
@@ -103,16 +104,23 @@
 /* Cart icon link */
 a.view-cart-icon {
     display: flex;
+    flex-direction: column;
     justify-content: center;
-    align-items: center;
-    margin-bottom: 50px;
+    align-items: left;
     text-decoration: none;
+    margin-top: -30px;
+    margin-left: -15px;
+    color: black;
+    font-weight: bold;
 }
 
 a.view-cart-icon img {
-    width: 50px;
-    height: 50px;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
 }
+
+
 
 /* Pagination */
 .pagination {
@@ -131,20 +139,6 @@ a.view-cart-icon img {
 }
 
 /* Shopping cart icon in top-right corner */
-.view-cart-icon {
-    position: absolute;
-    top: 80px;
-    left: 0.3rem;
-    z-index: 1000;
-    color: black;
-    font-weight: bold;
-}
-
-.view-cart-icon img {
-    max-width: 50px;
-    max-height: 50px;
-    cursor: pointer;
-}
 
 .back-to-top a {
     text-decoration: none;
@@ -166,38 +160,35 @@ a.view-cart-icon img {
 
 
 /* MEDIA QUERRIES */
-/* 600 PLUS*/
-@media (max-width: 600px) {
-    .merch-grid {
-        grid-template-columns: 1fr;
+
+@media (min-width: 425px) {
+
+    .search-bar {
+        width: 90%;
     }
+
 }
 
-/* 1024 PLUS*/
+/* 768 PLUS*/
 @media (min-width: 768px) {
-.view-cart-icon {
-    position: absolute;
-    top: 120px;
-    z-index: 1000;
-    left: 83%;
-}
+
+    #merch-page-title {
+        margin-top: 30px;
+    }
+  
+    .search-bar {
+       margin-right: 20px;
+ }
+
+
 }
 
 @media (min-width: 1024px) {
-.view-cart-icon {
-    position: absolute;
-    top: 120px;
-    left: 87%;
-    z-index: 1000;
-}
+    .search-bar {
+       margin-right: 20px;
+ }
 }
 
 /*1440 plus*/
 @media (min-width: 1440px) {
-.view-cart-icon {
-    position: absolute;
-    top: 120px;
-    left:91%;
-    z-index: 1000;
-}
 }

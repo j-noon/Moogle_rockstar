@@ -38,8 +38,8 @@
 /*hero*/
 
 #hero img {
-  margin-top: 90px;
-  height: 120px;
+  margin-top: -10px;
+  height: 150px;
   width: 100%;
 }
 
@@ -66,8 +66,8 @@ table {
 .schedule-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  margin: 2rem auto;
+  gap: 0.5rem;
+  margin: 0.5rem auto;
 }
 
 /* comments section */
@@ -230,6 +230,7 @@ table {
 }
 
 /* === Clips Section === */
+
 #clips-div {
   display: flex;
   flex-direction: column;
@@ -443,14 +444,21 @@ table {
 
 /* QURRIES MIN SCREEN 768*/
 @media screen and (min-width: 768px) {
-
+    
+    h2 {
+      font-size: 28px;
+    }
+    
+    #about-btn {
+      margin-left: 10px;
+    }
     .schedule-wrapper {
     flex-direction: row;
     justify-content: flex-start; 
     align-items: flex-start;
-    gap: 2rem;                 
+    gap: 1rem;                 
     margin-left: 20px;        
-    margin-right: auto;       
+    margin-right: 20px;
   }
 
   .schedule-week {
@@ -526,6 +534,14 @@ table {
 /* QURRIES MIN SCREEN 1024*/
 @media screen and (min-width: 1024px) {
 
+      #about-btn {
+      margin-left: 20px;
+    }
+
+      #nav-btn {
+        margin-left: 10px;
+      }
+
   .schedule-wrapper {
     flex-direction: row;
     justify-content: flex-start;
@@ -576,31 +592,35 @@ table {
 /* QURRIES MIN SCREEN 1440*/
 @media screen and (min-width: 1440px) {
 
-  #clips-div {
-    justify-content: flex-start;
-    gap: 2rem;
-    margin-left: 60px;
-    margin-right: auto;
-  }
-  .clip {
-    max-width: 360px;
-  }
-
-  #highlights-h2 {
-    margin-left: 30px !important;
-  }
-
   .schedule-wrapper {
     display: flex;
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
-    gap: 1rem;
+    gap: 5rem;
   }
 
   .schedule-week {
     flex: 1;
     max-width: 400px;
+  }
+
+  #clips-div {
+    justify-content: flex-start;
+    gap: 2rem;
+    margin-top: 1rem !important;
+    margin-left: 60px;
+    margin-right: auto;
+  }
+  .clip {
+    margin-top: 20px;
+    max-width: 360px;
+  }
+
+  #highlights-h2 {
+    margin-top: 140px !important;
+    margin-bottom: 1rem !important;
+    margin-left: 30px !important;
   }
 
   #sub-ben-tittle {
@@ -631,7 +651,7 @@ table {
   #schedule-p {
     position: absolute;
     left: 50px;
-    top: 1025px;
+    top: 1000px;
   }
 
   #rewards-bkground-img {
@@ -639,117 +659,11 @@ table {
     top: 840px;
     right: 50px;
     width: 430px;
-    height: 400px;
+    height: 385px;
   }
 
   #comments-container {
-    margin-bottom: 170px;
+    margin-bottom: 40px;
     margin-left: 120px;
-  }
-}
-
-@media screen and (min-width: 1528px) {
-  #sub-ben-tittle {
-    position: absolute;
-    top: 650px;
-    right: 180px;
-  }
-  #sub-rewards {
-    position: absolute;
-    top: 710px;
-    right: 50px;
-    width: 30%;
-  }
-
-  #rewards-bkground-img {
-    position: absolute;
-    top: 900px;
-    right: 50px;
-    width: 490px;
-    height: 380px;
-  }
-
-
-
-}
-
-
-/* QURRIES 2560*/
-@media screen and (min-width: 2560px) {
-
-  h1, h2, h3 {
-    font-size: 40px;
-  }
-
-    .schedule-wrapper {
-    display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: flex-start;
-    gap: 10rem;
-  }
-
-  .schedule-week {
-    flex: 1;
-    max-width: 600px;
-  }
-
-  #sub-ben-tittle {
-    position: absolute;
-    top: 1020px;
-    right: 220px;
-    font-size: 40px;
-  }
-  #sub-rewards {
-    position: absolute;
-    top: 1170px;
-    right: 50px;
-    width: 32%;
-  }
-
-  .dropbtn {
-    height: 50px;
-  }
-
-  .dropdown-content {
-    font-size: 50px;
-  }
-
-  #Schedule-title{
-    position: absolute;
-    top:1030px;
-    left:180px;
-
-  }
-
-  #Schedule {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    font-size: 30px;
-  }
-
-  #schedule-p {
-    position: absolute;
-    left: 50px;
-    top: 1925px;
-    font-size: 30px;
-  }
-
-  .schedule-week table {
-    height: 700px;
-    width: 700px;
-  }
-
-  #rewards-bkground-img {
-    position: absolute;
-    top: 1380px;
-    right: 50px;
-    width: 810px;
-    height: 925px;
-  }
-
-  #about-para {
-    font-size: 40px;
   }
 }

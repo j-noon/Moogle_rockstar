@@ -9,7 +9,7 @@ h2,
 h3,
 p {
   color: black;
-  margin-left: 5px;
+  margin-left: 15px;
 }
 
 body {
@@ -104,7 +104,7 @@ h1 {
   list-style-type: none;
   position: absolute;
   left: -200px;
-  top: 50px;
+  top: 80px;
   background-color: white;
   border: solid 2px black;
   border-radius: 8px;
@@ -234,15 +234,15 @@ h1 {
 
   #nav-btn {
     position: absolute;
-    top: 20px;
-    left: 8px;
+    top: -45px;
+    left: 10px;
     margin: 0;
   }
 
   #user-profile {
     position: absolute;
-    top: 10px;
-    right: 3px;
+    top: -50px;
+    right: 15px;
     margin: 0;
     height: 110px;
     flex-direction: row;
