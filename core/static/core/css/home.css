@@ -579,11 +579,15 @@ table {
   #clips-div {
     justify-content: flex-start;
     gap: 2rem;
-    margin-left: 20px;
+    margin-left: 60px;
     margin-right: auto;
   }
   .clip {
     max-width: 360px;
+  }
+
+  #highlights-h2 {
+    margin-left: 30px !important;
   }
 
   .schedule-wrapper {
@@ -601,15 +605,14 @@ table {
 
   #sub-ben-tittle {
     position: absolute;
-    top: 620px;
+    top: 590px;
     right: 180px;
   }
   #sub-rewards {
     position: absolute;
-    top: 700px;
+    top: 650px;
     right: 50px;
-    width: 28%;
-  
+    width: 30%;
   }
 
   #Schedule-title{
@@ -633,15 +636,41 @@ table {
 
   #rewards-bkground-img {
     position: absolute;
-    top: 900px;
+    top: 840px;
     right: 50px;
-    max-width: 400px;
-    max-height: 325px;
+    width: 430px;
+    height: 400px;
   }
 
   #comments-container {
     margin-bottom: 170px;
+    margin-left: 120px;
   }
+}
+
+@media screen and (min-width: 1528px) {
+  #sub-ben-tittle {
+    position: absolute;
+    top: 650px;
+    right: 180px;
+  }
+  #sub-rewards {
+    position: absolute;
+    top: 710px;
+    right: 50px;
+    width: 30%;
+  }
+
+  #rewards-bkground-img {
+    position: absolute;
+    top: 900px;
+    right: 50px;
+    width: 490px;
+    height: 380px;
+  }
+
+
+
 }
 
 
@@ -697,17 +726,17 @@ table {
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-size: 30px;
   }
 
   #schedule-p {
     position: absolute;
     left: 50px;
     top: 1925px;
-    font-size: 28px;
+    font-size: 30px;
   }
 
   .schedule-week table {
-
     height: 700px;
     width: 700px;
   }
@@ -716,8 +745,8 @@ table {
     position: absolute;
     top: 1380px;
     right: 50px;
-    max-width: 810px;
-    max-height: 925px;
+    width: 810px;
+    height: 925px;
   }
 
   #about-para {

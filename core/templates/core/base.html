@@ -1,7 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en-US">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,47 +22,45 @@
 </head>
 
 <body>
-  <h1 class="tittle">Moog13rockstar</h1>
+  <header id="site-header">
+    <button id="nav-btn">Menu</button>
+    <h1 class="tittle">Moog13rockstar</h1>
 
-  <a id="logo" href="{% url 'home' %}">
-    <img
-      src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp"
-      alt="moogles logo"
-    >
-  </a>
-
-  {% if user.is_authenticated %}
-  <div id="user-profile">
-    <div class="user-info">
-      <img
-        src="{% if user.profile.profile_image %}
-                {{ user.profile.profile_image.url }}
-              {% else %}
-                https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png
-              {% endif %}"
-        alt="Profile Pic"
-        class="profile-pic"
-        id="currentProfilePic"
-      >
-      <div class="user-text">
-        <p><strong>{{ user.username }}</strong></p>
-        <span class="moogle-count">
-          <img
-            src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp"
-            alt="Moogle"
-            style="width: 30px; height: 30px; vertical-align: middle"
-          >
-          × {{ user.profile.moogles|default:0 }}
-        </span>
-        <br><br>
-        <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
+    {% if user.is_authenticated %}
+    <div id="user-profile">
+      <div class="user-info">
+        <img
+          src="{% if user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png{% endif %}"
+          alt="Profile Pic"
+          class="profile-pic"
+          id="currentProfilePic"
+        >
+        <div class="user-text">
+          <p><strong>{{ user.username }}</strong></p>
+          <span class="moogle-count">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp"
+              alt="Moogle"
+              style="width: 30px; height: 30px; vertical-align: middle"
+            >
+            × {{ user.profile.moogles|default:0 }}
+          </span>
+          <br><br>
+          <a href="#" class="edit-profile-link" id="openProfilePicModal">Edit Profile</a>
+        </div>
       </div>
     </div>
-  </div>
-  {% endif %}
+    {% endif %}
+
+    <a id="logo" href="{% url 'home' %}">
+      <img
+        src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp"
+        alt="moogles logo"
+      >
+    </a>
+  </header>
 
   {% if user.is_authenticated %}
-  <button id="nav-btn">Menu</button>
   <ul id="nav-list">
     <li><a href="{% url 'home' %}"><strong>Home</strong></a></li>
     <li><a href="{% url 'gallery' %}"><strong>Gallery</strong></a></li>

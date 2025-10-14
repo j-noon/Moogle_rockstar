@@ -1,7 +1,14 @@
 {% extends "core/base.html" %}
+{% load static %}
+
+{% block head %}
+  <link rel="stylesheet" href="{% static 'subscriptions/css/manage.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="auth-container" style="max-width:700px; margin:5rem auto 8rem auto; padding:2rem; background:rgba(34,231,215,.9); border:2px solid black; border-radius:10px;">
-  <h1>Manage Subscription</h1>
+<h1 id="manage-title">Manage Subscription</h1>
+<div class="manage-card class="auth-container">
+  
 
   {% if subscription.status == "active" %}
     <p><strong>Status:</strong> Active</p>

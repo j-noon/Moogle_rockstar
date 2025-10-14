@@ -12,7 +12,6 @@ import json
 
 
 @login_required
-@subscription_required
 def lets_play_view(request):
     """
     Renders the game page. Server-side gated so only active subscribers

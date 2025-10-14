@@ -92,8 +92,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'moogle.wsgi.application'
 
-
-
 # Database
 DATABASES = {
     'default': dj_database_url.parse(
@@ -142,7 +140,6 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
-
 
 
 # Stripe settings

@@ -1,0 +1,80 @@
+#manage-title {
+    margin-top: 6.5rem;
+}
+
+.manage-card {
+  max-width: 1000px;
+  margin: 2rem auto 6rem auto;
+  padding: 2rem 2.5rem;
+  background: rgba(34, 231, 215, .9);
+  border: 2px solid #000;
+  border-radius: 12px;
+}
+
+.manage-card h1 {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  display: block;
+  margin: 0 0 2rem 0;
+  padding: 0;
+  text-align: center;
+}
+
+.manage-card p {
+  color: #4a0353;
+  line-height: 1.5;
+  margin: 0.5rem 0 1rem; 
+  font-size: 22px;
+}
+
+.manage-card p strong {
+  color: #db1f8a;
+  font-weight: 800;
+  font-size: 24px;
+  letter-spacing: .2px;
+  color: white;
+}
+
+.manage-card .auth-btn {
+  background: #ffffff;
+  color: #000000;
+  border: 1px solid #000;
+  padding: 0.5rem 0.9rem;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 20px;
+}
+
+.manage-card .auth-btn:hover { 
+    filter: brightness(1.1);
+    background-color: black;
+    color: white;
+    border: solid white 2px;
+    border-radius: 8px;
+ }
+
+
+.manage-card .auth-link a {
+  color: #1a2cff;
+  text-decoration-thickness: 2px;
+  text-decoration: none;
+  background-color: white;
+  color: black;
+  border: black solid 2px;
+  border-radius: 8px;
+  padding: 5px;
+}
+
+.manage-card .auth-link a:hover {
+    filter: brightness(1.1);
+    background-color: black;
+    color: white;
+    border: solid white 2px;
+    border-radius: 8px; 
+    padding: 5px;
+}
