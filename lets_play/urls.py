@@ -4,5 +4,7 @@ from .views import lets_play_view, update_moogles
 
 urlpatterns = [
     path('', views.lets_play_view, name='lets_play'),
+    path('start/', views.start_play, name='start_play'),
     path('update_moogles/', views.update_moogles, name='update_moogles'),
 ]
+

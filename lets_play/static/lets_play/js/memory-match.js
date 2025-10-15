@@ -1,7 +1,10 @@
+document.addEventListener("DOMContentLoaded", function () {
 const startBtn = document.getElementById("memory-match-start-btn");
 const tiles = document.querySelectorAll(".memory-tile");
 const timerDisplay = document.getElementById("memory-match-timer");
 const scoreDisplay = document.getElementById("memory-match-score");
+const UID = (typeof window !== "undefined" && window.CURRENT_USER_ID) ? String(window.CURRENT_USER_ID) : "anon";
+
 
 let icons = [
     "🐶", "🐱", "🐭", "🐹", "🐰",
@@ -16,9 +19,60 @@ let score = 0;
 let timer;
 let timeLeft = 60;
 let gameActive = false;
+let playToken = null;
+
+// === COOLDOWN ADD ===
+const MM_COOLDOWN_MS = 60 * 1000;
+const MM_CD_KEY = `${UID}:memory_match_cd_until`;
+let mmCdTimer = null;
+const mmIdleText = startBtn.textContent || "Start";
+
+function mm_secondsLeft(untilMs) {
+    const left = Math.max(0, Math.ceil((untilMs - Date.now()) / 1000));
+    return left;
+}
+
+function mm_updateCooldownUI() {
+    if (mmCdTimer) {
+        clearInterval(mmCdTimer);
+        mmCdTimer = null;
+    }
+    const untilStr = localStorage.getItem(MM_CD_KEY);
+    const until = untilStr ? parseInt(untilStr, 10) : 0;
+    if (until > Date.now()) {
+        startBtn.disabled = true;
+        startBtn.classList.add("is-cooling-down");
+        const tick = () => {
+            const s = mm_secondsLeft(until);
+            if (s > 0) {
+                startBtn.textContent = `${mmIdleText} (${s}s)`;
+            } else {
+                clearInterval(mmCdTimer);
+                mmCdTimer = null;
+                startBtn.disabled = false;
+                startBtn.classList.remove("is-cooling-down");
+                startBtn.textContent = mmIdleText;
+                localStorage.removeItem(MM_CD_KEY);
+            }
+        };
+        tick();
+        mmCdTimer = setInterval(tick, 1000);
+    } else {
+        startBtn.disabled = false;
+        startBtn.classList.remove("is-cooling-down");
+        startBtn.textContent = mmIdleText;
+        localStorage.removeItem(MM_CD_KEY);
+    }
+}
+
+function mm_beginCooldown() {
+    const until = Date.now() + MM_COOLDOWN_MS;
+    localStorage.setItem(MM_CD_KEY, String(until));
+    mm_updateCooldownUI();
+}
+// === END COOLDOWN ADD ===
 
 function shuffle(arr) {
-    // Fisher–Yates (no arrow funcs)
     let a = arr.slice(0);
     let i = a.length - 1;
     let j;
@@ -35,7 +89,6 @@ function shuffle(arr) {
 
 function resetBoard() {
     boardIcons = shuffle(icons.concat(icons));
-    // tiles.forEach(...) → classic loop
     let i = 0;
     const n = tiles.length;
     while (i < n) {
@@ -88,9 +141,29 @@ function getCookie(name) {
     return cookieValue;
 }
 
+// fetch a one-time token
+function fetchPlayToken(gameKey, maxAward) {
+    return fetch("/lets-play/start/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: JSON.stringify({ game: gameKey, max_award: maxAward })
+    })
+    .then(function (r) {
+        if (!r.ok) { throw new Error("Failed to start play session"); }
+        return r.json();
+    })
+    .then(function (data) {
+        playToken = data.play_token;
+        return data;
+    });
+}
+
 function sendScoreToServer(scoreToSend) {
     return fetch("/lets-play/update_moogles/", {
-        body: JSON.stringify({score: scoreToSend}),
+        body: JSON.stringify({ score: scoreToSend, play_token: playToken }),
         headers: {
             "Content-Type": "application/json",
             "X-CSRFToken": getCookie("csrftoken")
@@ -105,7 +178,6 @@ function sendScoreToServer(scoreToSend) {
         console.log("Moogles updated:", data);
         const moogleDisplay = document.querySelector(".moogle-count");
         if (moogleDisplay && data.new_total !== undefined) {
-            // build the small icon + count via DOM nodes
             const imgEl = document.createElement("img");
             const baseUrl = "https://res.cloudinary.com/ddmslr9na/"
                 + "image/upload/";
@@ -133,14 +205,23 @@ function sendScoreToServer(scoreToSend) {
 function endGame() {
     window.clearInterval(timer);
     gameActive = false;
-    startBtn.disabled = false;
+
+    // Respect cooldown state instead:
+    mm_updateCooldownUI();
 
     if (score > 0) {
-        sendScoreToServer(score).then(function () {
+        if (playToken) {
+            sendScoreToServer(score).then(function () {
+                if (window.showGameResultModal) {
+                    window.showGameResultModal();
+                }
+            });
+        } else {
+            alert("No play token. Please start again.");
             if (window.showGameResultModal) {
                 window.showGameResultModal();
             }
-        });
+        }
     } else {
         if (window.showGameResultModal) {
             window.showGameResultModal();
@@ -165,7 +246,6 @@ function handleTileClick(e) {
     tile.textContent = boardIcons[index];
     tile.classList.add("flipped");
 
-    // store icon first for ordered keys + shorthand
     const icon = boardIcons[index];
     flippedTiles.push({icon, tile});
 
@@ -195,19 +275,40 @@ function handleTileClick(e) {
     }
 }
 
-startBtn.addEventListener("click", function () {
-    resetBoard();
-    timeLeft = 60;
-    updateTimer();
-    startTimer();
-    gameActive = true;
-    startBtn.disabled = true;
+// Initialize cooldown UI on load
+mm_updateCooldownUI();
 
-    // tiles.forEach(...) → loop
-    let i = 0;
-    const n = tiles.length;
-    while (i < n) {
-        tiles[i].addEventListener("click", handleTileClick);
-        i += 1;
+startBtn.addEventListener("click", function () {
+    // Block if cooling down
+    const untilStr = localStorage.getItem(MM_CD_KEY);
+    const until = untilStr ? parseInt(untilStr, 10) : 0;
+    if (until > Date.now()) {
+        mm_updateCooldownUI();
+        return;
     }
+
+    // NEW: fetch token first
+        const gameKey = startBtn.dataset.gameKey || "memory-match";
+        fetchPlayToken(gameKey, 50).then(function () {
+        // Begin cooldown after successful start
+        mm_beginCooldown();
+
+        resetBoard();
+        timeLeft = 60;
+        updateTimer();
+        startTimer();
+        gameActive = true;
+        startBtn.disabled = true;
+
+        let i = 0;
+        const n = tiles.length;
+        while (i < n) {
+            tiles[i].addEventListener("click", handleTileClick);
+            i += 1;
+        }
+    }).catch(function () {
+        alert("Could not start game (token). Try again.");
+        mm_updateCooldownUI();
+    });
+});
 });

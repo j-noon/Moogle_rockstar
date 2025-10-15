@@ -70,8 +70,6 @@ def register_view(request):
         except ValidationError:
             messages.error(request, "Please enter a valid email address.")
             return redirect('register')
-
-
         if User.objects.filter(email__iexact=email).exists():
             messages.success(
                 request,
@@ -86,7 +84,6 @@ def register_view(request):
             messages.success(request, "Thanks for registering. Please check your email.")
             return redirect('login')
 
-        
     else:
         form = UserCreationForm()
 

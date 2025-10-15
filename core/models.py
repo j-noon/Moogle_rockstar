@@ -7,9 +7,12 @@ class Profile(models.Model):
     moogles = models.IntegerField(default=0)
     profile_image = CloudinaryField('image', blank=True, null=True)
 
+    # ✅ for 5-minute cooldown checks
+    last_moogles_award_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.user.username}'s Profile"
-    
+
 
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
