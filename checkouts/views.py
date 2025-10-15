@@ -45,44 +45,64 @@ def checkout_page(request):
     total = (subtotal + tax + shipping).quantize(Decimal('0.01'))
 
     profile = request.user.profile
-    moogles_balance = profile.moogles
-    moogles_to_spend = 0
-    discount = Decimal('0.00')
+    moogles_balance = int(profile.moogles)
 
-    if request.method == "POST":
-        form = CheckoutForm(request.POST)
-        if form.is_valid():
-            moogles_to_spend = min(
-                form.cleaned_data.get('moogles_to_spend') or 0,
-                moogles_balance
-            )
-            discount = Decimal(moogles_to_spend) / Decimal(1000)
-            if discount > total:
-                discount = total
-                moogles_to_spend = int(total * 1000)
+    applied_moogles = int(request.session.get('checkout_moogles_spent', 0))
+
+    if request.method == "POST" and "apply_moogles" in request.POST:
+        requested_raw = request.POST.get("moogles_to_spend", "0")
+        try:
+            requested = int(requested_raw)
+        except (TypeError, ValueError):
+            requested = 0
+        requested = max(0, requested)
+
+        max_by_total = int((total * Decimal('1000')).to_integral_value())
+        applied_moogles = max(0, min(requested, moogles_balance, max_by_total))
+
+        request.session['checkout_moogles_spent'] = applied_moogles
+        request.session.modified = True
+
+        form = CheckoutForm(initial={'moogles_to_spend': applied_moogles or ''})
     else:
-        form = CheckoutForm()
+        form = CheckoutForm(initial={'moogles_to_spend': applied_moogles or ''})
+
+    discount = (Decimal(applied_moogles) / Decimal('1000')).quantize(Decimal('0.01'))
+
+    if discount > total:
+        discount = total
+        applied_moogles = int((total * Decimal('1000')).to_integral_value())
+        request.session['checkout_moogles_spent'] = applied_moogles
+        request.session.modified = True
+
+    if (total - discount) <= Decimal('0.00') and total > Decimal('0.00'):
+        discount = (total - Decimal('0.01')).quantize(Decimal('0.01'))
+        applied_moogles = int((discount * Decimal('1000')).to_integral_value())
+        request.session['checkout_moogles_spent'] = applied_moogles
+        request.session.modified = True
 
     final_total = (total - discount).quantize(Decimal('0.01'))
 
     client_secret = None
     if total > 0:
         intent = stripe.PaymentIntent.create(
-            amount=int(total * 100),
+            amount=int(final_total * 100),
             currency="gbp",
             metadata={
                 "user_id": str(request.user.id),
                 "cart": json.dumps(session_cart),
                 "subtotal": str(subtotal),
-                "total": str(total),
+                "total": str(final_total),
                 "first_name": request.user.first_name,
                 "last_name": request.user.last_name,
                 "email": request.user.email,
+                "moogles_spent": str(applied_moogles),
+                "gross_total_before_moogles": str(total),
+                "moogles_discount": str(discount),
             }
         )
         client_secret = intent.client_secret
 
-    form = CheckoutForm()
     context = {
         "form": form,
         "items": items,
@@ -90,6 +110,10 @@ def checkout_page(request):
         "tax": tax,
         "shipping": shipping,
         "total": total,
+        "discount": discount,
+        "final_total": final_total,
+        "moogles_balance": moogles_balance,
+        "moogles_to_spend": applied_moogles,
         "stripe_public_key": settings.STRIPE_PUBLIC_KEY,
         "client_secret": client_secret,
     }
@@ -105,15 +129,14 @@ def order_history(request):
 
 @login_required
 def success_page(request, order_id=None):
-    """
-    Success page after payment. Clears session cart.
-    """
+    # Clear cart & applied moogles from session
     if 'cart' in request.session:
         del request.session['cart']
+    if 'checkout_moogles_spent' in request.session:
+        del request.session['checkout_moogles_spent']
     return render(request, 'checkouts/success.html')
 
 
-      # get timezone for sub fallback
 def _extract_cpe_from_subscription(sub_obj):
     """
     Try to get current period end (UNIX timestamp) from a Subscription.

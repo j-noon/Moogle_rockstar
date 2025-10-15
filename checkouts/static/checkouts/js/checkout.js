@@ -36,6 +36,122 @@ document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("checkout-form");
     const overlay = document.getElementById("processing-overlay");
 
+        (function persistCheckoutForm(){
+        if (!form) { return; }
+
+        const KEYS = [
+            "first_name","last_name","email","phone",
+            "house_number","street_name","city","postcode","country",
+            "moogles_to_spend"
+        ];
+        const STORAGE_KEY = "checkout_form_cache_v1";
+
+        function readCache() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function writeCache(obj) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(obj));
+            } catch (e) {}
+        }
+
+        function saveCurrentValues() {
+            const cache = readCache();
+            let i = 0;
+            const n = KEYS.length;
+            while (i < n) {
+                const k = KEYS[i];
+                const el = form.querySelector('[name="' + k + '"]');
+                if (el) {
+                    cache[k] = el.value;
+                }
+                i += 1;
+            }
+            writeCache(cache);
+        }
+
+        function restoreValues() {
+            const cache = readCache();
+            let i = 0;
+            const n = KEYS.length;
+            while (i < n) {
+                const k = KEYS[i];
+                const el = form.querySelector('[name="' + k + '"]');
+                if (el && typeof cache[k] === "string") {
+                    if (!el.value) {
+                        el.value = cache[k];
+                    }
+                }
+                i += 1;
+            }
+        }
+
+        form.addEventListener("input", function (e) {
+            if (e && e.target && e.target.name && KEYS.indexOf(e.target.name) !== -1) {
+                saveCurrentValues();
+            }
+        });
+
+        form.addEventListener("submit", function () {
+            saveCurrentValues();
+        });
+
+        // Restore on load
+        restoreValues();
+
+        function clearCache() {
+            try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+        }
+        if (payButton) {
+            payButton.addEventListener("click", clearCache);
+        }
+        // Expose clear function if you ever want to call it elsewhere:
+        window.__clearCheckoutCache = clearCache;
+    }());
+
+    // Guard "Apply moogles" if required fields are empty
+    (function addApplyMoogleGuard(){
+        if (!form) { return; }
+
+        // A fallback for older browsers that don't expose e.submitter:
+        let lastClickedName = null;
+        const clickableBtns = form.querySelectorAll('button[type="submit"], button[type="button"]');
+        let i = 0;
+        const n = clickableBtns.length;
+        while (i < n) {
+            clickableBtns[i].addEventListener("click", function () {
+                lastClickedName = this.name || null;
+            });
+            i += 1;
+        }
+
+        form.addEventListener("submit", function (e) {
+            // Prefer e.submitter if available; else fallback to lastClickedName
+            const submitterName = (e.submitter && e.submitter.name) ? e.submitter.name : lastClickedName;
+
+            if (submitterName === "apply_moogles") {
+                const first = form.querySelector('[name="first_name"]');
+                const last  = form.querySelector('[name="last_name"]');
+                const email = form.querySelector('[name="email"]');
+
+                const missing = [];
+                if (!first || !first.value.trim()) { missing.push("First name"); }
+                if (!last  || !last.value.trim())  { missing.push("Last name"); }
+                if (!email || !email.value.trim()) { missing.push("Email"); }
+
+                if (missing.length) {
+                    e.preventDefault();
+                    alert("Please complete checkout form to apply moogles:\n- " + missing.join("\n- "));
+                }
+            }
+        });
+    }());
+
     payButton.addEventListener("click", function () {
         // Read form inputs
         const firstNameSel = "[name=\"first_name\"]";

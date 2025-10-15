@@ -1,11 +1,51 @@
 from django import forms
-from .models import Profile
-from .models import Comment
+from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
+from PIL import Image
+
+from .models import Profile, Comment
+
+
+ALLOWED_EXTS = ["jpg", "jpeg", "png"]
+ALLOWED_MIME = {"image/jpeg", "image/png"}
+
 
 class ProfileImageForm(forms.ModelForm):
+    # enforce extension at the field level
+    profile_image = forms.ImageField(
+        required=True,
+        validators=[FileExtensionValidator(allowed_extensions=ALLOWED_EXTS)],
+        error_messages={
+            "invalid_extension": "Error: wrong file type. Please upload a JPEG or PNG."
+        },
+    )
+
     class Meta:
         model = Profile
-        fields = ['profile_image']
+        fields = ["profile_image"]
+
+    def clean_profile_image(self):
+        f = self.cleaned_data.get("profile_image")
+        if not f:
+            return f
+
+        content_type = getattr(f, "content_type", "")
+        if content_type not in ALLOWED_MIME:
+            raise ValidationError("Error: wrong file type. Please upload a JPEG or PNG.")
+        try:
+            img = Image.open(f)
+            img.verify()  # light integrity check
+        except Exception:
+            raise ValidationError("Error: file is not a valid image. Please upload a JPEG or PNG.")
+        max_bytes = 5 * 1024 * 1024
+        if f.size and f.size > max_bytes:
+            raise ValidationError("Please upload an image under 5 MB.")
+        try:
+            f.seek(0)
+        except Exception:
+            pass
+
+        return f
 
 
 class CommentForm(forms.ModelForm):
@@ -19,6 +59,7 @@ class CommentForm(forms.ModelForm):
                 'class': 'form-control'
             }),
         }
+
 
 class ResetPasswordForm(forms.Form):
     password = forms.CharField(

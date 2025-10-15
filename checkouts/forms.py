@@ -2,6 +2,7 @@
 from django import forms
 from .models import Order
 
+
 class CheckoutForm(forms.ModelForm):
     house_number = forms.CharField(max_length=50, required=False, label="House Number / Name")
     street_name = forms.CharField(max_length=100, required=False, label="Street Name")

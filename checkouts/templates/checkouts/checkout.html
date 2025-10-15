@@ -65,18 +65,6 @@
 
         <form id="checkout-form" method="post">
             {% csrf_token %}
-
-            <h3>Moogle Balance</h3>
-            <p>You have <strong>{{ moogles_balance }}</strong> moogles (1000 = £1)</p>
-            <div class="form-group">
-                <label for="{{ form.moogles_to_spend.id_for_label }}">
-                    {{ form.moogles_to_spend.label }}
-                </label>
-                {{ form.moogles_to_spend }}
-                {% if form.moogles_to_spend.errors %}
-                    <div class="field-error">{{ form.moogles_to_spend.errors }}</div>
-                {% endif %}
-            </div>
             
             <h3>Personal Information</h3>
             <div class="form-group">
@@ -147,6 +135,27 @@
                 </div>
             </div>
 
+            <h3>Moogle Balance</h3>
+            <p>You have <strong>{{ moogles_balance }}</strong> moogles (1000 = £1)</p>
+            <div class="form-group">
+                <label for="{{ form.moogles_to_spend.id_for_label }}">
+                    {{ form.moogles_to_spend.label }}
+                </label>
+                {{ form.moogles_to_spend }}
+                <button type="submit" name="apply_moogles" value="1" class="btn-apply" style="margin-left:.5rem;">
+                    Apply
+                </button>
+                {% if form.moogles_to_spend.errors %}
+                    <div class="field-error">{{ form.moogles_to_spend.errors }}</div>
+                {% endif %}
+
+            {% if moogles_to_spend %}
+            <div class="hint" style="margin-top:.5rem; padding:.5rem .75rem; background:#f8fafc; border:1px solid #e5e7eb; border-radius:6px;">
+                Applied: <strong>{{ moogles_to_spend }}</strong> moogles (−£{{ discount }})
+            </div>
+            {% endif %}
+        </div>
+
             <h3>Payment Details</h3>
             <div class="form-group">
                 <label>Card Details</label>
@@ -169,8 +178,7 @@
 
             <!-- Hidden input for client secret -->
             <input type="hidden" id="client-secret" value="{{ client_secret|default:'' }}">
-
-            <button id="pay-button" type="button">Pay £{{ total }}</button>
+            <button id="pay-button" type="button">Pay £{{ final_total }}</button>
         </form>
     </div>
 </div>

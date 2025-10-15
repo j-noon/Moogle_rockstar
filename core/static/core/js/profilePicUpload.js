@@ -45,6 +45,16 @@ document.addEventListener("DOMContentLoaded", function () {
         return cookieValue;
     }
 
+    function showUploadErrorModal(message) {
+        if (typeof window.showUploadError === "function") {
+            window.showUploadError(
+                message || 'Error: Wrong file type. Please try again with <strong>JPEG</strong> or <strong>PNG</strong>!'
+            );
+        } else {
+            alert(message ? String(message).replace(/<[^>]+>/g, "") : "Upload error");
+        }
+    }
+
     form.addEventListener("submit", function (e) {
         var canAjax = typeof window.fetch === "function";
         var url;
@@ -81,7 +91,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     if (data && data.errors) {
                         message = JSON.stringify(data.errors);
                     }
-                    alert(message);
+
+                    showUploadErrorModal(
+                        (data && data.errors && data.errors.profile_image && data.errors.profile_image[0]) ||
+                        "Error: Wrong file type. Please try again with <strong>JPEG</strong> or <strong>PNG</strong>!"
+                    );
                     return null;
                 }
 
@@ -95,8 +109,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 }
                 return null;
             });
-        }).catch(function () { // removed unused parameter
-            alert("Network error uploading image.");
+        }).catch(function () {
+            
+            showUploadErrorModal("Network error uploading image.");
         });
     });
 });

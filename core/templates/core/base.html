@@ -143,12 +143,55 @@
       action="{% url 'upload_profile_image' %}"
     >
       {% csrf_token %}
-      <input type="file" name="profile_image" accept="image/*" required>
+      <input type="file" name="profile_image" accept="image/jpeg,image/png" required>
       <button type="submit">Upload</button>
       <button type="button" id="closeModalBtn">Cancel</button>
     </form>
   </div>
   {% endif %}
+
+  <!-- Upload Error Modal -->
+<div id="uploadErrorModal" class="upmodal-overlay" role="dialog" aria-modal="true" aria-labelledby="uploadErrorTitle">
+  <div class="upmodal">
+    <h3 id="uploadErrorTitle">Upload error</h3>
+    <p id="uploadErrorMessage">
+      Error: Wrong file type. Please try again with <strong>JPEG</strong> or <strong>PNG</strong>!
+    </p>
+    <div class="upmodal-actions">
+      <button type="button" class="btn-close" id="uploadErrClose">Close</button>
+      <button type="button" class="btn-ok" id="uploadErrOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // lightweight controller for the error modal
+  (function () {
+    var overlay = document.getElementById('uploadErrorModal');
+    var msgEl = document.getElementById('uploadErrorMessage');
+    var closeBtn = document.getElementById('uploadErrClose');
+    var okBtn = document.getElementById('uploadErrOk');
+
+    function hide() { if (overlay) overlay.style.display = 'none'; }
+    function show(message) {
+      if (!overlay || !msgEl) return alert(message || "Upload error");
+      msgEl.innerHTML = message || "Error: Wrong file type. Please try again with <strong>JPEG</strong> or <strong>PNG</strong>!";
+      overlay.style.display = 'flex';
+    }
+
+    // expose globally so your uploader JS can call it
+    window.showUploadError = show;
+
+    if (closeBtn) closeBtn.addEventListener('click', hide);
+    if (okBtn) okBtn.addEventListener('click', hide);
+    if (overlay) overlay.addEventListener('click', function (e) {
+      if (e.target === overlay) hide();
+    });
+  })();
+</script>
+
+
+
 
   {% block extra_scripts %}
   <script src="{% static 'core/js/navigation.js' %}"></script>
