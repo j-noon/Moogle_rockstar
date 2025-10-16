@@ -63,31 +63,54 @@ def register_view(request):
 
         email = (request.POST.get('email') or '').strip()
         if not email:
-            messages.error(request, "Please enter a valid email address.")
-            return redirect('register')
+            # --- AJAX path: generic error for modal ---
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+            # --- Non-AJAX fallback (no redirect now) ---
+            messages.error(request, "Please enter a valid email address.")   # (kept)
+            return render(request, 'core/register.html', {'form': form})     # <<< changed (no redirect)
+
         try:
             validate_email(email)
         except ValidationError:
-            messages.error(request, "Please enter a valid email address.")
-            return redirect('register')
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+            messages.error(request, "Please enter a valid email address.")   # (kept)
+            return render(request, 'core/register.html', {'form': form})     # <<< changed (no redirect)
+
         if User.objects.filter(email__iexact=email).exists():
-            messages.success(
+            # Enumeration-safe behavior:
+            # For AJAX: generic failure -> show your red error modal.
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+            # Non-AJAX fallback: keep your existing friendly message, but don't redirect.
+            messages.success(                                                     # (kept)
                 request,
                 "Thanks for registering. If an account needs action, we’ve emailed you."
             )
-            return redirect('login')
+            return render(request, 'core/register.html', {'form': form})         # <<< changed (no redirect)
 
         if form.is_valid():
             user = form.save(commit=False)
             user.email = email
             user.save()
-            messages.success(request, "Thanks for registering. Please check your email.")
-            return redirect('login')
+            # AJAX success -> tell the front-end to open the green modal + give login URL for the CTA
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':      # <<< added
+                return JsonResponse({'ok': True, 'login_url': reverse('login')}, status=201)  # <<< added
+            # Non-AJAX fallback (no redirect) — show message and re-render a fresh form
+            messages.success(request, "Thanks for registering. Please check your email.")      # (kept)
+            return render(request, 'core/register.html', {'form': UserCreationForm()})         # <<< changed (no redirect)
+
+        # Form invalid (password mismatch/weak, etc.)
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':          # <<< added
+            return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+
+        # Non-AJAX fallback: re-render with field errors (as you already show in template)
+        return render(request, 'core/register.html', {'form': form})
 
     else:
         form = UserCreationForm()
-
-    return render(request, 'core/register.html', {'form': form})
+        return render(request, 'core/register.html', {'form': form})
 
 
 def logout_view(request):

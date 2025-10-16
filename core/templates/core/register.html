@@ -5,6 +5,7 @@
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'core/css/login-register.css' %}">
+  <link rel="stylesheet" href="{% static 'core/css/signup.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -51,4 +52,51 @@
     
     <p class="auth-link">Already have an account? <a href="{% url 'login' %}" class="auth-link-text">Login here</a></p>
 </div>
+
+<div id="signup-success" class="modal modal--success" aria-hidden="true" role="dialog" aria-labelledby="signup-success-title" aria-modal="true">
+  <div class="modal__backdrop" data-close></div>
+    <div class="modal__dialog">
+      <div class="modal__frame modal__frame--outer">
+       <div class="modal__frame modal__frame--middle">
+        <div class="modal__card">
+        <h3 id="signup-success-title" class="modal__title">Sign up successful</h3>
+        <div class="modal__body">
+          <p>Your account was created successfully. Please continue to log in.</p>
+        </div>
+        <div class="modal__actions">
+          <a id="go-login" href="#" class="btn btn-primary">Go to log in</a>
+          <button type="button" class="btn btn-ghost" data-close>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Error Modal -->
+<div id="signup-error" class="modal modal--error" aria-hidden="true" role="dialog" aria-labelledby="signup-error-title" aria-modal="true">
+  <div class="modal__backdrop" data-close></div>
+    <div class="modal__dialog">
+        <div class="modal__frame modal__frame--outer">
+       <div class="modal__frame modal__frame--middle">
+        <div class="modal__card">
+          <h3 id="signup-error-title" class="modal__title">Sign up error</h3>
+            <div class="modal__body">
+              <p>Sign up error. Please try again!</p>
+            </div>
+            <div class="modal__actions">
+            <button type="button" class="btn btn-ghost" data-close>Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script src="{% static 'core/js/register.js' %}"></script>
+
 {% endblock %}
+
+  
+
