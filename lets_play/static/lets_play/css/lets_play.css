@@ -12,17 +12,48 @@
   display: block;
 }
 
+/* neutralize global base.css left margin inside this page */
+.games-grid h1,
+.games-grid h2,
+.games-grid h3,
+.games-grid p {
+  margin-left: 0;
+}
+
 /* LAYOUT FOR GAMES */
 .games-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
   margin-top: 16px;
+  justify-items: center;
+  align-items: start;
 }
 
 .games-grid > * {
   grid-column: auto / span 1;
 }
+
+#game1 {
+  width: 100%;
+  text-align: center;
+}
+
+.game-card {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding-top: 1px;
+}
+
+.game-card h2 {
+  margin: 0 0 10px;
+  text-align: center;
+}
+
 
 /* MEMORY SEQUENCE (Game 1) */
 #memory-btn {
@@ -42,13 +73,17 @@
 }
 
 #memory-grid {
-  margin-top: 10px;
+  margin-top: 0;
   padding: 10px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
 
 #memory-game {
   background-color: rgb(48, 235, 203);
   border-collapse: collapse;
+  margin: 0 auto;
 }
 
 .mem-square,
@@ -67,11 +102,13 @@
   font-weight: bold;
   font-size: 18px;
   margin: 8px 0 0;
+  text-align: center;
 }
 
 /* MEMORY MATCH (Game 2) */
 #memory-match-container {
   text-align: center;
+  width: 100%;
 }
 
 #memory-match-start-btn {
@@ -90,7 +127,7 @@
 }
 
 #memory-match-timer {
-  margin: -6px 0 10px;
+  margin: 0;
   font-size: 18px;
   font-weight: bold;
 }
@@ -148,7 +185,6 @@
 
 .typing-game-container {
   width: 100%;
-  max-width: 100vw;
   margin: 10px auto 0;
   padding: 20px;
   border: 2px solid #000;
@@ -158,6 +194,7 @@
   font-family: sans-serif;
   box-shadow: 0 0 10px rgba(0,0,0,.1);
   box-sizing: border-box;
+  max-width: 520px;
 }
 
 .typing-box {
@@ -319,7 +356,7 @@
   border-radius: 8px;
   width: fit-content;
   max-width: 90%;
-  margin: 8px 0 24px 10px;
+  margin: 8px auto 24px;
 }
 
 /* SUBSCRIPTION LOCK UI  */
@@ -346,23 +383,254 @@ button[data-locked="true"] {
 
 @media (min-width: 768px) {
 
-  #hero-letsplay {
-    margin-top: 70px;
+  #hero-letsplay { margin-top: 70px; }
+  #lets-play-hero-img { height: 200px; }
+
+  .games-grid {
+    max-width: 1100px;
+    margin: 80px auto 0;
+    padding: 0 16px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 32px;
+    row-gap: 32px;
+    justify-items: stretch;
+    align-items: start;
   }
 
-  #lets-play-hero-img {
-    height: 200px;
+  .game-card {
+    width: 100%;
+    max-width: none;
+    padding-top: 1px;
   }
+
+  .game-card h2 {
+    margin: 0 0 10px;
+    text-align: center;
+  }
+
+  #memory-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  #memory-match-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    text-align: center;
+  }
+
+  #memory-match-start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  #memory-match-timer {
+    margin: 0;
+    line-height: 1;
+  }
+
+  #memory-grid {
+    padding-top: 0;
+    margin-top: 24px;
+  }
+
+  #memory-match-board {
+    flex-basis: 100%;
+    margin: 12px auto 0;
+  }
+
+  #memory-game,
+  #memory-match-board { width: 320px; }
+
+  #typing-card > #typingGame_startBtn,
+  #math-card  > #mathGame_startBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  .typing-game-container,
+  #mathGame {
+    margin: 12px auto 0;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .words-game-instructions,
+  .math-game-instructions { margin: 12px auto 24px; }
+}
+
+@media (min-width: 1024px) {
   .games-grid {
-    margin-top: 80px;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns:
+      minmax(300px, 1.2fr)
+      minmax(120px, 0.8fr)
+      minmax(120px, 0.8fr)
+      minmax(300px, 1.2fr);
+    column-gap: 20px;
+    row-gap: 32px;
     align-items: start;
+    justify-items: stretch;
+    max-width: min(1200px, 100vw - 24px);
+    padding: 0 12px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .game-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  #game1-card {
+    grid-column: 1 / span 1;
+    width: auto;
+    justify-self: center;
+  }
+  #memory-match-card {
+    grid-column: 4 / span 1;
+    width: auto;
+    justify-self: center;
+  }
+
+  #typing-card { grid-column: 1 / span 2; }
+  #math-card   { grid-column: 3 / span 2; }
+
+  #memory-game,
+  #memory-match-board {
+    width: clamp(320px, 28vw, 360px);
+    table-layout: fixed;
+  }
+
+  .memory-tile {
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
   }
 }
 
-/* screen size 1024*/ 
-@media (min-width: 1024px) {
-  #memory-match-board {
-     width: 300px; 
+/* DESKTOP XL — widen the middle gap (keep edges comfy) */
+@media (min-width: 1440px) {
+  .games-grid {
+    /* cols min = 290 + 320 + 320 + 290 = 1220
+       gaps     = 3 * 32 = 96
+       padding  = 40 + 40 = 80
+       total    = 1220 + 96 + 80 = 1396  (< 1440 ✅) */
+    grid-template-columns:
+      minmax(290px, 1fr)   /* far left (Game 1)  */
+      minmax(320px, .8fr)  /* middle-left (gap)  */
+      minmax(320px, .8fr)  /* middle-right (gap) */
+      minmax(290px, 1fr);  /* far right (Game 2) */
+
+    column-gap: 32px;      /* keep gaps clean */
+    row-gap: 32px;
+    padding: 0 40px;       /* pull both sides in a bit more */
+    max-width: min(1380px, 100vw - 80px);
+    margin-left: auto;
+    margin-right: auto;
+    justify-items: stretch;
+    align-items: start;
   }
+
+  /* keep the top pair centered within their columns */
+  #game1-card,
+  #memory-match-card { justify-self: center; }
+
+  /* boards get a comfy cap; won’t touch column edges */
+  #memory-game,
+  #memory-match-board {
+    width: clamp(360px, 26vw, 400px);
+    table-layout: fixed;
+  }
+
+#typing-card,
+#math-card {
+  justify-self: stretch;     /* fill the grid cell horizontally */
+  align-self: start;
+  width: 100%;
+}
+
+/* Let the main game boxes use the full card width */
+#typing-card .typing-game-container,
+#math-card  #mathGame {
+  max-width: none;           /* override earlier 560px cap */
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Keep the instructions panels matching the card width */
+#typing-card .words-game-instructions,
+#math-card  .math-game-instructions {
+  max-width: none;
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Optional: keep the start buttons centered above their wider boxes */
+#typing-card > #typingGame_startBtn,
+#math-card   > #mathGame_startBtn {
+  justify-self: center;
+}
+
+#typing-card .typing-game-container {
+  padding: 28px;           /* was ~20px */
+  min-height: 440px;       /* add some vertical presence */
+}
+
+#typing-card .typing-box {
+  min-height: 160px;       /* taller play area */
+  padding: 36px;           /* bigger breathing room */
+}
+
+#typing-card #typingGame_input {
+  height: 40px;            /* slightly taller input */
+  font-size: 1.05rem;
+}
+
+#typing-card .typing-score-panel {
+  margin-top: 24px;
+}
+
+/* Math card */
+#math-card #mathGame {
+  padding: 24px;           /* was ~12px */
+  min-height: 420px;       /* even, but a bit less than typing if you like */
+}
+
+#math-card #mathGame_sumDisplay {
+  font-size: 2.2em;        /* scale headline a touch */
+  margin: 20px 0;
+}
+
+#math-card #mathGame_answerInput {
+  height: 42px;            /* taller input */
+  font-size: 1.05rem;
+}
+
+/* keep everything inside the columns nicely */
+#typing-card .typing-game-container,
+#math-card  #mathGame {
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
+}
 }
