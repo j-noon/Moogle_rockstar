@@ -625,45 +625,94 @@ table {
 
   #sub-ben-tittle {
     position: absolute;
-    top: 590px;
-    right: 180px;
+    top: clamp(570px, 38vw, 640px);
+    right: clamp(170px, 18vw, 240px);
   }
+
+  /* Rewards card */
   #sub-rewards {
     position: absolute;
-    top: 650px;
-    right: 50px;
-    width: 30%;
+    top: clamp(640px, 43vw, 720px);
+    right: clamp(60px, 10vw, 120px);
+    width: clamp(420px, 28vw, 560px);
   }
 
-  #Schedule-title{
+  #Schedule-title {
     position: absolute;
-    top:650px;
-    left:180px;
-
-  }
-
-  #Schedule {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    top: clamp(640px, 43vw, 720px);
+    left: clamp(140px, 12vw, 180px);
   }
 
   #schedule-p {
     position: absolute;
-    left: 50px;
-    top: 1000px;
+    top: clamp(960px, 67vw, 1050px);
+    left: clamp(40px, 6vw, 80px);
   }
 
   #rewards-bkground-img {
     position: absolute;
-    top: 840px;
-    right: 50px;
-    width: 430px;
-    height: 385px;
+    top: clamp(820px, 56vw, 920px);
+    right: clamp(60px, 10vw, 120px);
+    width: clamp(380px, 30vw, 520px);
+    height: clamp(340px, 26vw, 380px);
   }
 
   #comments-container {
     margin-bottom: 40px;
     margin-left: 120px;
   }
+}
+
+@media (min-width: 1440px) {
+  #sub-ben-tittle {
+    position: absolute;
+    top: 590px;
+    right: 180px;
+  }
+
+  #sub-rewards {
+    position: absolute;
+    top: 650px;
+    right: 60px;
+    width: 520px;
+  }
+
+  #Schedule-title {
+    position: absolute;
+    top: 650px;
+    left: 160px;
+  }
+
+  #schedule-p {
+    position: absolute;
+    top: 980px;
+    left: 60px;
+  }
+
+  #rewards-bkground-img {
+    position: absolute;
+    top: 840px;
+    right: 60px;
+    width: 480px;
+    height: 360px;
+    object-fit: cover;
+  }
+}
+
+/* 1920 (1080p) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  #sub-ben-tittle { top: 770px; }
+  #sub-rewards     { top: 840px; }
+  #rewards-bkground-img { top: 1030px; }
+  #Schedule-title  { top: 840px; }
+  #schedule-p      { top: 1170px; }
+}
+
+/* 2560+ (4K/ultrawide) */
+@media (min-width: 2560px) {
+  #sub-ben-tittle { top: 860px; }
+  #sub-rewards     { top: 940px; }
+  #rewards-bkground-img { top: 1140px; }
+  #Schedule-title  { top: 940px; }
+  #schedule-p      { top: 1290px; }
 }
