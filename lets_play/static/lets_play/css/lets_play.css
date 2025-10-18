@@ -2,12 +2,12 @@
 #hero-letsplay {
   margin-top: 0;
   width: 100%;
-  height: 120px;
+  height: 160px;
 }
 
 #lets-play-hero-img {
   width: 100%;
-  height: 110px;
+ height: 100%;
   object-fit: cover;
   display: block;
 }
@@ -379,6 +379,16 @@ button[data-locked="true"] {
   gap: .25rem;
 }
 
+#adventure-game-container {
+  display:none;
+}
+
+#game-space {
+  display: none;
+  height: 200px;
+  width: 100%;
+}
+
 /* MEDIA QUERIES */
 
 @media (min-width: 768px) {
@@ -524,22 +534,18 @@ button[data-locked="true"] {
   }
 }
 
-/* DESKTOP XL — widen the middle gap (keep edges comfy) */
+
 @media (min-width: 1440px) {
   .games-grid {
-    /* cols min = 290 + 320 + 320 + 290 = 1220
-       gaps     = 3 * 32 = 96
-       padding  = 40 + 40 = 80
-       total    = 1220 + 96 + 80 = 1396  (< 1440 ✅) */
     grid-template-columns:
       minmax(290px, 1fr)   /* far left (Game 1)  */
       minmax(320px, .8fr)  /* middle-left (gap)  */
       minmax(320px, .8fr)  /* middle-right (gap) */
       minmax(290px, 1fr);  /* far right (Game 2) */
 
-    column-gap: 32px;      /* keep gaps clean */
+    column-gap: 32px;
     row-gap: 32px;
-    padding: 0 40px;       /* pull both sides in a bit more */
+    padding: 0 40px;
     max-width: min(1380px, 100vw - 80px);
     margin-left: auto;
     margin-right: auto;
@@ -547,11 +553,9 @@ button[data-locked="true"] {
     align-items: start;
   }
 
-  /* keep the top pair centered within their columns */
   #game1-card,
   #memory-match-card { justify-self: center; }
 
-  /* boards get a comfy cap; won’t touch column edges */
   #memory-game,
   #memory-match-board {
     width: clamp(360px, 26vw, 400px);
@@ -560,22 +564,22 @@ button[data-locked="true"] {
 
 #typing-card,
 #math-card {
-  justify-self: stretch;     /* fill the grid cell horizontally */
+  justify-self: stretch;
   align-self: start;
   width: 100%;
 }
 
-/* Let the main game boxes use the full card width */
+
 #typing-card .typing-game-container,
 #math-card  #mathGame {
-  max-width: none;           /* override earlier 560px cap */
+  max-width: none;
   width: 100%;
   box-sizing: border-box;
   margin-left: 0;
   margin-right: 0;
 }
 
-/* Keep the instructions panels matching the card width */
+
 #typing-card .words-game-instructions,
 #math-card  .math-game-instructions {
   max-width: none;
@@ -585,24 +589,24 @@ button[data-locked="true"] {
   margin-right: 0;
 }
 
-/* Optional: keep the start buttons centered above their wider boxes */
+
 #typing-card > #typingGame_startBtn,
 #math-card   > #mathGame_startBtn {
   justify-self: center;
 }
 
 #typing-card .typing-game-container {
-  padding: 28px;           /* was ~20px */
-  min-height: 440px;       /* add some vertical presence */
+  padding: 28px;
+  min-height: 440px;
 }
 
 #typing-card .typing-box {
-  min-height: 160px;       /* taller play area */
-  padding: 36px;           /* bigger breathing room */
+  min-height: 160px;
+  padding: 36px;
 }
 
 #typing-card #typingGame_input {
-  height: 40px;            /* slightly taller input */
+  height: 40px;
   font-size: 1.05rem;
 }
 
@@ -612,25 +616,68 @@ button[data-locked="true"] {
 
 /* Math card */
 #math-card #mathGame {
-  padding: 24px;           /* was ~12px */
-  min-height: 420px;       /* even, but a bit less than typing if you like */
+  padding: 24px;
+  min-height: 420px;
 }
 
 #math-card #mathGame_sumDisplay {
-  font-size: 2.2em;        /* scale headline a touch */
+  font-size: 2.2em;
   margin: 20px 0;
 }
 
 #math-card #mathGame_answerInput {
-  height: 42px;            /* taller input */
+  height: 42px;
   font-size: 1.05rem;
 }
 
-/* keep everything inside the columns nicely */
 #typing-card .typing-game-container,
 #math-card  #mathGame {
   width: 100%;
   max-width: none;
   box-sizing: border-box;
+}
+
+/* --------------------- */
+/*    ADVENTURE GAME*/
+/* ----------------------*/
+
+#adventure-game-container {
+
+  display:block;
+  position: absolute;
+  top: 400px;
+  left: 27%;
+  height: 510px;
+  width: 44%;
+}
+
+#adventure-title {
+  font-size: 30px;
+}
+
+#advent-btn {
+  margin-top: -10px;
+  margin-left: 2rem;
+  padding: 8px;
+  border: solid black 2px;
+  border-radius: 8px;
+  font-size: 28px;
+
+}
+
+#game-space {
+  background-color: rgb(159, 154, 154);
+  display: block;
+  margin-top: 15px;
+  height: 390px;
+  width: 100%;
+  border: solid black 2px;
+  border-radius: 8px;
+}
+
+#game-space > p {
+  display: flex;
+  justify-content: center;
+  font-size: 30px;
 }
 }

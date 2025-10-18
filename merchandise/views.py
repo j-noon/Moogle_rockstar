@@ -6,8 +6,6 @@ from .models import Product
 from . import cart as cart_utils
 
 
-
-
 def merchandise_view(request):
     q = (request.GET.get("q") or "").strip()
     category = (request.GET.get("category") or "").strip()
@@ -16,24 +14,17 @@ def merchandise_view(request):
 
     if q:
         products = products.filter(Q(name__icontains=q) | Q(description__icontains=q))
-
-
     # Validate category strictly against choices to avoid unexpected values
     if category in {c.value for c in Product.Category}:
         products = products.filter(category=category)
     elif category:
         # Unknown category supplied -> ignore rather than error
-        category = "" 
-
+        category = ""
 
     products = products.order_by("name")
-
-
     paginator = Paginator(products, 12)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-
-
     context = {
         "page_obj": page_obj,
         "query": q,
@@ -41,8 +32,6 @@ def merchandise_view(request):
         "categories": Product.Category.choices,
     }
     return render(request, "merchandise/merchandise.html", context)
-
-
 
 
 @require_POST

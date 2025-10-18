@@ -13,11 +13,12 @@
 
 <p id="basket">
   <a href="{% url 'merchandise:cart' %}" class="view-cart-icon">
-    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">Your cart
+    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">
+    Your cart
   </a>
 </p>
 
-<form method="get" class="search-bar">
+<form method="get" action="{% url 'merchandise:merchandise' %}" class="search-bar">
   <input type="text" name="q" value="{{ query }}" placeholder="Search products...">
   <select name="category">
     <option value="">All Categories</option>
@@ -63,13 +64,4 @@
 </p>
 
 <br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-<br>
-
-
 {% endblock %}

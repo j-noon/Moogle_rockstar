@@ -103,10 +103,10 @@
 
 /* Cart icon link */
 a.view-cart-icon {
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: left;
+    align-items: flex-start;
+    gap: 0.5rem;
     text-decoration: none;
     margin-top: -30px;
     margin-left: -15px;
@@ -138,7 +138,6 @@ a.view-cart-icon img {
     margin: 0 10px;
 }
 
-/* Shopping cart icon in top-right corner */
 
 .back-to-top a {
     text-decoration: none;
@@ -191,4 +190,5 @@ a.view-cart-icon img {
 
 /*1440 plus*/
 @media (min-width: 1440px) {
+
 }
