@@ -162,7 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
             if (moogleDisplay && data.new_total !== undefined) {
                 const imgEl = document.createElement("img");
-                imgEl.src = "https://res.cloudinary.com/ddmslr9na/image/upload/v1752501444/medievil-castle-web180x180_dzlrhv.webp";
+                imgEl.src = "https://res.cloudinary.com/ddmslr9na/image/upload/v1760811664/moogles-moogles_t5gocu.png";
                 imgEl.alt = "Moogle";
                 imgEl.width = 30;
                 imgEl.height = 30;

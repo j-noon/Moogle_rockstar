@@ -181,8 +181,8 @@ function sendScoreToServer(scoreToSend) {
             const imgEl = document.createElement("img");
             const baseUrl = "https://res.cloudinary.com/ddmslr9na/"
                 + "image/upload/";
-            const imgPath = "v1752501444/"
-                + "medievil-castle-web180x180_dzlrhv.webp";
+            const imgPath = "v1760811664/"
+                + "moogles-moogles_t5gocu.png";
             imgEl.src = baseUrl + imgPath;
             imgEl.alt = "Moogle";
             imgEl.style.width = "30px";
