@@ -39,7 +39,9 @@
           alt="Profile Pic"
           class="profile-pic"
           id="currentProfilePic"
-        >
+          width="64" height="64"
+          loading="lazy" decoding="async" fetchpriority="low"
+        />
         <div class="user-text">
           <p><strong>{{ user.username }}</strong></p>
           <span class="moogle-count">
@@ -62,12 +64,17 @@
     </div>
     {% endif %}
 
-    <a id="logo" href="{% url 'home' %}">
-      <img
-        src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_120,h_120,c_fill' }}"
-        width="120" height="120"
-        alt="moogles logo"
-      >
+  <img
+    src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_120,h_120,c_fill' }}"
+    srcset="
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_120,h_120,c_fill' }} 1x,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_180,h_180,c_fill' }} 1.5x,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_240,h_240,c_fill' }} 2x
+    "
+    sizes="120px"
+    width="120" height="120"
+    alt="moogles logo"
+  >
     </a>
   </header>
 
@@ -104,6 +111,7 @@
                 {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
               "
               width="64" height="64"
+              loading="lazy" decoding="async" fetchpriority="low"
               alt="Discord"
             >
           </a>
@@ -118,6 +126,7 @@
                 {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
               "
               width="64" height="64"
+              loading="lazy" decoding="async" fetchpriority="low"
               alt="TikTok"
             >
           </a>
@@ -132,6 +141,7 @@
                 {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
               "
               width="64" height="64"
+              loading="lazy" decoding="async" fetchpriority="low"
               alt="Instagram"
             >
           </a>
@@ -146,6 +156,7 @@
                 {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
               "
               width="64" height="64"
+              loading="lazy" decoding="async" fetchpriority="low"
               alt="YouTube"
             >
           </a>
@@ -160,6 +171,7 @@
                 {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
               "
               width="64" height="64"
+              loading="lazy" decoding="async" fetchpriority="low"
               alt="Twitch"
             >
           </a>

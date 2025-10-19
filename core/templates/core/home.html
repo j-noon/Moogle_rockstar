@@ -30,7 +30,8 @@
         {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1600,c_limit' }} 1600w
       "
       sizes="(max-width: 900px) 100vw, 800px"
-      fetchpriority="high"
+      width="1200" height="400"
+      fetchpriority="high" decoding="async"
       alt="hero image of moogle avatar">
   </div>
   <br>
@@ -177,16 +178,19 @@
 
   <h2 id="Highlights-h2">Highlights</h2>
 <div id="clips-div">
-  <video class="clip" controls>
-    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.mp4" type="video/mp4">
+  <video class="clip" controls preload="none" playsinline muted
+         poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
+    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
-  <video class="clip" controls>
-    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753479979/scream-2_qmm8mp.mp4" type="video/mp4">
+  <video class="clip" controls preload="none" playsinline muted
+         poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
+    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753479979/scream-2_qmm8mp.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
-  <video class="clip" id="clip-3" controls>
-    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753480202/scream-3_mhuzh1.mp4" type="video/mp4">
+  <video class="clip" controls preload="none" playsinline muted
+         poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
+    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753480202/scream-3_mhuzh1.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 </div>
@@ -236,21 +240,33 @@
           
           <div class="badge-col">
             <p>Tier .1</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png" alt="Tier 1 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 1 Badge">
             <p>Tier .2</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_2_Sub_Badge_j2hnz7.png" alt="Tier 2 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 2 Badge">
             <p>Tier .3</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889562/Tier_3_Sub_Badge_jsblws.png" alt="Tier 3 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 3 Badge">
           </div>
 
           
           <div class="badge-col">
             <p>Tier .4</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_4_Sub_Badge_gt9jzr.png" alt="Tier 4 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 4 Badge">
             <p>Tier .5</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_5_Sub_Badge_r2pr5h.png" alt="Tier 5 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 5 Badge">
             <p>Tier .6</p>
-            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_6_Sub_badge_uqy3sb.png" alt="Tier 6 Badge">
+            <img
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1758889561/Tier_1_Sub_Badge_saojoc.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }}"
+              width="60" height="60" loading="lazy" decoding="async" fetchpriority="low" alt="Tier 6 Badge">
           </div>
         </div>
         <p>Subscribers also get fast-tracked custom orders!</p>
@@ -296,9 +312,32 @@
      width="480" height="720"
      alt="back ground robot poster">
 
+<script nonce="{{ csp_nonce }}">
+(function() {
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: just set srcs immediately
+    document.querySelectorAll('video.clip source[data-src]').forEach(function(s){ s.src = s.dataset.src; });
+    return;
+  }
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const vid = e.target;
+      const src = vid.querySelector('source[data-src]');
+      if (src && !src.src) {
+        src.src = src.dataset.src;
+        vid.load();
+      }
+      obs.unobserve(vid);
+    });
+  }, { rootMargin: '200px' });
+  document.querySelectorAll('video.clip').forEach(v => io.observe(v));
+})();
+</script>
 
   <script src="{% static 'core/js/aboutme.js' %}"></script>
   <script src="{% static 'core/js/comments.js' %}"></script>
   <script src="{% static 'core/js/rewardsSubSection.js' %}"></script>
+  <script src="{% static 'core/js/lazy-videos.js' %}"></script>
 
 {% endblock %}
