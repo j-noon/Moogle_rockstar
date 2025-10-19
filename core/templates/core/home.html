@@ -1,17 +1,37 @@
 {% extends "core/base.html" %}
 {% load static %}
+{% load cloudimg %}
 
 {% block title %}Home{% endblock %}
 
 {% block head %}
   <link rel="stylesheet" href="{% static 'core/css/home.css' %}">
+    <link
+    rel="preload" as="image"
+    href="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }}"
+    imagesrcset="
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }} 800w,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }} 1200w,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1600,c_limit' }} 1600w
+    "
+    imagesizes="(max-width: 900px) 100vw, 800px"
+  >
 {% endblock %}
 
 
 
 {% block content %}
  <div id="hero">
-    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp" alt="hero image of moogle avatar">
+        <img
+      src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }}"
+      srcset="
+        {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }} 800w,
+        {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }} 1200w,
+        {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1600,c_limit' }} 1600w
+      "
+      sizes="(max-width: 900px) 100vw, 800px"
+      fetchpriority="high"
+      alt="hero image of moogle avatar">
   </div>
   <br>
 
@@ -271,7 +291,10 @@
   </nav>
 </div>
 
-<img id="rewards-bkground-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1759086566/moogle-lady-lady-in-black-2_i7vvf9.png" alt="back ground robot poster">
+<img id="rewards-bkground-img"
+     src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1759086566/moogle-lady-lady-in-black-2_i7vvf9.png'|cld:'f_auto,q_auto,w_480,h_720,c_fill' }}"
+     width="480" height="720"
+     alt="back ground robot poster">
 
 
   <script src="{% static 'core/js/aboutme.js' %}"></script>

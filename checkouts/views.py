@@ -19,6 +19,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime, timezone as dt_tz
+from urllib.parse import urlsplit, urlunsplit
 
 User = get_user_model()
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -545,6 +546,19 @@ def stripe_webhook(request):
     return HttpResponse(status=200)
 
 
+def _force_https(url: str) -> str:
+    """
+    If a URL starts with http://, return the same URL using https://.
+    Leaves non-http URLs unchanged.
+    """
+    if not isinstance(url, str) or not url:
+        return url
+    parts = urlsplit(url)
+    if parts.scheme == "http":
+        return urlunsplit(("https", parts.netloc, parts.path, parts.query, parts.fragment))
+    return url
+
+
 @login_required
 def download_asset(request, item_id):
     order_item = get_object_or_404(OrderItem, id=item_id)
@@ -564,9 +578,10 @@ def download_asset(request, item_id):
         )
     elif order_item.image_url:
         try:
-            response = requests.get(order_item.image_url, stream=True)
+            secure_url = _force_https(order_item.image_url)
+            response = requests.get(secure_url, stream=True, timeout=20)
             response.raise_for_status()
-            filename = os.path.basename(order_item.image_url)
+            filename = os.path.basename(secure_url)
             resp = HttpResponse(
                 response.raw,
                 content_type=response.headers.get("Content-Type", "application/octet-stream")

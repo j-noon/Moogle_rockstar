@@ -1,4 +1,5 @@
 {% load static %}
+{% load cloudimg %} {# CHANGED: enable Cloudinary transform filter #}
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -10,13 +11,17 @@
 
   <!-- style sheet link -->
   <link rel="stylesheet" href="{% static 'core/css/base.css' %}">
+  <link rel="preconnect" href="https://res.cloudinary.com" crossorigin>
 
   {% block head %}{% endblock %}
 
   <!-- fav icons -->
-  <link rel="icon" sizes="180x180" href="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp">
-  <link rel="icon" type="image/png" sizes="16x16" href="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp">
-  <link rel="icon" type="image/png" sizes="32x32" href="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp">
+  <link rel="icon" sizes="180x180"
+        href="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_180,h_180,c_fill' }}">
+  <link rel="icon" type="image/png" sizes="16x16"
+        href="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_16,h_16,c_fill' }}">
+  <link rel="icon" type="image/png" sizes="32x32"
+        href="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_32,h_32,c_fill' }}">
 
   <title>{% block title %}Moogle-rockstar{% endblock %}</title>
 </head>
@@ -30,7 +35,7 @@
     <div id="user-profile">
       <div class="user-info">
         <img
-          src="{% if user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png{% endif %}"
+          src="{% if user.profile.profile_image %}{{ user.profile.profile_image.url }}{% else %}{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1759146448/istockphoto-1495088043-612x612-cutout_fdn7wa.png'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}{% endif %}"
           alt="Profile Pic"
           class="profile-pic"
           id="currentProfilePic"
@@ -39,9 +44,14 @@
           <p><strong>{{ user.username }}</strong></p>
           <span class="moogle-count">
             <img
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1760811664/moogles-moogles_t5gocu.png"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1760811664/moogles-moogles_t5gocu.png'|cld:'f_auto,q_auto,w_30,h_30,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1760811664/moogles-moogles_t5gocu.png'|cld:'f_auto,q_auto,w_30,h_30,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1760811664/moogles-moogles_t5gocu.png'|cld:'f_auto,q_auto,w_60,h_60,c_fill' }} 2x
+              "
+              width="30" height="30"
               alt="Moogle"
-              style="width: 30px; height: 30px; vertical-align: middle"
+              style="vertical-align: middle"
             >
             × {{ user.profile.moogles|default:0 }}
           </span>
@@ -54,7 +64,8 @@
 
     <a id="logo" href="{% url 'home' %}">
       <img
-        src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp"
+        src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097493/moog-logo_tt1iyj.webp'|cld:'f_auto,q_auto,w_120,h_120,c_fill' }}"
+        width="120" height="120"
         alt="moogles logo"
       >
     </a>
@@ -87,7 +98,12 @@
           <a href="https://discord.gg/GuKNawu4Xc" rel="noopener" target="_blank">
             <img
               class="footer-img"
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/discord-icon-black--cutout_sw2urq.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
+              "
+              width="64" height="64"
               alt="Discord"
             >
           </a>
@@ -96,7 +112,12 @@
           <a href="https://www.tiktok.com/@moog13rockstar" rel="noopener" target="_blank">
             <img
               class="footer-img"
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/tik-tok-logo-cutout_yf1cic.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
+              "
+              width="64" height="64"
               alt="TikTok"
             >
           </a>
@@ -105,7 +126,12 @@
           <a href="https://www.instagram.com/moog13rockstar" rel="noopener" target="_blank">
             <img
               class="footer-img"
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/insta-logo-cutout_abd6yr.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
+              "
+              width="64" height="64"
               alt="Instagram"
             >
           </a>
@@ -114,7 +140,12 @@
           <a href="https://www.youtube.com/@Moog13rockstar" rel="noopener" target="_blank">
             <img
               class="footer-img"
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753275216/Youtube-Icon-cutout_mgljr4.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
+              "
+              width="64" height="64"
               alt="YouTube"
             >
           </a>
@@ -123,7 +154,12 @@
           <a href="https://www.twitch.tv/moog13rockstar" rel="noopener" target="_blank">
             <img
               class="footer-img"
-              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp"
+              src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }}"
+              srcset="
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp'|cld:'f_auto,q_auto,w_64,h_64,c_fill' }} 1x,
+                {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1752275880/gallery/pzmngvwzwzyhzkznycse.webp'|cld:'f_auto,q_auto,w_128,h_128,c_fill' }} 2x
+              "
+              width="64" height="64"
               alt="Twitch"
             >
           </a>
@@ -164,7 +200,7 @@
   </div>
 </div>
 
-<script>
+<script nonce="{{ request.csp_nonce }}">
   // lightweight controller for the error modal
   (function () {
     var overlay = document.getElementById('uploadErrorModal');

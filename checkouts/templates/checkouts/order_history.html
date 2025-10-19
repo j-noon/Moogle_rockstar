@@ -1,5 +1,6 @@
 {% extends "core/base.html" %}
 {% load static %}
+{% load httpsify %}
 
 {% block head %}
 <link rel="stylesheet" href="{% static 'checkouts/css/order_history.css' %}">
@@ -37,7 +38,7 @@
                         <td data-label="Line Total">£{{ item.line_total|floatformat:2 }}</td>
                         <td data-label="Image">
                             {% if item.image_url %}
-                                <img src="{{ item.image_url }}" alt="{{ item.product_name }}" class="order-item-image">
+                                <img src="{{ item.image_url|to_https }}" alt="{{ item.product_name }}" class="order-item-image">
                             {% else %}
                                 <span>No Image</span>
                             {% endif %}

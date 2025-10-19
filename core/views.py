@@ -64,47 +64,46 @@ def register_view(request):
         email = (request.POST.get('email') or '').strip()
         if not email:
             # --- AJAX path: generic error for modal ---
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
-                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)
             # --- Non-AJAX fallback (no redirect now) ---
-            messages.error(request, "Please enter a valid email address.")   # (kept)
-            return render(request, 'core/register.html', {'form': form})     # <<< changed (no redirect)
+            messages.error(request, "Please enter a valid email address.")
+            return render(request, 'core/register.html', {'form': form})
 
         try:
             validate_email(email)
         except ValidationError:
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
-                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
-            messages.error(request, "Please enter a valid email address.")   # (kept)
-            return render(request, 'core/register.html', {'form': form})     # <<< changed (no redirect)
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)
+            messages.error(request, "Please enter a valid email address.")
+            return render(request, 'core/register.html', {'form': form})
 
         if User.objects.filter(email__iexact=email).exists():
             # Enumeration-safe behavior:
             # For AJAX: generic failure -> show your red error modal.
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':  # <<< added
-                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)
             # Non-AJAX fallback: keep your existing friendly message, but don't redirect.
-            messages.success(                                                     # (kept)
+            messages.success(
                 request,
                 "Thanks for registering. If an account needs action, we’ve emailed you."
             )
-            return render(request, 'core/register.html', {'form': form})         # <<< changed (no redirect)
+            return render(request, 'core/register.html', {'form': form})
 
         if form.is_valid():
             user = form.save(commit=False)
             user.email = email
             user.save()
             # AJAX success -> tell the front-end to open the green modal + give login URL for the CTA
-            if request.headers.get('x-requested-with') == 'XMLHttpRequest':      # <<< added
-                return JsonResponse({'ok': True, 'login_url': reverse('login')}, status=201)  # <<< added
+            if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+                return JsonResponse({'ok': True, 'login_url': reverse('login')}, status=201)
             # Non-AJAX fallback (no redirect) — show message and re-render a fresh form
-            messages.success(request, "Thanks for registering. Please check your email.")      # (kept)
-            return render(request, 'core/register.html', {'form': UserCreationForm()})         # <<< changed (no redirect)
+            messages.success(request, "Thanks for registering. Please check your email.")
+            return render(request, 'core/register.html', {'form': UserCreationForm()})
 
         # Form invalid (password mismatch/weak, etc.)
-        if request.headers.get('x-requested-with') == 'XMLHttpRequest':          # <<< added
-            return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)  # <<< added
-
+        if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            return JsonResponse({'ok': False, 'message': 'Sign up error. Please try again!'}, status=400)
         # Non-AJAX fallback: re-render with field errors (as you already show in template)
         return render(request, 'core/register.html', {'form': form})
 

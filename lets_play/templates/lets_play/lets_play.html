@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 {% load static %}
+{% load cloudimg %}
 
 {% block title %}lets_play{% endblock %}
 
@@ -27,6 +28,17 @@
     cursor: not-allowed; 
     }
   </style>
+
+    <link
+    rel="preload" as="image"
+    href="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }}"
+    imagesrcset="
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }} 800w,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }} 1200w,
+      {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1600,c_limit' }} 1600w
+    "
+    imagesizes="(max-width: 900px) 100vw, 800px"
+  >
 {% endblock %}
 
 {% block content %}
@@ -45,7 +57,16 @@
   {% endif %}
 
   <div id="hero-letsplay">
-    <img id="lets-play-hero-img" src="https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp" alt="hero image of moogle avatar">
+    <img id="lets-play-hero-img"
+         src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }}"
+         srcset="
+           {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_800,c_limit' }} 800w,
+           {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1200,c_limit' }} 1200w,
+           {{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1753097505/moog-hero-image_skqe57.webp'|cld:'f_auto,q_auto,w_1600,c_limit' }} 1600w
+         "
+         sizes="(max-width: 900px) 100vw, 800px"
+         fetchpriority="high"
+         alt="hero image of moogle avatar">
   </div>
 
 <div class="games-grid">
@@ -113,6 +134,26 @@
       <p id="memory-match-score">Score: 0</p>
     </div>
   </section>
+
+   <!-- -------------------------------------- -->
+  <!-- click through adventure game  start-->
+ <!-- -------------------------------------- -->
+     
+      <section class="game-card" id="adventure-card">
+        <h2 id="adventure-title">Adventure Game</h2>
+        <button id="advent-btn">play</button>
+        <div id="game-space">
+          <p>this section is a WAP (work in progress)</p>
+          <p>Brand new game coming soon!</p>
+        </div>
+      </section>
+
+
+
+  <!-- -------------------------------------- -->
+  <!-- click through adventure game  end -->
+ <!-- -------------------------------------- -->
+
 
   <!-- GAME 3 -->
   <section class="game-card" id="typing-card">
@@ -182,26 +223,6 @@
       <button id="closeGameModalBtn">Close</button>
     </div>
   </div>
- <!-- -------------------------------------- -->
-  <!-- click through adventure game  start-->
- <!-- -------------------------------------- -->
-     
-    <div id="adventure-game-container">
-      <h2 id="adventure-title"> Adventure Game </h2>
-        <button id="advent-btn"> play</button>
-          <div id="game-space"> 
-          <!-- game goes here-->
-             <p> this section is a WAP (work in progress) </p>
-             <p> Brand new game coming soon!</p>
-          
-        </div>
-    </div>
-
-
-
-  <!-- -------------------------------------- -->
-  <!-- click through adventure game  end -->
- <!-- -------------------------------------- -->
 
 
 
@@ -209,7 +230,7 @@
 
 
   <!-- expose state for JS -->
-  <script>
+  <script nonce="{{ request.csp_nonce }}">
     window.IS_SUBSCRIBED = {{ is_subscribed|yesno:"true,false" }};
     window.SUBSCRIBE_URL = "{{ subscribe_url }}";
     window.CURRENT_USER_ID = {{ current_user_id|default:"0" }};
