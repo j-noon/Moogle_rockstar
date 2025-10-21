@@ -159,11 +159,25 @@ a.view-cart-icon img {
 
 
 /* MEDIA QUERRIES */
-
-@media (min-width: 425px) {
-
+   /*375*/
+@media (min-width: 375px) {
     .search-bar {
         width: 90%;
+    }
+
+}
+
+@media (min-width: 388px) {
+    .search-bar {
+        width: 90%;
+    }
+
+}
+
+@media (min-width: 430px) {
+
+    .search-bar {
+        width: 89%;
     }
 
 }

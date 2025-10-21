@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'cloudinary_storage',
     'cloudinary',
+    'csp',
 
     'core.apps.CoreConfig',
     'gallery',
@@ -59,6 +60,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'csp.middleware.CSPMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -67,7 +69,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'core.middleware.HttpsRewriteMiddleware',
-    'core.middleware.CspNonceMiddleware',
 ]
 
 # Authentication settings
@@ -87,6 +88,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                "csp.context_processors.nonce",
             ],
         },
     },
@@ -180,4 +182,47 @@ EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
+# ------------------------------
+# Content Security Policy (django-csp)
+# ------------------------------
+CONTENT_SECURITY_POLICY = {
+    "DIRECTIVES": {
+        "default-src": ("'self'",),
+        "base-uri": ("'self'",),
+        "object-src": ("'none'",),
+        "form-action": ("'self'",),
 
+        "script-src": ("'self'", "https://js.stripe.com"),
+
+        "frame-src": ("'self'", "https://js.stripe.com"),
+        "child-src": ("'self'", "https://js.stripe.com"),
+
+        "connect-src": (
+            "'self'",
+            "https://api.stripe.com",
+            "https://r.stripe.com",
+            "https://m.stripe.network",
+            "https://q.stripe.com",
+        ),
+
+        "img-src": (
+            "'self'",
+            "data:",
+            "https://*.stripe.com",
+            "https://res.cloudinary.com",
+        ),
+
+        "media-src": ("'self'", "https://res.cloudinary.com"),
+
+        "font-src": ("'self'", "data:", "https://js.stripe.com"),
+
+        "style-src": ("'self'", "'unsafe-inline'"),
+    },
+
+    "NONCE_IN": ["script-src"],
+
+    # Set to True to test without blocking (optional)
+    # "REPORT_ONLY": False,
+}
+
+CSP_NONCE_IN = ["script-src"]

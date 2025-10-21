@@ -226,18 +226,15 @@
 
 
 
-
-
-
-  <!-- expose state for JS -->
-  <script nonce="{{ request.csp_nonce }}">
-    window.IS_SUBSCRIBED = {{ is_subscribed|yesno:"true,false" }};
-    window.SUBSCRIBE_URL = "{{ subscribe_url }}";
-    window.CURRENT_USER_ID = {{ current_user_id|default:"0" }};
-  </script>
+<div id="lp-config"
+     data-is-subscribed="{{ is_subscribed|yesno:'true,false' }}"
+     data-subscribe-url="{{ subscribe_url }}"
+     data-current-user-id="{{ current_user_id|default:'0' }}">
+</div>
 
 
   <!-- your game scripts -->
+  <script src="{% static 'lets_play/js/config.js' %}"></script>
   <script src="{% static 'lets_play/js/memory-game.js' %}"></script>
   <script src="{% static 'lets_play/js/memory-match.js' %}"></script>
   <script src="{% static 'lets_play/js/words-match.js' %}"></script>

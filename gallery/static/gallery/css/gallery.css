@@ -27,6 +27,22 @@
   border: solid 2px white;
 }
 
+.back-to-top {
+  padding: 8px;
+  text-decoration: none;
+  color: black;
+  background-color: white;
+  border: solid black 2px;
+  border-radius: 8px;
+  margin-left: 10px;
+}
+
+.back-to-top:hover {
+  background-color: black;
+  color: white;
+  border: solid white 2px;
+}
+
 /*MEDIA QUERRIES*/
 
 

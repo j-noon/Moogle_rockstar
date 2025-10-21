@@ -349,32 +349,10 @@
   {% endfor %}
 {% endif %}
 
-<script nonce="{{ csp_nonce }}">
-(function() {
-  if (!('IntersectionObserver' in window)) {
-    // Fallback: just set srcs immediately
-    document.querySelectorAll('video.clip source[data-src]').forEach(function(s){ s.src = s.dataset.src; });
-    return;
-  }
-  const io = new IntersectionObserver((entries, obs) => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      const vid = e.target;
-      const src = vid.querySelector('source[data-src]');
-      if (src && !src.src) {
-        src.src = src.dataset.src;
-        vid.load();
-      }
-      obs.unobserve(vid);
-    });
-  }, { rootMargin: '200px' });
-  document.querySelectorAll('video.clip').forEach(v => io.observe(v));
-})();
-</script>
-
   <script src="{% static 'core/js/aboutme.js' %}"></script>
   <script src="{% static 'core/js/comments.js' %}"></script>
   <script src="{% static 'core/js/rewardsSubSection.js' %}"></script>
   <script src="{% static 'core/js/lazy-videos.js' %}"></script>
+  <script src="{% static 'core/js/lazy-clips.js' %}"></script>
 
 {% endblock %}
