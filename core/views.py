@@ -21,6 +21,12 @@ User = get_user_model()
 token_generator = PasswordResetTokenGenerator()
 
 
+def _force_https(url: str) -> str:
+    if isinstance(url, str) and url.startswith("http://"):
+        return "https://" + url[len("http://"):]
+    return url
+
+
 @login_required
 @require_POST
 def delete_comment(request):
@@ -124,9 +130,10 @@ def update_profile_image(request):
     if form.is_valid():
         profile = form.save()
         if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+            secure_url = _force_https(profile.profile_image.url)
             return JsonResponse({
                 'message': 'Profile picture updated!',
-                'image_url': profile.profile_image.url
+                'image_url': secure_url
             })
         messages.success(request, "Profile picture updated!")
         return redirect('home')
