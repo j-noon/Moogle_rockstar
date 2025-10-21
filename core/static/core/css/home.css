@@ -229,6 +229,34 @@ table {
   width: 90%;
 }
 
+.comment-edit-btn {
+  background-color: white;
+  color: black;
+  border: solid black 2px;
+  border-radius: 8px;
+}
+
+.comment-edit-btn:hover {
+  background-color: orange;
+  color: white;
+  border: solid  black 2px;
+  border-radius: 8px;
+}
+
+.comment-delete-btn {
+  background-color: white;
+  color: black;
+  border: solid black 2px;
+  border-radius: 8px;
+}
+
+.comment-delete-btn:hover {
+  background-color: red;
+  color: white;
+  border: solid black 2px;
+  border-radius: 8px;
+}
+
 /* === Clips Section === */
 
 #clips-div {
@@ -440,6 +468,54 @@ table {
   border: solid black 2px;
 }
 
+
+/* --- Modal base --- */
+.modal-overlay[hidden] { display: none; }
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 9999;
+}
+
+.modal {
+  box-sizing: border-box;
+  width: clamp(280px, 92vw, 560px);
+  max-height: min(85vh, 640px);
+  overflow: auto;
+  background: #e206be;
+  border: solid black 2px;
+  border-radius: 16px;
+  padding: 18px 20px 16px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  position: relative;
+}
+
+.modal-title { margin: 0 0 10px; font-size: 1.25rem; }
+.modal-desc  { margin: 0 0 18px; }
+
+
+.modal-actions .btn {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 2px solid #000;
+  background: #fff;
+  cursor: pointer;
+}
+
+
+.btn-primary { background: #8a2be2; color: black; border-color: #000; }
+.btn-danger  { background: #c0392b; color: black; border-color: #000; }
+.modal-close-x {
+  position: absolute; top: 8px; right: 10px;
+  background: transparent; border: none; font-size: 24px; line-height: 1; cursor: pointer;
+}
+
+
+
 /*MEDIA QUERRIES*/
 
 /* QURRIES MIN SCREEN 768*/
@@ -623,11 +699,6 @@ table {
     margin-left: 30px !important;
   }
 
-  #sub-ben-tittle {
-    position: absolute;
-    top: clamp(570px, 38vw, 640px);
-    right: clamp(170px, 18vw, 240px);
-  }
 
   /* Rewards card */
   #sub-rewards {
@@ -661,12 +732,10 @@ table {
     margin-bottom: 40px;
     margin-left: 120px;
   }
-}
 
-@media (min-width: 1440px) {
   #sub-ben-tittle {
     position: absolute;
-    top: 700px;
+    top: 710px;
     right: 200px;
   }
 
@@ -701,11 +770,13 @@ table {
 
 /* 1920 (1080p) */
 @media (min-width: 1920px) and (max-width: 2559px) {
-  #sub-ben-tittle { top: 850px; }
-  #sub-rewards     { top: 920px; }
-  #rewards-bkground-img { top: 1100px; height: 420px; }
-  #Schedule-title  { top: 910px; }
-  #schedule-p      { top: 1250px; }
+  #sub-ben-tittle { top: 900px; right: 250px; }
+  #sub-rewards     { top: 970px; right: 80px; }
+  #rewards-bkground-img { top: 1150px; height: 720px; right: 80px; }
+  #Schedule-title  { top: 910px; left: 200px; }
+  #schedule-p      { top: 1280px; left: 250px; }
+  .schedule-wrapper { margin-left: 200px;}
+  #comments-container {margin-left: 350px;}
 }
 
 /* 2560+ (4K/ultrawide) */

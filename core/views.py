@@ -151,6 +151,9 @@ def home(request):
             comment = form.save(commit=False)
             comment.user = request.user
             comment.save()
+            if not edit_id:
+                messages.success(request, "Thank you for commenting with Moogle.", extra_tags="comment_ok")
+
             return redirect('home')
 
     all_comments = Comment.objects.all().order_by('-created_at')

@@ -292,7 +292,7 @@
       <button class="dropbtn">Site Subs</button>
       <div class="dropdown-content dd-center-right">
         <p>
-          <a href="/subscriptions/manage/">--&gt;Subscribe here&lt;--</a> to unlock more games and earn more moogles.
+          <a style="color: purple; text-decoration: underline;" href="/subscriptions/manage/">--&gt;Subscribe here&lt;--</a> to unlock more games and earn more moogles.
         </p>
       </div>
     </div>
@@ -302,7 +302,7 @@
       <button class="dropbtn">Reach Me</button>
       <div class="dropdown-content dd-center">
         <p>
-          <a href="https://discord.gg/GuKNawu4Xc" target="_blank" rel="noopener">--&gt;Join our Discord&lt;--</a> to keep up to date with live updates and what’s new on Moogle-Rocktar.
+          <a style="color: purple; text-decoration: underline;"  href="https://discord.gg/GuKNawu4Xc" target="_blank" rel="noopener">--&gt;Join our Discord&lt;--</a> to keep up to date with live updates and what’s new on Moogle-Rocktar.
         </p>
       </div>
     </div>
@@ -325,6 +325,29 @@
      src="{{ 'https://res.cloudinary.com/ddmslr9na/image/upload/v1759086566/moogle-lady-lady-in-black-2_i7vvf9.png'|cld:'f_auto,q_auto,w_480,h_720,c_fill' }}"
      width="480" height="720"
      alt="back ground robot poster">
+
+<!-- Reusable Modal Overlay -->
+<div id="modal-overlay" class="modal-overlay" hidden aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" aria-describedby="modal-desc">
+    <h3 id="modal-title" class="modal-title">Notice</h3>
+    <p id="modal-desc" class="modal-desc">Message</p>
+
+    <div id="modal-actions" class="modal-actions">
+      <!-- Buttons are injected by JS depending on the context -->
+    </div>
+
+    <button type="button" id="modal-close-x" class="modal-close-x" aria-label="Close">×</button>
+  </div>
+</div>
+
+{# Message-from-server hook: render success text into data attribute (used to show a post-success modal) #}
+{% if messages %}
+  {% for message in messages %}
+    {% if 'comment_ok' in message.tags %}
+      <div id="server-comment-success" data-msg="Thank you for commenting with Moogle."></div>
+    {% endif %}
+  {% endfor %}
+{% endif %}
 
 <script nonce="{{ csp_nonce }}">
 (function() {

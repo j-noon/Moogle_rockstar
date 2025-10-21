@@ -1,16 +1,77 @@
 document.addEventListener("DOMContentLoaded", function () {
   "use strict";
 
-  // ---------- helpers ----------
+  // ---------- modal helpers ----------
+  const overlay = document.getElementById("modal-overlay");
+  const titleEl = document.getElementById("modal-title");
+  const descEl  = document.getElementById("modal-desc");
+  const actions = document.getElementById("modal-actions");
+  const closeX  = document.getElementById("modal-close-x");
+
+  function openModal({ title, message, buttons = [], cssClass = "" }) {
+    titleEl.textContent = title || "Notice";
+    descEl.textContent = message || "";
+    actions.innerHTML = "";
+    overlay.classList.remove("confirm");
+    if (cssClass) overlay.querySelector(".modal").classList.add(cssClass);
+    // create buttons
+    buttons.forEach(function (btn) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "btn " + (btn.className || "");
+      b.textContent = btn.label || "OK";
+      b.addEventListener("click", function () { btn.onClick && btn.onClick(); });
+      actions.appendChild(b);
+    });
+    overlay.hidden = false;
+    overlay.setAttribute("aria-hidden", "false");
+  }
+
+  function closeModal() {
+    overlay.hidden = true;
+    overlay.setAttribute("aria-hidden", "true");
+    const m = overlay.querySelector(".modal");
+    m.classList.remove("confirm");
+  }
+
+  if (closeX) closeX.addEventListener("click", closeModal);
+  overlay?.addEventListener("click", function (e) {
+    // click outside dialog closes
+    if (e.target === overlay) closeModal();
+  });
+
+  // ---------- csrf ----------
   function getCsrfToken() {
     const el = document.querySelector("[name=csrfmiddlewaretoken]");
     return el ? el.value : null;
   }
 
-  function confirmAndDelete(commentId) {
+  // ---------- delete logic (via modal) ----------
+  function confirmDelete(commentId) {
     if (!commentId) return;
-    if (!confirm("Are you sure you want to delete this comment?")) return;
 
+    openModal({
+      title: "Delete Comment",
+      message: "Are you sure you wish to delete this comment?",
+      cssClass: "confirm",
+      buttons: [
+        {
+          label: "No",
+          className: "",
+          onClick: closeModal
+        },
+        {
+          label: "Yes, delete",
+          className: "btn-danger",
+          onClick: function () {
+            performDelete(commentId);
+          }
+        }
+      ]
+    });
+  }
+
+  function performDelete(commentId) {
     const csrf = getCsrfToken();
     if (!csrf) return;
 
@@ -19,49 +80,62 @@ document.addEventListener("DOMContentLoaded", function () {
     formData.append("comment_id", commentId);
 
     fetch("/delete-comment/", {
-      body: formData,
+      method: "POST",
       headers: { "X-Requested-With": "XMLHttpRequest" },
-      method: "POST"
+      body: formData
     })
-      .then(function (response) {
-        if (response.ok) {
-          window.location.reload();
+      .then(function (res) {
+        if (res.ok) {
+          // show success message in the same modal, then reload
+          openModal({
+            title: "Deleted",
+            message: "Your chosen comment has now been deleted.",
+            buttons: [
+              {
+                label: "OK",
+                className: "btn-primary",
+                onClick: function () { window.location.reload(); }
+              }
+            ]
+          });
+        } else if (res.status === 403) {
+          openModal({
+            title: "Not allowed",
+            message: "You can only delete your own comments.",
+            buttons: [{ label: "OK", className: "btn-primary", onClick: closeModal }]
+          });
         } else {
-          const status = response.status;
-          console.error("Delete failed with status:", status);
-          if (status === 403) alert("You can only delete your own comments.");
+          openModal({
+            title: "Error",
+            message: "Delete failed. Please try again.",
+            buttons: [{ label: "OK", className: "btn-primary", onClick: closeModal }]
+          });
         }
       })
-      .catch(function (error) {
-        console.error("Delete error:", error);
+      .catch(function () {
+        openModal({
+          title: "Error",
+          message: "Delete failed. Please try again.",
+          buttons: [{ label: "OK", className: "btn-primary", onClick: closeModal }]
+        });
       });
   }
 
-  // Grab just the comment text (exclude username + action buttons)
+  // ---------- extract text for edit (unchanged, but robust) ----------
   function extractCommentTextById(commentId) {
     const el = document.querySelector(`.single-comment[data-comment-id="${commentId}"]`);
     if (!el) return "";
-
-    // Preferred: if you add <span class="comment-body">...</span> around the text,
-    // we’ll use it automatically.
     const body = el.querySelector(".comment-body");
     if (body) return body.innerText.trim();
-
-    // Fallback: clone, remove username + actions, then read text
     const clone = el.cloneNode(true);
-    const strong = clone.querySelector("strong");
-    if (strong) strong.remove();
-    const actions = clone.querySelector(".comment-actions");
-    if (actions) actions.remove();
-
-    // Now only the raw comment text remains
+    const strong = clone.querySelector("strong"); if (strong) strong.remove();
+    const actions = clone.querySelector(".comment-actions"); if (actions) actions.remove();
     return clone.textContent.trim();
   }
 
   function startEdit(commentId) {
     const textInput = document.getElementById("id_text");
     if (!textInput || !commentId) return;
-
     const commentText = extractCommentTextById(commentId);
     textInput.value = commentText;
     textInput.focus();
@@ -81,64 +155,34 @@ document.addEventListener("DOMContentLoaded", function () {
     if (commentBtn) commentBtn.textContent = "Update Comment";
   }
 
-  // ---------- existing "Delete Last" ----------
+  // ---------- "Delete Last" -> open modal ----------
   const deleteBtn = document.getElementById("delete-last-btn");
   if (deleteBtn) {
-    deleteBtn.addEventListener("click", function handleDeleteClick(event) {
-      const target = event.currentTarget;
-      const commentId = target.getAttribute("data-comment-id");
-      if (confirm("Are you sure you want to delete this comment?")) {
-        const formData = new FormData();
-
-        const csrfSelector = "[name=csrfmiddlewaretoken]";
-        const csrfTokenEl = document.querySelector(csrfSelector);
-        if (!csrfTokenEl) return;
-
-        formData.append("csrfmiddlewaretoken", csrfTokenEl.value);
-        formData.append("comment_id", commentId);
-
-        fetch("/delete-comment/", {
-          body: formData,
-          headers: { "X-Requested-With": "XMLHttpRequest" },
-          method: "POST"
-        })
-          .then(function (response) {
-            if (response.ok) {
-              window.location.reload();
-            } else {
-              const status = response.status;
-              console.error("Delete failed with status:", status);
-            }
-          })
-          .catch(function (error) {
-            console.error("Delete error:", error);
-          });
-      }
+    deleteBtn.addEventListener("click", function (e) {
+      const commentId = e.currentTarget.getAttribute("data-comment-id");
+      confirmDelete(commentId);
     });
   }
 
-  // ---------- existing "Edit Last" ----------
+  // ---------- "Edit Last" (same logic) ----------
   const editBtn = document.getElementById("edit-last-btn");
   if (editBtn) {
-    editBtn.addEventListener("click", function handleEditClick(event) {
-      const target = event.currentTarget;
-      const commentId = target.getAttribute("data-comment-id");
+    editBtn.addEventListener("click", function (e) {
+      const commentId = e.currentTarget.getAttribute("data-comment-id");
       startEdit(commentId);
     });
   }
 
-  // ---------- NEW: per-comment buttons via delegation ----------
+  // ---------- per-comment buttons via delegation ----------
   const feed = document.getElementById("comment-feed");
   if (feed) {
     feed.addEventListener("click", function (e) {
       const target = e.target;
-
       if (target.classList.contains("comment-delete-btn")) {
         const commentId = target.getAttribute("data-comment-id");
-        confirmAndDelete(commentId);
+        confirmDelete(commentId);
         return;
       }
-
       if (target.classList.contains("comment-edit-btn")) {
         const commentId = target.getAttribute("data-comment-id");
         startEdit(commentId);
@@ -146,4 +190,15 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  // ---------- show post-success modal if server flagged one ----------
+  (function maybeShowSuccessModal() {
+    const hook = document.getElementById("server-comment-success");
+    if (!hook) return;
+    openModal({
+      title: "Thanks!",
+      message: hook.dataset.msg || "Thank you for commenting with Moogle.",
+      buttons: [{ label: "OK", className: "btn-primary", onClick: closeModal }]
+    });
+  })();
 });

@@ -302,7 +302,7 @@ h1 {
 
 /* QURRIES MIN SCREEN 768 */
 @media screen and (min-width: 768px) {
-  .tittle { font-size: xx-large; }
+  .tittle { font-size: 36px; }
 
   #logo img {
     height: 100px;
@@ -404,5 +404,13 @@ h1 {
     height: 100px;
     width: auto;
     display: block;
+  }
+}
+
+
+@media screen and (min-width: 768px) {
+
+  .tittle {
+    font-size: 50px;
   }
 }
