@@ -666,46 +666,46 @@ table {
 @media (min-width: 1440px) {
   #sub-ben-tittle {
     position: absolute;
-    top: 590px;
-    right: 180px;
+    top: 700px;
+    right: 200px;
   }
 
   #sub-rewards {
     position: absolute;
-    top: 650px;
-    right: 60px;
+    top: 770px;
+    right: 30px;
     width: 520px;
   }
 
   #Schedule-title {
     position: absolute;
-    top: 650px;
-    left: 160px;
+    top: 750px;
+    left: 150px;
   }
 
   #schedule-p {
     position: absolute;
-    top: 980px;
+    top: 1100px;
     left: 60px;
   }
 
   #rewards-bkground-img {
     position: absolute;
-    top: 840px;
-    right: 60px;
-    width: 480px;
-    height: 360px;
+    top: 950px;
+    right: 30px;
+    width: 520px;
+    height: 370px;
     object-fit: cover;
   }
 }
 
 /* 1920 (1080p) */
 @media (min-width: 1920px) and (max-width: 2559px) {
-  #sub-ben-tittle { top: 770px; }
-  #sub-rewards     { top: 840px; }
-  #rewards-bkground-img { top: 1030px; }
-  #Schedule-title  { top: 840px; }
-  #schedule-p      { top: 1170px; }
+  #sub-ben-tittle { top: 850px; }
+  #sub-rewards     { top: 920px; }
+  #rewards-bkground-img { top: 1100px; height: 420px; }
+  #Schedule-title  { top: 910px; }
+  #schedule-p      { top: 1250px; }
 }
 
 /* 2560+ (4K/ultrawide) */

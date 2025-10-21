@@ -206,9 +206,23 @@
     {% for comment in comments %}
       <div class="single-comment" data-comment-id="{{ comment.id }}">
         <strong>{{ comment.user.username }}:</strong> {{ comment.text }}
-      </div>
-    {% endfor %}
-  </div>
+      {% if comment.user_id == request.user.id %}
+        <div class="comment-actions">
+          <button type="button"
+                  class="comment-edit-btn action-btn"
+                  data-comment-id="{{ comment.id }}">
+            Edit
+          </button>
+          <button type="button"
+                  class="comment-delete-btn action-btn"
+                  data-comment-id="{{ comment.id }}">
+            Delete
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  {% endfor %}
+</div>
 
   {% if user.is_authenticated %}
     <form method="POST" id="comment-form">
@@ -216,7 +230,7 @@
       {{ form.text }}
       <div class="button-group">
         <button id="comment-btn" type="submit">Send</button>
-        {% if comments.exists %}
+        {% if last_user_comment %}
           <button type="button" id="delete-last-btn" class="action-btn" data-comment-id="{{ last_user_comment.id }}">Delete Last</button>
                 <button type="button" id="edit-last-btn" class="action-btn" data-comment-id="{{ last_user_comment.id }}">Edit Last</button>
         {% endif %}

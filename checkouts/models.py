@@ -3,6 +3,7 @@ from django.conf import settings
 
 User = settings.AUTH_USER_MODEL
 
+
 class Order(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),

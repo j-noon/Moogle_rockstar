@@ -4,8 +4,6 @@ from decimal import Decimal
 
 
 # Create your models here.
-
-
 class Product(models.Model):
     class Category(models.TextChoices):
         EMOTES = "emotes", "Emotes"
