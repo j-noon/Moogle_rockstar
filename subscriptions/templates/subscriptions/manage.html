@@ -7,25 +7,37 @@
 
 {% block content %}
 <h1 id="manage-title">Manage Subscription</h1>
-<div class="manage-card class="auth-container">
-  
 
+<div class="manage-card auth-container">
   {% if subscription.status == "active" %}
-    <p><strong>Status:</strong> Active</p>
-
-    {% if subscription.current_period_end %}
-      <p><strong>Active until:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
-      {% if days_left is not None %}
-        <p><strong>Renews in:</strong> {{ days_left }} day{{ days_left|pluralize }}</p>
+    {% if cancel_at_period_end %}
+      <p><strong>Status:</strong> Active (will cancel at period end)</p>
+      {% if subscription.current_period_end %}
+        <p><strong>Ends on:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
       {% endif %}
+      <p style="margin:.75rem 0; padding:.75rem 1rem; background:#fff8e1; border:1px solid #f0d48a; color:#6b5600; border-radius:8px;">
+        Your subscription remains active until the period end above. You won’t be charged for the next cycle.
+      </p>
+      <form method="post" action="{% url 'subscriptions:resume' %}">
+        {% csrf_token %}
+        <button class="auth-btn" type="submit">Keep subscription</button>
+      </form>
     {% else %}
-      <p><strong>Renews:</strong> Automatically each billing period</p>
-    {% endif %}
+      <p><strong>Status:</strong> Active</p>
+      {% if subscription.current_period_end %}
+        <p><strong>Renews on:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
+        {% if days_left is not None %}
+          <p><strong>Renews in:</strong> {{ days_left }} day{{ days_left|pluralize }}</p>
+        {% endif %}
+      {% else %}
+        <p><strong>Renews:</strong> Automatically each billing period</p>
+      {% endif %}
 
-    <form method="post" action="{% url 'subscriptions:cancel' %}">
-      {% csrf_token %}
-      <button class="auth-btn" type="submit">Cancel at period end</button>
-    </form>
+      <form method="post" action="{% url 'subscriptions:cancel' %}">
+        {% csrf_token %}
+        <button class="auth-btn" type="submit">Cancel at period end</button>
+      </form>
+    {% endif %}
 
   {% elif subscription.status == "canceled" %}
     <p><strong>Status:</strong> Canceled</p>
