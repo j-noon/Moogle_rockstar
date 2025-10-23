@@ -129,8 +129,68 @@ label .required { color: red; margin-left: 3px; }
   align-items: center;
   justify-content: center;
 }
+
 .spinner { width: 40px; height: 40px; border: 4px solid #007bff; border-top: 4px solid transparent; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* --- fill out form modal --- */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  background: rgba(0, 0, 0, 0.45);
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.is-open { display: flex; }
+
+.modal-card {
+  background: #db1f8a;
+  width: 100%;
+  max-width: 480px;
+  border: solid black 2px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+  padding: 1.25rem 1.25rem 1rem;
+  outline: none;
+}
+
+.modal-title {
+  margin: 0 0 .5rem 0;
+  font-size: 1.1rem;
+}
+
+.modal-text {
+  margin: 0 0 .5rem 0;
+  color: black;
+}
+
+.modal-list {
+  margin: 0 0 1rem 1.25rem;
+  padding: 0;
+  color: black;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  background: #007bff;
+  color: #fff;
+  border: 0;
+  padding: .6rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .95rem;
+}
+.modal-btn:hover { background: green; }
+
+
 
 /* MEDIA QURRIES */
 

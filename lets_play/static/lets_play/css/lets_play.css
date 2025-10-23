@@ -379,6 +379,13 @@ button[data-locked="true"] {
   gap: .25rem;
 }
 
+.modal-actions {
+  display: flex;
+  gap: .5rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
 /* ADVENTURE GAME!!!!!!*/
 #adventure-card {
   display:none;

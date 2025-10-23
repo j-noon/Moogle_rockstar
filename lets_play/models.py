@@ -10,10 +10,10 @@ class PlayToken(models.Model):
     """
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="play_tokens")
-    game = models.CharField(max_length=50)               # e.g. "math", "memory", "typing"
-    max_award = models.PositiveIntegerField(default=50)  # hard upper bound per token
+    game = models.CharField(max_length=50)
+    max_award = models.PositiveIntegerField(default=50)
     issued_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField()                  # usually ~10 minutes after issue
+    expires_at = models.DateTimeField()
     used_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):

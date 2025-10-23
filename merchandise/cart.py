@@ -2,23 +2,17 @@ from decimal import Decimal
 from typing import Dict
 
 
-CART_SESSION_KEY = "cart" 
+CART_SESSION_KEY = "cart"
 MAX_QTY_PER_ITEM = 20
-
-
 
 
 def _get_cart(session) -> Dict[str, int]:
     return session.get(CART_SESSION_KEY, {})
 
 
-
-
 def _save_cart(session, cart: Dict[str, int]):
     session[CART_SESSION_KEY] = cart
     session.modified = True
-
-
 
 
 def add_item(request, product_id: int, qty: int = 1):
@@ -28,8 +22,6 @@ def add_item(request, product_id: int, qty: int = 1):
     new_qty = max(1, min(MAX_QTY_PER_ITEM, current + int(qty)))
     cart[pid] = new_qty
     _save_cart(request.session, cart)
-
-
 
 
 def set_quantity(request, product_id: int, qty: int):
@@ -43,15 +35,11 @@ def set_quantity(request, product_id: int, qty: int):
     _save_cart(request.session, cart)
 
 
-
-
 def remove_item(request, product_id: int):
     cart = _get_cart(request.session)
     pid = str(product_id)
     cart.pop(pid, None)
     _save_cart(request.session, cart)
-
-
 
 
 def as_items(session, queryset):

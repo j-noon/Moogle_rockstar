@@ -7,4 +7,3 @@ urlpatterns = [
     path('start/', views.start_play, name='start_play'),
     path('update_moogles/', views.update_moogles, name='update_moogles'),
 ]
-

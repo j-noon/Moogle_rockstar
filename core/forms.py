@@ -34,7 +34,7 @@ class ProfileImageForm(forms.ModelForm):
             raise ValidationError("Error: wrong file type. Please upload a JPEG or PNG.")
         try:
             img = Image.open(f)
-            img.verify()  # light integrity check
+            img.verify()
         except Exception:
             raise ValidationError("Error: file is not a valid image. Please upload a JPEG or PNG.")
         max_bytes = 5 * 1024 * 1024

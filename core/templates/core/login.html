@@ -24,7 +24,33 @@
         
         <div class="form-group">
             <label for="password">Password:</label>
-            <input type="password" id="password" name="password" required class="form-input">
+
+            <div class="password-input-wrapper">
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    required
+                    class="form-input"
+                    aria-describedby="pw-visibility-help"
+                >
+
+                <button
+                    type="button"
+                    id="toggle-password"
+                    class="toggle-password-btn"
+                    aria-label="Show password"
+                    aria-controls="password"
+                    aria-pressed="false"
+                >
+                  <!-- eye (visible) -->
+                  <svg class="icon-eye" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                    <path d="M12 5c-7 0-10 7-10 7s3 7 10 7 10-7 10-7-3-7-10-7zm0 12a5 5 0 110-10 5 5 0 010 10z"/>
+                  </svg>
+                </button>
+            </div>
+            <small id="pw-visibility-help" class="visually-hidden">Use the button to show or hide your password.</small>
+            <!-- end: password input with show/hide toggle -->
         </div>
         
         <button type="submit" class="submit-btn auth-btn">Login</button>
@@ -35,4 +61,7 @@
         <a href="{% url 'forgot_password' %}" class="auth-link-text">Forgot your password?</a>
     </p>
 </div>
+
+    <script src="{% static 'core/js/login.js' %}"></script>
+
 {% endblock %}

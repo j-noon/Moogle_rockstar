@@ -481,13 +481,11 @@ def stripe_webhook(request):
     elif event['type'] == 'invoice.payment_succeeded':
         invoice = event['data']['object']
         customer_id = invoice.get('customer')
-        # Subscription id can live in a few places; try them in order:
         subscription_id = invoice.get('subscription')
         if not subscription_id:
             parent = invoice.get('parent') or {}
             subscription_id = ((parent.get('subscription_details') or {}).get('subscription'))
         if not subscription_id:
-            # Try first line item’s subscription_details
             lines = (invoice.get('lines') or {}).get('data') or []
             if lines:
                 parent = lines[0].get('parent') or {}
@@ -506,7 +504,6 @@ def stripe_webhook(request):
 
             if sub_row:
                 sub_row.status = "active"
-                # Set/refresh period end if we can infer it from the invoice lines
                 try:
                     lines = (invoice.get('lines') or {}).get('data') or []
                     if lines and 'period' in lines[0]:
@@ -525,9 +522,8 @@ def stripe_webhook(request):
     elif event['type'] == 'invoice.payment_failed':
         inv = event['data']['object']
         customer_id = inv.get('customer')
-        stripe_sub_id = (inv.get('subscription') 
-                        or (inv.get('subscription_details') or {}).get('subscription'))
-        
+        stripe_sub_id = (inv.get('subscription')
+                        or (inv.get('subscription_details') or {}).get('subscription'))        
         from subscriptions.models import Subscription
         sub = None
         if stripe_sub_id:
@@ -536,7 +532,6 @@ def stripe_webhook(request):
             sub = Subscription.objects.filter(stripe_customer_id=customer_id).first()
 
         if sub:
-            # Stripe may later flip to 'unpaid' or keep 'past_due' based on your settings
             sub.status = "past_due"
             sub.save(update_fields=["status"])
             print(f"⛔ Payment failed; marked subscription {stripe_sub_id} as past_due")

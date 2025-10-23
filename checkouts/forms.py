@@ -35,7 +35,7 @@ class CheckoutForm(forms.ModelForm):
         order.address = f"{self.cleaned_data['house_number']}, {self.cleaned_data['street_name']}, " \
                         f"{self.cleaned_data['city']}, {self.cleaned_data['postcode']}, {self.cleaned_data['country']}"
 
-        
+
         if user:
             order.user = user
         if subtotal is not None:

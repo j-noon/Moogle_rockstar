@@ -190,4 +190,17 @@
         <div class="text">Processing payment — please do not close or refresh this window.</div>
     </div>
 </div>
+
+<!-- fill the form modal -->
+<div id="validation-modal" class="modal-overlay" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="validation-modal-title">
+  <div class="modal-card" role="document" tabindex="-1">
+    <h3 id="validation-modal-title" class="modal-title">Please complete the required form</h3>
+    <p class="modal-text">Before continuing, please fill in the following:</p>
+    <ul id="missing-fields-list" class="modal-list"></ul>
+
+    <div class="modal-actions">
+      <button type="button" id="modal-close" class="modal-btn">OK</button>
+    </div>
+  </div>
+</div>
 {% endblock %}

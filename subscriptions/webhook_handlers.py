@@ -5,8 +5,10 @@ from .models import Subscription
 
 User = get_user_model()
 
+
 def _epoch_to_dt(ts):
     return datetime.fromtimestamp(ts, tz=timezone.utc) if ts else None
+
 
 def handle_checkout_completed(event):
     session = event['data']['object']
@@ -28,6 +30,7 @@ def handle_checkout_completed(event):
     sub.status = "active"
     sub.save()
 
+
 def handle_invoice_succeeded(event):
     invoice = event['data']['object']
     stripe_sub_id = invoice.get("subscription")
@@ -44,6 +47,7 @@ def handle_invoice_succeeded(event):
     sub.status = "active"
     sub.save()
 
+
 def handle_subscription_deleted(event):
     stripe_sub = event['data']['object']
     stripe_sub_id = stripe_sub.get("id")
@@ -55,6 +59,7 @@ def handle_subscription_deleted(event):
     sub.status = "canceled"
     sub.current_period_end = _epoch_to_dt(stripe_sub.get("current_period_end"))
     sub.save()
+
 
 def handle_subscription_updated(event):
     stripe_sub = event['data']['object']

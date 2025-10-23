@@ -13,7 +13,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = ('id', 'email', 'user', 'status', 'total', 'created_at')
     inlines = (OrderItemInline,)
     readonly_fields = ('created_at', 'updated_at')
-    
+
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):

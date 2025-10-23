@@ -69,10 +69,9 @@ def start_play(request):
             expires_at=now + timedelta(seconds=TOKEN_MAX_AGE),
         )
 
-        # sign token id + user id + game for tamper protection + timestamp
         signer = TimestampSigner(salt="letsplay.playtoken")
         payload = f"{token.id}:{request.user.id}:{game}:{token.max_award}"
-        signed = signer.sign(payload)  # looks like "<payload>:<sig>"
+        signed = signer.sign(payload)
 
         return JsonResponse({
             "play_token": signed,
@@ -109,7 +108,6 @@ def update_moogles(request):
     signer = TimestampSigner(salt="letsplay.playtoken")
     try:
         payload = signer.unsign(play_token_signed, max_age=TOKEN_MAX_AGE)
-        # "<uuid>:<user_id>:<game>:<max_award>"
         token_id_str, user_id_str, game_key, token_max_award_str = payload.split(":", 3)
     except SignatureExpired:
         return JsonResponse({"error": "Token expired."}, status=400)

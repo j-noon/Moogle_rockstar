@@ -35,6 +35,53 @@ document.addEventListener("DOMContentLoaded", function () {
     const payButton = document.getElementById("pay-button");
     const form = document.getElementById("checkout-form");
     const overlay = document.getElementById("processing-overlay");
+    const validationModal = document.getElementById("validation-modal");
+    const missingList = document.getElementById("missing-fields-list");
+    const modalClose = document.getElementById("modal-close");
+
+    function openValidationModal(missingArr) {
+        if (!validationModal || !missingList) { return; }
+        // Reset list
+        missingList.innerHTML = "";
+        if (Array.isArray(missingArr) && missingArr.length) {
+            let i = 0;
+            const n = missingArr.length;
+            while (i < n) {
+                const li = document.createElement("li");
+                li.textContent = missingArr[i];
+                missingList.appendChild(li);
+                i += 1;
+            }
+        } else {
+            const li = document.createElement("li");
+            li.textContent = "Required information is missing.";
+            missingList.appendChild(li);
+        }
+        validationModal.classList.add("is-open");
+        validationModal.setAttribute("aria-hidden", "false");
+        const card = validationModal.querySelector(".modal-card");
+        if (card) { card.focus(); }
+    }
+
+    function closeValidationModal() {
+        if (!validationModal) { return; }
+        validationModal.classList.remove("is-open");
+        validationModal.setAttribute("aria-hidden", "true");
+    }
+
+    if (modalClose) {
+        modalClose.addEventListener("click", closeValidationModal);
+    }
+    if (validationModal) {
+        validationModal.addEventListener("click", function (e) {
+            if (e.target === validationModal) { closeValidationModal(); }
+        });
+        document.addEventListener("keydown", function (e) {
+            if (e.key === "Escape" && validationModal.classList.contains("is-open")) {
+                closeValidationModal();
+            }
+        });
+    }
 
         (function persistCheckoutForm(){
         if (!form) { return; }
@@ -165,10 +212,11 @@ document.addEventListener("DOMContentLoaded", function () {
         const phone = form.querySelector(phoneSel).value.trim();
 
         if (!firstName || !lastName || !email) {
-            alert(
-                "Please fill in your first name, last name, and email before"
-                + " paying."
-            );
+            const missing = [];
+            if (!firstName) { missing.push("First name"); }
+            if (!lastName)  { missing.push("Last name"); }
+            if (!email)     { missing.push("Email"); }
+            openValidationModal(missing);
             return;
         }
 

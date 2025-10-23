@@ -31,7 +31,6 @@ def _map_stripe_status_to_local(s: str) -> str:
 def manage_subscription(request):
     sub, _ = Subscription.objects.get_or_create(user=request.user)
 
-    # Optional: auto-heal from Stripe if status/date missing or weird
     if sub.stripe_subscription_id and (
         not sub.current_period_end
         or sub.status not in {"active", "canceled", "past_due", "inactive"}
@@ -46,7 +45,6 @@ def manage_subscription(request):
                 sub.current_period_end = timezone.datetime.fromtimestamp(cpe, tz=dt_tz.utc)
             sub.save()
         except Exception:
-            # Don't break the page if Stripe is temporarily unreachable
             pass
 
     cancel_at_period_end = False
@@ -62,7 +60,7 @@ def manage_subscription(request):
                     sub.current_period_end = new_dt
                     sub.save(update_fields=["current_period_end"])
         except Exception:
-            cancel_at_period_end = False  # fail closed to "no banner"
+            cancel_at_period_end = False
 
     # Friendly countdown
     days_left = None
