@@ -1,5 +1,5 @@
 {% load static %}
-{% load cloudimg %} {# CHANGED: enable Cloudinary transform filter #}
+{% load cloudimg %}
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
@@ -28,7 +28,7 @@
 
 <body>
   <header id="site-header">
-    <button id="nav-btn">Menu</button>
+    <button id="nav-btn" aria-controls="nav-list" aria-expanded="false">Menu</button>
     <h1 class="tittle">Moog13rockstar</h1>
 
     {% if user.is_authenticated %}
@@ -75,7 +75,7 @@
     width="120" height="120"
     alt="moogles logo"
   >
-    </a>
+
   </header>
 
   {% if user.is_authenticated %}
@@ -112,7 +112,7 @@
               "
               width="64" height="64"
               loading="lazy" decoding="async" fetchpriority="low"
-              alt="Discord"
+              alt="moogles community server"
             >
           </a>
         </li>
@@ -191,7 +191,10 @@
       action="{% url 'upload_profile_image' %}"
     >
       {% csrf_token %}
-      <input type="file" name="profile_image" accept="image/jpeg,image/png" required>
+      <label for="profile_image_input" class="visually-hidden">
+        Upload a new profile picture (JPEG or PNG)
+      </label>
+      <input type="file" name="profile_image" id="profile_image_input" accept="image/jpeg,image/png" required>
       <button type="submit">Upload</button>
       <button type="button" id="closeModalBtn">Cancel</button>
     </form>

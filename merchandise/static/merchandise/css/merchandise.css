@@ -28,15 +28,17 @@
 .search-bar button {
     padding: 8px 16px;
     font-size: 1em;
-    background-color: #009688;
-    color: white;
-    border: none;
+    background-color: white;
+    color: black;
+    border: solid black 2px;
     border-radius: 5px;
     cursor: pointer;
 }
 
 .search-bar button:hover {
-    background-color: #00796b;
+    background-color: black;
+    color: white;
+    border: solid white 2px;
 }
 
 /* Merchandise grid */
@@ -91,7 +93,7 @@
 .purchase-btn {
     padding: 6px 12px;
     background-color: #ff9800;
-    color: white;
+    color: black;
     border: none;
     border-radius: 5px;
     cursor: pointer;
@@ -136,6 +138,21 @@ a.view-cart-icon img {
 
 .pagination span {
     margin: 0 10px;
+}
+
+.pagination > a {
+    color: black;
+    font-weight: bold;
+    background-color: white;
+    border: solid black 2px;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.pagination > a:hover {
+    background-color: black;
+    border: solid white 2px;
+    color: white;
 }
 
 

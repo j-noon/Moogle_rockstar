@@ -11,7 +11,7 @@
 <div class="manage-card auth-container">
   {% if subscription.status == "active" %}
     {% if cancel_at_period_end %}
-      <p><strong>Status:</strong> Active (will cancel at period end)</p>
+      <h2><strong>Status:</strong> Active (will cancel at period end)</h2>
       {% if subscription.current_period_end %}
         <p><strong>Ends on:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
       {% endif %}
@@ -23,7 +23,7 @@
         <button class="auth-btn" type="submit">Keep subscription</button>
       </form>
     {% else %}
-      <p><strong>Status:</strong> Active</p>
+      <h2><strong>Status:</strong> Active</h2>
       {% if subscription.current_period_end %}
         <p><strong>Renews on:</strong> {{ subscription.current_period_end|date:"j M Y, H:i" }}</p>
         {% if days_left is not None %}

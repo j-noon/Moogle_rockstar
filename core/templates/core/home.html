@@ -54,6 +54,7 @@
         <h3> Week 1</h3>
 
         <table>
+          <caption>Week 1 stream availability</caption>
           <tr>
             <th class="Schedule">Days of week</th>
             <th class="Schedule">10am -2pm</th>
@@ -115,6 +116,7 @@
         <h3> Week 2</h3>
 
         <table>
+          <caption>Week 2 stream availability</caption>
           <tr>
             <th class="Schedule">Days of week</th>
             <th class="Schedule">10am -2pm</th>
@@ -178,19 +180,22 @@
 
   <h2 id="Highlights-h2">Highlights</h2>
 <div id="clips-div">
+  <p class="visually-hidden">Clip: Moog13Rockstar jumpscare moment from stream</p>
   <video class="clip" controls preload="none" playsinline muted
          poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
-    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.mp4" type="video/mp4">
+    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
+  <p class="visually-hidden">Clip: Moog13Rockstar jumpscare moment from stream</p>
   <video class="clip" controls preload="none" playsinline muted
          poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
-    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753479979/scream-2_qmm8mp.mp4" type="video/mp4">
+    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753479979/scream-2_qmm8mp.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
+  <p class="visually-hidden">Clip: Moog13Rockstar jumpscare moment from stream</p>
   <video class="clip" controls preload="none" playsinline muted
          poster="https://res.cloudinary.com/ddmslr9na/video/upload/so_1,q_auto,f_auto,w_640/v1753474852/20250725_FuriousDiligentGooseJonCarnage-_tQK3Op_UjC2Ue0-_source_i1pbie.jpg">
-    <source data-src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753480202/scream-3_mhuzh1.mp4" type="video/mp4">
+    <source src="https://res.cloudinary.com/ddmslr9na/video/upload/v1753480202/scream-3_mhuzh1.mp4" type="video/mp4">
     Your browser does not support the video tag.
   </video>
 </div>
@@ -227,6 +232,9 @@
   {% if user.is_authenticated %}
     <form method="POST" id="comment-form">
       {% csrf_token %}
+    <label for="{{ form.text.id_for_label }}" class="visually-hidden">
+      {{ form.text.label }}
+    </label>
       {{ form.text }}
       <div class="button-group">
         <button id="comment-btn" type="submit">Send</button>
@@ -314,7 +322,7 @@
         <ul>
           <li><a href="https://www.twitch.tv/moog13rockstar" target="_blank" rel="noopener">Twitch</a></li>
           <li><a href="https://www.tiktok.com/@moog13rockstar" target="_blank" rel="noopener">TikTok</a></li>
-          <li><a href="https://discord.gg/GuKNawu4Xc" target="_blank" rel="noopener">Discord</a></li>
+          <li><a href="https://www.youtube.com/@Moog13rockstar" target="_blank" rel="noopener">youtube</a></li>
         </ul>
       </div>
     </div>

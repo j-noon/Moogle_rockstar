@@ -9,18 +9,25 @@
 
 {% block content %}
 
-<h1 id="merch-page-title">Moogles Goodies</h1>
+<h2 id="merch-page-title">Moogles Goodies</h2>
 
 <p id="basket">
   <a href="{% url 'merchandise:cart' %}" class="view-cart-icon">
-    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt="Cart">
+    <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1755822697/shopping-cart_dynolw.png" alt=" a shopping cart">
     Your cart
   </a>
 </p>
 
+<!------------------ SEARCH / FILTER BAR ------------------> 
 <form method="get" action="{% url 'merchandise:merchandise' %}" class="search-bar">
-  <input type="text" name="q" value="{{ query }}" placeholder="Search products...">
-  <select name="category">
+  <label for="search_q" class="visually-hidden">
+    Search products
+  </label>
+  <input type="text" id="search_q" name="q" value="{{ query }}" placeholder="Search products...">
+  <label for="search_category" class="visually-hidden">
+    Filter by category
+  </label>
+  <select name="category" id="search_category">
     <option value="">All Categories</option>
     {% for value,label in categories %}
       <option value="{{ value }}" {% if current_category == value %}selected{% endif %}>{{ label }}</option>
@@ -28,6 +35,7 @@
   </select>
   <button type="submit">Search</button>
 </form>
+
 
 <div class="merch-grid">
   {% for product in page_obj.object_list %}
@@ -39,7 +47,10 @@
         <p class="merch-price">£{{ product.price }}</p>
         <form method="post" action="{% url 'merchandise:add_to_cart' product.id %}">
           {% csrf_token %}
-          <input type="number" name="quantity" value="1" min="1" max="20">
+          <label for="quantity-{{ product.id }}" class="visually-hidden">
+            Quantity for {{ product.name }}
+          </label>
+          <input type="number" id="quantity-{{ product.id }}" name="quantity" value="1" min="1" max="20">
           <button type="submit" class="purchase-btn">Add to cart</button>
         </form>
       </div>

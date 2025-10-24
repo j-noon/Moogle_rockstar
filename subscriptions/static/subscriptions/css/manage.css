@@ -22,14 +22,14 @@
   text-align: center;
 }
 
-.manage-card p {
+.manage-card h2 {
   color: #4a0353;
   line-height: 1.5;
   margin: 0.5rem 0 1rem; 
   font-size: 22px;
 }
 
-.manage-card p strong {
+.manage-card h2 strong {
   color: #db1f8a;
   font-weight: 800;
   font-size: 24px;

@@ -18,15 +18,18 @@
             <p><strong>Status:</strong> {{ order.status }}</p>
 
             {% if order.items.exists %}
-            <table class="order-items">
+            <table class="order-items" role="table">
+              <caption class="visually-hidden">
+                    Items in order #{{ order.id }}
+             </caption>
                 <thead>
                     <tr>
-                        <th>Item</th>
-                        <th>Quantity</th>
-                        <th>Unit Price</th>
-                        <th>Line Total</th>
-                        <th>Image</th>
-                        <th>Download</th>
+                        <th scope="col">Item</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Unit Price</th>
+                        <th scope="col">Line Total</th>
+                        <th scope="col">Image</th>
+                        <th scope="col">Download</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -40,12 +43,12 @@
                             {% if item.image_url %}
                                 <img src="{{ item.image_url|to_https }}" alt="{{ item.product_name }}" class="order-item-image">
                             {% else %}
-                                <span>No Image</span>
+                                 <span class="no-image" aria-label="No preview image available">No Image</span>
                             {% endif %}
                         </td>
                         <td data-label="Download">
                             {% if item.image_url or item.asset_file %}
-                                <a href="{% url 'checkouts:download_asset' item.id %}" class="btn-view">Download</a>
+                                <a href="{% url 'checkouts:download_asset' item.id %}" class="btn-view" aria-label="Download {{ item.product_name }} asset">Download</a>
                             {% else %}
                                 <span class="no-asset">No Download Available</span>
                             {% endif %}
