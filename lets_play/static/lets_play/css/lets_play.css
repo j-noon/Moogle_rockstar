@@ -670,30 +670,380 @@ button[data-locked="true"] {
      }
 
 
-  #game-space {
-    margin-top: 32px;
-    margin-left: 20px;
-    background-color: yellow;
-    height: 390px;
-    width: 90%;
-    border: solid black 2px;
-    border-radius: 8px;
-  }
+/*------------------------
+   adventure game start
+-------------------------*/
 
-  #game-space p {
-    font-size: 30px;
-    margin-top: 20px;
+/* intro / how-to-play screen */
+#alistair-howto-screen {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(90,0,110,0.4) 0%, rgba(0,0,0,0.9) 60%);
+  color: #fff;
+  padding: 48px 32px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  font-family: system-ui, sans-serif;
+  overflow-y: auto;
 }
 
-#advent-btn {
-  background-color: white;
+.alistair-howto-title {
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: #fff;
+  text-shadow: 0 0 8px rgba(190,0,255,0.6);
+  margin: 0;
+}
+
+.alistair-howto-tagline {
+  font-size: 16px;
+  font-style: italic;
+  color: #fff;
+  text-shadow: 0 0 6px rgba(190,0,255,0.6);
+  margin: 4px 0 24px;
+  max-width: 420px;
+  line-height: 1.4;
+}
+
+.alistair-howto-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.alistair-howto-list {
+  list-style: disc;
+  margin: 0 0 24px 20px;
+  padding: 0;
+  line-height: 1.4;
+  font-size: 14px;
+  max-width: 480px;
+}
+
+.alistair-howto-list li {
+  margin-bottom: 8px;
+}
+
+/* spooky face / ambience in the corner */
+#alistair-howto-bgface {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle at 50% 30%, rgba(200,0,255,0.4) 0%, rgba(0,0,0,0) 70%);
+  opacity: 0.2;
+  border-radius: 50%;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+
+#game-space {
+  margin-top: 32px;
+  margin-left: 20px;
+  background-color: yellow; /* temporary placeholder "poster" */
+  height: 390px;
+  width: 90%;
   border: solid black 2px;
   border-radius: 8px;
-  padding: 10px;
-  font-size: 24px;
-  margin-left: 40px;
+  position: relative; /* <-- super important so absolute children anchor to here if needed */
+  overflow: hidden;
 }
+
+/* make sure the wrapper fills this box */
+#alistair-wrapper {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background-color: #000;
+  color: #fff;
+  font-family: system-ui, sans-serif;
 }
+
+#alistair-wrapper.alistair-embedded {
+  /* sits inside your yellow #game-space area */
+  height: 100%;
+}
+
+#alistair-wrapper.alistair-expanded {
+  /* "fullscreen-ish" mode */
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: #000;
+  z-index: 9999;
+  border-radius: 0;
+  margin: 0;
+}
+
+/* HUD bar */
+#alistair-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  font-size: 14px;
+  line-height: 1.2;
+  color: #fff;
+  z-index: 10;
+  pointer-events: none; /* so clicks go "through" unless button */
+}
+
+#alistair-ui button {
+  pointer-events: auto;
+}
+
+#alistair-hearts {
+  min-width: 80px;
+  font-size: 18px;
+}
+
+/* Inventory block */
+#alistair-inventory {
+  flex: 1;
+  margin-left: 12px;
+  margin-right: 12px;
+  color: #fff;
+}
+
+#alistair-inventory-list {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0 0;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: 12px;
+}
+
+#alistair-inventory-list li {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 4px;
+  padding: 2px 4px;
+  white-space: nowrap;
+}
+
+/* Controls block */
+#alistair-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.alistair-ctrl-btn {
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+
+/* room container */
+#alistair-room-container {
+  position: absolute;
+  inset: 0;
+  padding-top: 60px; /* make space so HUD doesn't cover intro text/buttons */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+/* placeholder / text panels inside room */
+.alistair-room-inner {
+  color: #fff;
+  background: rgba(0,0,0,0.6);
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 16px;
+  max-width: 480px;
+  margin: 40px 20px;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+.alistair-choice-btn {
+  margin-top: 12px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: block;
+}
+
+/* modals (map, game over) */
+.alistair-modal.hidden {
+  display: none;
+}
+
+.alistair-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alistair-modal-content {
+  background: #111;
+  color: #fff;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  padding: 20px;
+  max-width: 400px;
+  width: calc(100% - 40px);
+  text-align: center;
+}
+
+#alistair-map-list {
+  list-style: none;
+  padding: 0;
+  margin: 16px 0;
+}
+
+#alistair-map-list li button {
+  width: 100%;
+  margin-bottom: 8px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+#alistair-restart-btn,
+#alistair-map-close {
+  margin-top: 12px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+/* dialogue bar at bottom */
+#alistair-dialogue-bar.alistair-dialogue {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.8);
+  color: #fff;
+  border-top: 2px solid #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+  z-index: 20;
+}
+
+#alistair-dialogue-bar.hidden {
+  display: none;
+}
+
+#alistair-dialogue-text {
+  flex: 1;
+  min-height: 3em;
+  white-space: pre-line;
+  font-size: 14px;
+}
+
+#alistair-dialogue-next {
+  flex-shrink: 0;
+  align-self: flex-end;
+}
+
+/* clickable bucket hotspot */
+.alistair-hotspot-bucket {
+  position: absolute;
+  /* tweak these to visually sit the bucket near the well in your background */
+  bottom: 60px;   /* move up/down */
+  left: 40px;     /* move left/right */
+  width: 120px;
+  height: 120px;
+  cursor: pointer;
+  z-index: 5;
+}
+
+.alistair-hotspot-bucket-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none; /* click goes to parent div */
+}
+
+#alistair-room-header {
+  position: absolute;
+  top: 10px;         /* sits below the HUD bar */
+  left: 40%;
+  right: 0;
+  padding: 4px 12px;
+  width: fit-content;
+  background: rgba(0,0,0,0.5);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  z-index: 9;
+  pointer-events: none;
+  border-bottom: white solid 2px;
+}
+
+#alistair-room-name {
+  color: white;
+  font-family: system-ui, sans-serif;
+  letter-spacing: 0.03em;
+}
+
+#alistair-image-overlay .alistair-modal-content {
+  max-width: 360px;
+  background: #000;
+  border: 2px solid #fff;
+  border-radius: 8px;
+  text-align: center;
+  color: #fff;
+}
+
+/*--------------------
+   adventure game end
+---------------------*/
+}
+
+
+
+
+
+
+
+
+
 
 @media (min-width: 1920px) {
   .games-grid {

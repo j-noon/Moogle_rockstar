@@ -135,24 +135,92 @@
     </div>
   </section>
 
-   <!-- -------------------------------------- -->
-  <!-- click through adventure game  start-->
- <!-- -------------------------------------- -->
-     
-      <section class="game-card" id="adventure-card">
-        <h2 id="adventure-title">Adventure Game</h2>
-        <button id="advent-btn">play</button>
-        <div id="game-space">
+<!-- -------------------------------------- -->
+<!-- click through adventure game  start   -->
+<!-- -------------------------------------- -->
+
+<section class="game-card" id="adventure-card">
+  <h2 id="adventure-title">Alistair!</h2>
+
+  <button id="advent-btn">Play</button>
+
+  <div id="game-space">
+    <!-- The whole game mounts here -->
+    <div id="alistair-wrapper" class="alistair-embedded">
+
+      <!-- top HUD / chrome -->
+      <div id="alistair-ui">
+        <div id="alistair-hearts"></div>
+
+        <div id="alistair-inventory">
+          <span class="alistair-inv-label">Inventory:</span>
+          <ul id="alistair-inventory-list"></ul>
+        </div>
+
+        <div id="alistair-controls">
+          <button id="alistair-back-btn" class="alistair-ctrl-btn">Back</button>
+          <button id="alistair-map-btn" class="alistair-ctrl-btn">Map</button>
+          <button id="alistair-expand-btn" class="alistair-ctrl-btn">Expand</button>
+        </div>
+      </div>
+
+      <!-- 🔸 NEW: slim room title bar under the HUD -->
+      <div id="alistair-room-header">
+        <span id="alistair-room-name"></span>
+      </div>
+
+      <!-- active room / scene goes here -->
+      <div id="alistair-room-container">
+        <!-- JS will inject room HTML here (hotspots, etc.) -->
+        <div class="alistair-placeholder">
           <h3>this section is a WAP (work in progress)</h3>
           <h3>Brand new game coming soon!</h3>
         </div>
-      </section>
+      </div>
 
+      <!-- bottom dialogue / choices -->
+      <div id="alistair-dialogue-bar" class="alistair-dialogue hidden">
+        <div id="alistair-dialogue-text"></div>
+        <button id="alistair-dialogue-next" class="alistair-ctrl-btn">Next</button>
+      </div>
 
+    </div> <!-- /alistair-wrapper -->
+  </div> <!-- /game-space -->
+</section>
 
-  <!-- -------------------------------------- -->
-  <!-- click through adventure game  end -->
- <!-- -------------------------------------- -->
+<!-- Map modal (hidden by default) -->
+<div id="alistair-map-modal" class="alistair-modal hidden">
+  <div class="alistair-modal-content">
+    <h3>Where do you want to go?</h3>
+    <ul id="alistair-map-list"></ul>
+    <button id="alistair-map-close">Close</button>
+  </div>
+</div>
+
+<!-- Game over / ending modal -->
+<div id="alistair-gameover-modal" class="alistair-modal hidden">
+  <div class="alistair-modal-content" id="alistair-gameover-content">
+    <!-- JS fills this -->
+    <button id="alistair-restart-btn">Restart</button>
+  </div>
+</div>
+
+<!-- 🔸 NEW: item / clue image overlay (for bucket close-up, later for notes, etc.) -->
+<div id="alistair-image-overlay" class="alistair-modal hidden">
+  <div class="alistair-modal-content" id="alistair-image-wrapper">
+    <img id="alistair-overlay-img"
+         src=""
+         alt="found item"
+         style="max-width:100%; height:auto; display:block; margin:0 auto;">
+    <p id="alistair-overlay-caption"
+       style="margin-top:12px; font-size:14px; line-height:1.4;"></p>
+    <p style="font-size:12px; opacity:.8;">(click anywhere to close)</p>
+  </div>
+</div>
+
+<!-- -------------------------------------- -->
+<!-- click through adventure game  end     -->
+<!-- -------------------------------------- -->
 
 
   <!-- GAME 3 -->
@@ -257,5 +325,7 @@
   <script src="{% static 'lets_play/js/words-match.js' %}"></script>
   <script src="{% static 'lets_play/js/win-modal.js' %}"></script>
   <script src="{% static 'lets_play/js/math-game.js' %}"></script>
+  <script src="{% static 'lets_play/js/alistair.js' %}"></script>
   <script src="{% static 'lets_play/js/subscription-gate.js' %}"></script>
+
 {% endblock %}
