@@ -713,6 +713,7 @@ button[data-locked="true"] {
   margin: 0 0 8px;
   text-decoration: underline;
   text-underline-offset: 4px;
+  color: white;
 }
 
 .alistair-howto-list {
@@ -742,7 +743,7 @@ button[data-locked="true"] {
   pointer-events: none;
 }
 
-
+/* game frame */
 #game-space {
   margin-top: 32px;
   margin-left: 20px;
@@ -751,11 +752,10 @@ button[data-locked="true"] {
   width: 90%;
   border: solid black 2px;
   border-radius: 8px;
-  position: relative; /* <-- super important so absolute children anchor to here if needed */
+  position: relative; /* anchor for absolute children */
   overflow: hidden;
 }
 
-/* make sure the wrapper fills this box */
 #alistair-wrapper {
   position: relative;
   height: 100%;
@@ -767,12 +767,10 @@ button[data-locked="true"] {
 }
 
 #alistair-wrapper.alistair-embedded {
-  /* sits inside your yellow #game-space area */
   height: 100%;
 }
 
 #alistair-wrapper.alistair-expanded {
-  /* "fullscreen-ish" mode */
   position: fixed;
   inset: 0;
   width: 100vw;
@@ -798,7 +796,7 @@ button[data-locked="true"] {
   line-height: 1.2;
   color: #fff;
   z-index: 10;
-  pointer-events: none; /* so clicks go "through" unless button */
+  pointer-events: none; /* so clicks go through unless button */
 }
 
 #alistair-ui button {
@@ -808,32 +806,7 @@ button[data-locked="true"] {
 #alistair-hearts {
   min-width: 80px;
   font-size: 18px;
-}
-
-/* Inventory block */
-#alistair-inventory {
-  flex: 1;
-  margin-left: 12px;
-  margin-right: 12px;
   color: #fff;
-}
-
-#alistair-inventory-list {
-  list-style: none;
-  padding: 0;
-  margin: 4px 0 0 0;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  font-size: 12px;
-}
-
-#alistair-inventory-list li {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.4);
-  border-radius: 4px;
-  padding: 2px 4px;
-  white-space: nowrap;
 }
 
 /* Controls block */
@@ -851,13 +824,14 @@ button[data-locked="true"] {
   font-size: 12px;
   padding: 4px 6px;
   cursor: pointer;
+  margin-right: 10px;
 }
 
 /* room container */
 #alistair-room-container {
   position: absolute;
   inset: 0;
-  padding-top: 60px; /* make space so HUD doesn't cover intro text/buttons */
+  padding-top: 60px; /* space so HUD doesn't cover intro text/buttons */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -889,7 +863,7 @@ button[data-locked="true"] {
   display: block;
 }
 
-/* modals (map, game over) */
+/* modals (map, game over, journal, inventory, image overlay) */
 .alistair-modal.hidden {
   display: none;
 }
@@ -905,7 +879,7 @@ button[data-locked="true"] {
 }
 
 .alistair-modal-content {
-  background: #111;
+  background: #7934d3;
   color: #fff;
   border: 2px solid #fff;
   border-radius: 8px;
@@ -913,36 +887,53 @@ button[data-locked="true"] {
   max-width: 400px;
   width: calc(100% - 40px);
   text-align: center;
+  position: relative;
 }
 
-#alistair-map-list {
-  list-style: none;
-  padding: 0;
-  margin: 16px 0;
+.alistair-scrollbox {
+  max-height: 300px;
+  overflow-y: auto;
 }
 
-#alistair-map-list li button {
-  width: 100%;
-  margin-bottom: 8px;
-  background: #fff;
-  color: #000;
-  border: 2px solid #000;
+/* shared 3-column grid for inventory + journals */
+.alistair-grid {
+  margin-top: 16px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.alistair-grid-slot {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.4);
   border-radius: 6px;
-  font-size: 16px;
-  padding: 8px 12px;
+  min-height: 80px;
+  font-size: 11px;
+  line-height: 1.3;
+  color: #fff;
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
   cursor: pointer;
 }
 
-#alistair-restart-btn,
-#alistair-map-close {
-  margin-top: 12px;
-  background: #fff;
-  color: #000;
-  border: 2px solid #000;
-  border-radius: 6px;
-  font-size: 16px;
-  padding: 8px 12px;
-  cursor: pointer;
+.alistair-grid-slot img {
+  max-width: 64px;
+  max-height: 64px;
+  object-fit: contain;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.alistair-grid-slot-title {
+  text-align: center;
+  word-break: break-word;
+  font-size: 11px;
+  line-height: 1.2;
+  color: #fff;
 }
 
 /* dialogue bar at bottom */
@@ -983,26 +974,19 @@ button[data-locked="true"] {
 /* clickable bucket hotspot */
 .alistair-hotspot-bucket {
   position: absolute;
-  /* tweak these to visually sit the bucket near the well in your background */
-  bottom: 60px;   /* move up/down */
-  left: 40px;     /* move left/right */
-  width: 120px;
-  height: 120px;
+  bottom: 100px;   /* tweak visually */
+  left: 50%;     /* tweak visually */
+  width: 40px;
+  height: 40px;
   cursor: pointer;
   z-index: 5;
 }
 
-.alistair-hotspot-bucket-img {
-  width: 100%;
-  height: auto;
-  display: block;
-  pointer-events: none; /* click goes to parent div */
-}
-
+/* slim room header */
 #alistair-room-header {
   position: absolute;
-  top: 10px;         /* sits below the HUD bar */
-  left: 40%;
+  top: 40px;         
+  left: 10px;
   right: 0;
   padding: 4px 12px;
   width: fit-content;
@@ -1016,12 +1000,15 @@ button[data-locked="true"] {
   border-bottom: white solid 2px;
 }
 
+.hidden-room-header {display: none;}
+
 #alistair-room-name {
   color: white;
   font-family: system-ui, sans-serif;
   letter-spacing: 0.03em;
 }
 
+/* tweak for image overlay box */
 #alistair-image-overlay .alistair-modal-content {
   max-width: 360px;
   background: #000;
@@ -1029,6 +1016,55 @@ button[data-locked="true"] {
   border-radius: 8px;
   text-align: center;
   color: #fff;
+}
+
+/* clickable sign hotspots */
+.alistair-hotspot-bucket-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  pointer-events: none; /* click goes to parent div */
+}
+
+.alistair-hotspot-sign {
+  position: absolute;
+  cursor: pointer;
+  z-index: 6;
+}
+
+.alistair-hotspot-sign img {
+  width: 90px;           /* tweak this visually later */
+  height: auto;
+  display: block;
+  pointer-events: none;  /* so clicks hit the parent div */
+}
+
+/* rough placement guesses in the well scene */
+.alistair-sign-forest {
+  bottom: 60px;
+  left: 40px;
+}
+
+.alistair-sign-manor {
+  bottom: 135px;
+  left: 70%;
+  transform: translateX(-50%);
+}
+
+.alistair-sign-manor img {
+  height: 60px;
+  width: 60px;
+}
+  
+
+.alistair-sign-barn {
+  bottom: 60px;
+  right: 40px;
+}
+
+/* hide signs until the well intro is over */
+.alistair-signs-hidden {
+  display: none;
 }
 
 /*--------------------
