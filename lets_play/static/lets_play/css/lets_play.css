@@ -984,6 +984,23 @@ button[data-locked="true"] {
   align-self: flex-end;
 }
 
+/* When the dialogue bar is in "list choices" mode, stack the buttons neatly */
+#alistair-dialogue-bar.alistair-list-choices #alistair-dialogue-next {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: stretch;   /* full width */
+}
+
+#alistair-dialogue-bar.alistair-list-choices .alistair-ctrl-btn {
+  width: 100%;
+  text-align: left;
+  white-space: normal;    /* wrap long text */
+  padding: 10px 12px;
+  line-height: 1.2;
+}
+
+
 /* clickable bucket hotspot */
 .alistair-hotspot-bucket {
   position: absolute;
@@ -1030,6 +1047,11 @@ button[data-locked="true"] {
   text-align: center;
   color: #fff;
 }
+
+
+/* ------------------
+    THE WELL SCENE
+--------------------- */ 
 
 /* clickable sign hotspots */
 .alistair-hotspot-bucket-img {
@@ -1078,6 +1100,17 @@ button[data-locked="true"] {
 /* hide signs until the well intro is over */
 .alistair-signs-hidden {
   display: none;
+}
+
+.alistair-well-hotspot{
+  position:absolute;
+  left:56.5%;
+   top:50%;
+  width:105px;
+   height:80px;
+  transform:translate(-50%,-50%);
+  cursor:pointer;
+  z-index:5;
 }
 
 /* ============================
@@ -1135,9 +1168,6 @@ button[data-locked="true"] {
   top: 59%;          /* tweak this */
   width: 110px;       /* tweak this */
   height: 70px;     /* tweak this */
-  transform: translate(-50%, -50%);
-  background: rgba(255,255,0,0.4);
-  border: 2px solid #ffff00;
   cursor: pointer;
   z-index: 10;
 }
@@ -1149,7 +1179,6 @@ button[data-locked="true"] {
   bottom: 90px;      /* tweak this for vertical placement */
   width: 10px;
   height: 10px;
-  cursor: pointer;
   z-index: 11;
   display: flex;
   align-items: center;
@@ -1162,6 +1191,34 @@ button[data-locked="true"] {
   object-fit: contain;
   pointer-events: none; /* ensures click hits parent div */
 }
+
+/* =========================
+   BARN INTERIOR HOTSPOTS
+   ========================= */
+
+.alistair-glimmer-hotspot {
+  position: absolute;
+  left: 50%;
+  bottom: 10%;
+  width: 5px;
+  height: 5px;
+  z-index: 13;
+  overflow: hidden;
+}
+
+#alistair-glimmer-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* start hidden so player can't access safe pickup right away */
+.alistair-glimmer-hidden {
+  display: none;
+}
+
+
 
 /*--------------------
    adventure game end

@@ -431,6 +431,19 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // List-style choices wrapper (global)
+  function alistairShowListChoices(questionText, choicesArray) {
+    const bar = document.getElementById('alistair-dialogue-bar');
+    if (bar) bar.classList.add('alistair-list-choices');
+    alistairShowChoices(questionText, choicesArray);
+  }
+
+  // Clear the list mode before returning to normal Next/choices
+  function alistairClearListChoices() {
+    const bar = document.getElementById('alistair-dialogue-bar');
+    if (bar) bar.classList.remove('alistair-list-choices');
+  }
+
   // Show the crossroads "Where do you go next?" menu at the well
   // (or if we've already done it once, just leave the player free-roam).
   function alistairShowCrossroadsChoiceFromWell() {
@@ -874,8 +887,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
   // --- THE WELL / CROSSROADS HUB ---
-  // This is the "main hub" where you can pick up the bucket, get hurt,
-  // unlock a journal entry, and choose where to go next
   const AlistairRoom_TheWell = {
     id: "the_well",
     name: "The Well",
@@ -893,6 +904,7 @@ document.addEventListener("DOMContentLoaded", function () {
               class="alistair-hotspot-bucket-img">
           </div>
         `}
+        
 
         <!-- Forest sign -->
         <div class="alistair-hotspot-sign alistair-sign-forest alistair-signs-hidden">
@@ -914,10 +926,156 @@ document.addEventListener("DOMContentLoaded", function () {
             src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761681109/ag-sign-barn_nintmu.png"
             alt="The Barn">
         </div>
+
+        <!-- WELL HOTSPOT (hidden by default; we show + wire it on re-entry) -->
+        <div id="alistair-well-hotspot" class="alistair-well-hotspot" style="display:none;"></div>
       `;
     },
 
     onEnter(gameState) {
+
+    // ---------- helpers ----------
+    function wireWellHotspotForReentry() {
+      const wellSpot = document.getElementById('alistair-well-hotspot');
+      if (!wellSpot) return;
+
+      // make it visible on re-entry
+      wellSpot.style.display = 'block';
+
+      // avoid duplicate listeners if we bounce in/out a lot
+      wellSpot.replaceWith(wellSpot.cloneNode(true));
+      const freshSpot = document.getElementById('alistair-well-hotspot');
+
+      freshSpot.addEventListener('click', () => {
+        handleWellPuzzleOrHint();
+      });
+    }
+
+      function handleWellPuzzleOrHint() {
+        const hasBucket = !!alistairState.inventory.find(i => i.id === "bucket");
+        const hasRope   = !!alistairState.inventory.find(i => i.id === "rope");
+        const hasHammer = !!alistairState.inventory.find(i => i.id === "barn_hammer");
+        const hasAll    = hasBucket && hasRope && hasHammer;
+
+        if (!hasAll) {
+          // Missing something -> gentle nudge + free roam
+          alistairResetNextButton();
+          alistairStartDialogue(
+            [
+              "I think we still might be missing something.",
+              "Where to now?"
+            ],
+            () => {
+              // free roam: signs active, dialogue hidden
+              alistairRevealSignsOnly();
+              const bar = document.getElementById('alistair-dialogue-bar');
+              if (bar) bar.classList.add('hidden');
+            }
+          );
+          return;
+        }
+
+
+        // They have bucket + rope + hammer: show the 3 options puzzle
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "You stand over the well with everything you need.",
+            "What do you do at the well?"
+          ],
+          () => {
+            alistairShowListChoices(
+              "Choose your action:",
+              [
+                {
+                  // ✅ Correct order
+                  label: "Tie the bucket to the rope, hit the crank with the hammer, and lower it.",
+                  onClick: () => {
+                    alistairClearListChoices();
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "You knot the rope to the bucket handle.",
+                        "You tap the crank with the hammer — once, firm — and the gear catches.",
+                        "The line descends. Something knocks the bucket from below.",
+                        "When you haul it up, something metal glints in the slime…"
+                      ],
+                      () => {
+                        alistairShowImageOverlay(
+                          "https://res.cloudinary.com/ddmslr9na/image/upload/v1761779312/ag-manor-front-door-key_uetd0n.png",
+                          "Engraved key",
+                          () => {
+                            if (!alistairState.inventory.find(i => i.id === "front_key")) {
+                              alistairAddItem({
+                                id: "front_key",
+                                name: "Front Door Key",
+                                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761779312/ag-manor-front-door-key_uetd0n.png"
+                              });
+                            }
+                            alistairResetNextButton();
+                            alistairStartDialogue(
+                              [
+                                "We’ve found a key. It’s old and engraved “De Montreux.”",
+                                "This must be the key to the manor."
+                              ],
+                              () => {
+                                alistairRevealSignsOnly();
+                                const bar = document.getElementById('alistair-dialogue-bar');
+                                if (bar) bar.classList.add('hidden');
+                              }
+                            );
+                          }
+                        );
+                      }
+                    );
+                  }
+                },
+                {
+                  // ❌ Wrong: fall in (3 damage)
+                  label: "Tie the rope to the bucket and lower it straight into the well.",
+                  onClick: () => {
+                    alistairClearListChoices();
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "You knot the rope and begin lowering the bucket.",
+                        "It just hangs there… snagged on something below.",
+                        "You lean over the lip to see what’s blocking it—",
+                        "—and the stone is slick.",
+                        "You slip."
+                      ],
+                      () => {
+                        alistairTakeDamage(3);
+                      }
+                    );
+                  }
+                },
+                {
+                  // ❌ Wrong: foot damage (1)
+                  label: "Use the hammer on the crank first, then tie the rope to the bucket.",
+                  onClick: () => {
+                    alistairClearListChoices();
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "You swing for the crank without prepping the line.",
+                        "The hammer glances and tumbles.",
+                        "It lands squarely on your foot."
+                      ],
+                      () => {
+                        alistairTakeDamage(1);
+                        alistairRevealSignsOnly();
+                        const bar = document.getElementById('alistair-dialogue-bar');
+                        if (bar) bar.classList.add('hidden');
+                      }
+                    );
+                  }
+                }
+              ]
+            );
+          }
+        );
+      }
 
       // local helper: "are you sure you don't want to peek inside the bucket?"
       function confirmSkipPeek() {
@@ -1037,7 +1195,60 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      // ---- Well intro lines when you arrive here ----
+      // ---------- ENTRY LOGIC ----------
+      alistairRevealSignsOnly();
+
+      // mark first/return visit
+      const seenBefore = !!alistairState._enteredWellOnce;
+      alistairState._enteredWellOnce = true;
+
+      // Wire the well hotspot for *re-entry* interactions
+      wireWellHotspotForReentry();
+
+      if (seenBefore) {
+        // Re-entry behavior
+        const hasBucket = !!alistairState.inventory.find(i => i.id === "bucket");
+        const hasRope   = !!alistairState.inventory.find(i => i.id === "rope");
+        const hasHammer = !!alistairState.inventory.find(i => i.id === "barn_hammer");
+        const hasAll    = hasBucket && hasRope && hasHammer;
+
+        wireWellHotspotForReentry();
+
+        alistairResetNextButton();
+
+        if (!hasAll) {
+          // Missing something -> gentle nudge + free roam (well hotspot stays active)
+          alistairStartDialogue(
+            [
+              "Back at the well.",
+              "I think we still might be missing something.",
+              "Where to now?"
+            ],
+            () => {
+              const bar = document.getElementById('alistair-dialogue-bar');
+              if (bar) bar.classList.add('hidden');
+            }
+          );
+        } else {
+          // Have all 3: give preamble lines, then free roam; click well to start puzzle
+          alistairStartDialogue(
+            [
+              "Pretty sure we have everything we need now.",
+              "I wonder what that skeleton pirate dropped down the well...",
+              "Master Greaves — that was his name."
+            ],
+            () => {
+              const bar = document.getElementById('alistair-dialogue-bar');
+              if (bar) bar.classList.add('hidden');
+              // well hotspot is already wired; player can click it to open the 3 options
+            }
+          );
+        }
+
+        return; // skip first-visit bucket narrative
+      }
+
+      // ---------- First-time intro (original) ----------
       const wellIntroLines = [
         "The gates slam shut, almost welded.",
         "Is that the tree whispering to me? Distant voices.",
@@ -1046,29 +1257,16 @@ document.addEventListener("DOMContentLoaded", function () {
         "As you approach the well you see a bucket on the floor."
       ];
 
-      // grab bucket hotspot if it's still in scene
       const hotspot = document.getElementById('alistair-bucket-hotspot');
 
-      // make the directional signs (forest / barn / manor) visible + clickable
-      // so even if player skips dialogue, they can still navigate
-      alistairRevealSignsOnly();
-
-      // allow direct click on bucket hotspot
       if (hotspot) {
-        hotspot.addEventListener('click', () => {
-          startBucketPrompt();
-        });
+        hotspot.addEventListener('click', () => { startBucketPrompt(); });
       }
 
-      // run intro dialogue, then branch:
-      // if bucket is there => ask them about bucket
-      // if already collected => jump straight to crossroads/nav
       alistairStartDialogue(wellIntroLines, () => {
         if (hotspot && document.body.contains(hotspot)) {
-          // first time, bucket still exists
           startBucketPrompt();
         } else {
-          // bucket is already taken on a previous visit
           alistairShowCrossroadsChoiceFromWell();
         }
       });
@@ -1082,52 +1280,40 @@ document.addEventListener("DOMContentLoaded", function () {
     name: "Forest Grounds",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761701137/adventure-garden-forest-skelly_mynpdj.png",
 
-render(gameState) {
-  const hasRope = !!gameState.inventory.find(i => i.id === "rope");
+    render(gameState) {
+      const hasRope = !!gameState.inventory.find(i => i.id === "rope");
 
-  return `
-    ${hasRope ? "" : `
-      <div id="alistair-rope-hotspot" class="alistair-hotspot-rope">
-        <img
-          src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png"
-          alt="Coiled rope on the ground"
-          class="alistair-rope-img">
-      </div>
-    `}
-  `;
-},
+      return `
+        ${hasRope ? "" : `
+          <div id="alistair-rope-hotspot" class="alistair-hotspot-rope">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png"
+              alt="Coiled rope on the ground"
+              class="alistair-rope-img">
+          </div>
+        `}
+      `;
+    },
 
     onEnter(gameState) {
 
       // -------------------------------------------------
       // helper: FREE ROAM MODE in forest
-      // hides the dialogue bar so player can click hotspots
       // -------------------------------------------------
       function enterForestFreeRoam() {
         const bar = document.getElementById('alistair-dialogue-bar');
-        if (bar) {
-          bar.classList.add('hidden');
-        }
-        // nothing else right now, just leave hotspots active
+        if (bar) bar.classList.add('hidden');
+        // leave hotspots active
       }
 
       // -------------------------------------------------
       // helper: award rope to player
-      //  - shows rope overlay
-      //  - adds rope to inventory
-      //  - removes clickable hotspot
-      //  - returns to free roam
-      // We call this in BOTH cases:
-      //   - if they were kind ("Yes"),
-      //   - or if they click hotspot later.
       // -------------------------------------------------
       function givePlayerRopeFromSkeleton() {
-        // show rope zoom overlay
         alistairShowImageOverlay(
           "https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png",
           "Rope (still smells like the well.)",
           () => {
-            // add rope to inventory if not already there
             if (!alistairState.inventory.find(i => i.id === "rope")) {
               alistairAddItem({
                 id: "rope",
@@ -1136,13 +1322,9 @@ render(gameState) {
               });
             }
 
-            // remove hotspot so you can't farm rope forever
             const ropeHotspot = document.getElementById('alistair-rope-hotspot');
-            if (ropeHotspot) {
-              ropeHotspot.remove();
-            }
+            if (ropeHotspot) ropeHotspot.remove();
 
-            // "maybe have a look around" vibe after picking it up
             alistairResetNextButton();
             alistairStartDialogue([
               "You coil the rope. It's heavier than it looks.",
@@ -1156,25 +1338,68 @@ render(gameState) {
       }
 
       // -------------------------------------------------
-      // helper: wire the rope hotspot so in free roam,
-      // player can still collect it if they said "No".
-      // We call this AFTER we've rendered the scene.
+      // helper: wire rope hotspot (if present)
       // -------------------------------------------------
       function wireRopeHotspot() {
         const ropeHotspot = document.getElementById('alistair-rope-hotspot');
         if (!ropeHotspot) return;
-
         ropeHotspot.addEventListener('click', () => {
-          // player is manually looting the rope in free roam
           givePlayerRopeFromSkeleton();
         });
       }
 
       // -------------------------------------------------
-      // helper: branch after "No" (you don't help him)
-      // - we guilt them
-      // - we drop to free roam
-      // - hotspot stays active so they can STILL loot rope
+      // helper: pouch hotspot for Greaves’ note (idempotent)
+      // -------------------------------------------------
+      function initPouchHotspot() {
+        const roomContainer = document.getElementById('alistair-room-container');
+        if (!roomContainer) return;
+
+        // avoid duplicates on re-entry
+        if (roomContainer.querySelector('.alistair-hotspot-pouch')) return;
+
+        const pouchSpot = document.createElement('div');
+        pouchSpot.className = 'alistair-hotspot-pouch';
+        roomContainer.appendChild(pouchSpot);
+
+        pouchSpot.addEventListener('click', () => {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            ["Oh. What have we found here...?"],
+            () => {
+              alistairShowImageOverlay(
+                "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png",
+                "T. Greaves’ Note",
+                () => {
+                  alistairAddJournal({
+                    id: "greaves_note",
+                    title: "T. Greaves’ Note",
+                    imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png"
+                  });
+
+                  alistairResetNextButton();
+                  alistairStartDialogue(
+                    [
+                      "T. Greaves... quartermaster of the Wailing Star...",
+                      "He says he dropped something down the well and it called his name back.",
+                      "He couldn't leave the forest after that.",
+                      "So the well is keeping this pirate here.. how i wonder?"
+                    ],
+                    () => {
+                      alistairOpenJournal();
+                      const bar = document.getElementById('alistair-dialogue-bar');
+                      if (bar) bar.classList.add('hidden');
+                    }
+                  );
+                }
+              );
+            }
+          );
+        });
+      }
+
+      // -------------------------------------------------
+      // helper: refuse to help
       // -------------------------------------------------
       function refuseToHelp() {
         alistairResetNextButton();
@@ -1184,83 +1409,12 @@ render(gameState) {
           "\"I knew humans were cruel.\"",
           "You feel like you missed something."
         ], () => {
-          // go to free roam, keep hotspot
           enterForestFreeRoam();
         });
       }
 
-    // --- helper: pouch hotspot for Greaves’ note
-    function initPouchHotspot() {
-      const roomContainer = document.getElementById('alistair-room-container');
-      if (!roomContainer) return;
-
-      const pouchSpot = document.createElement('div');
-      pouchSpot.className = 'alistair-hotspot-pouch';
-      roomContainer.appendChild(pouchSpot);
-
-      pouchSpot.addEventListener('click', () => {
-        alistairResetNextButton();
-
-        // Little "you found something" beat before showing the parchment
-        alistairStartDialogue(
-          ["Oh. What have we found here...?"],
-          () => {
-            // Show the pirate note full screen
-            alistairShowImageOverlay(
-              "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png",
-              "T. Greaves’ Note",
-              () => {
-
-                // === after they CLOSE the parchment overlay ===
-                // (1) store it in the journal RIGHT AWAY
-                alistairAddJournal({
-                  id: "greaves_note",
-                  title: "T. Greaves’ Note",
-                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png"
-                });
-
-                // (2) narrator reads / reacts to it
-                alistairResetNextButton();
-                alistairStartDialogue(
-                  [
-                    "T. Greaves... quartermaster of the Wailing Star...",
-                    "He says he dropped something down the well and it called his name back.",
-                    "He couldn't leave the forest after that.",
-                    "So the well is keeping this pirate here.. how i wonder?"
-                  ],
-                  () => {
-                    // (3) when the reading ends:
-                    //     - open the Journal so player sees it's been added
-                    //     - then drop them back to free roam
-
-                    // open + render journal modal
-                    alistairOpenJournal();
-
-                    // after a tiny delay, hide the dialogue bar so it feels like free roam,
-                    // but keep the journal open for them to look at.
-                    const bar = document.getElementById('alistair-dialogue-bar');
-                    if (bar) {
-                      bar.classList.add('hidden');
-                    }
-
-                    // Optional: if you DON'T want to force-open the journal,
-                    // comment out alistairOpenJournal() above and just do:
-                    // enterForestFreeRoam();
-                    // (but right now we're showing it on purpose)
-                  }
-                );
-              }
-            );
-          }
-        );
-      });
-    }
-
       // -------------------------------------------------
-      // helper: branch after "Yes" (you help him)
-      // - we narrate being kind
-      // - immediately give rope
-      // (ropeHotspot will get removed in givePlayerRopeFromSkeleton)
+      // helper: help the skeleton (rope)
       // -------------------------------------------------
       function helpSkeleton() {
         alistairResetNextButton();
@@ -1275,8 +1429,29 @@ render(gameState) {
         });
       }
 
+      // Always ensure hotspots exist/wired before any early returns
+      wireRopeHotspot();
+      initPouchHotspot();
+
+      // ---------- RE-ENTER BLURB ----------
+      const seenBefore = !!alistairState._enteredForestOnce;
+      // mark as entered from now on
+      alistairState._enteredForestOnce = true;
+
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "We've definitely been here before.",
+            "I wonder if we've found everything we can..."
+          ],
+          () => { enterForestFreeRoam(); }
+        );
+        return; // skip the initial intro/choice on re-entries
+      }
+
       // -------------------------------------------------
-      // forest intro lines (first arrival)
+      // first arrival intro + choice
       // -------------------------------------------------
       const forestIntroLines = [
         "The trees lean in, like they're trying to listen to you breathe.",
@@ -1287,36 +1462,16 @@ render(gameState) {
         "The forest past this point is too dense to walk. Dead end… unless you take what you need."
       ];
 
-      // We only want to do the intro + Yes/No ONCE per visit,
-      // not every time they come back from another room.
-      // You can make this fancier later (track visited state per room),
-      // but for now we always play it when entering.
       alistairStartDialogue(forestIntroLines, () => {
-        // AFTER intro, ask if we make him more comfy.
         alistairShowChoices(
           "Do you make him more comfortable?",
           [
-            {
-              label: "Yes",
-              onClick: () => {
-                helpSkeleton(); // gives rope immediately
-              }
-            },
-            {
-              label: "No",
-              onClick: () => {
-                refuseToHelp(); // guilt, free roam, hotspot still there
-              }
-            }
+            { label: "Yes", onClick: () => { helpSkeleton(); } },
+            { label: "No",  onClick: () => { refuseToHelp(); } }
           ]
         );
       });
 
-      // finally: make sure hotspot works for both branches
-      // (if they said No and we're in free roam,
-      // or if they skip the choice somehow and just click it)
-      wireRopeHotspot();
-      initPouchHotspot();
     }
   };
 
@@ -1407,7 +1562,7 @@ render(gameState) {
               if (!alistairState.inventory.find(i => i.id === "strange_herb")) {
                 alistairAddItem({
                   id: "strange_herb",
-                  name: "Unmarked Herb",
+                  name: "Nightsingers Herb",
                   imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761750412/ag-herb-for-potion-of-dispell_wafxps.png"
                 });
               }
@@ -1461,6 +1616,21 @@ render(gameState) {
             }
           );
         });
+      }
+
+      const hasHammer = !!alistairState.inventory.find(i => i.id === "barn_hammer");
+      if (hasHammer) {
+        alistairResetNextButton();
+        const reenterExteriorLines = [
+          "Out here the air doesn't feel as sick.",
+          "I'm glad we made it out of there.",
+          "Whatever was moving inside has gone quiet...",
+          "Maybe we shouldn't go back in."
+        ];
+        alistairStartDialogue(reenterExteriorLines, () => {
+          enterBarnFreeRoam();
+        });
+        return; // stop; don't show the original 'go inside?' prompt
       }
 
       // ---- Barn arrival narration (outside the barn) ----
@@ -1520,6 +1690,7 @@ render(gameState) {
     }
   };
 
+
   //BARN-INTERIOR
   const AlistairRoom_BarnInterior = {
     id: "barn_interior",
@@ -1527,34 +1698,232 @@ render(gameState) {
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761754559/ag-barn-interior_icwcfu.png",
 
     render(gameState) {
+      // We always render two things here:
+      // 1. A ladder hotspot (invisible box for the danger climb)
+      // 2. A glimmer hotspot wrapper for that mp4, START HIDDEN.
+      //
+      // We unhide the glimmer hotspot later if the player refuses to climb and
+      // chooses to back off (Option 1 -> No, then Option 2 -> Yes).
+      //
+      // We also remove hotspots entirely once the player has the hammer.
+
+      const hasHammer = !!gameState.inventory.find(i => i.id === "barn_hammer");
+
       return `
-        <!-- Barn interior hotspots will go here (loft / hanging metal / key) -->
+        <!-- Barn interior scene -->
+
+        ${
+          hasHammer
+            ? ""
+            : `
+              <!-- LADDERS / DANGER HOTSPOT -->
+              <div id="alistair-glimmer-hotspot" class="alistair-glimmer-hotspot alistair-glimmer-hidden">
+                <img
+                  src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761769367/ag-hot-spot-glimmer_k2sqkj.png"
+                  alt="Glimmer"
+                  id="alistair-glimmer-img"
+                  
+                 >
+              </div>
+            `
+        }
       `;
     },
 
     onEnter(gameState) {
-      // When you first step inside the barn
-      const insideLines = [
+
+      // --- tiny helper for plain free roam (no extra hotspots) ---
+      function enterInteriorFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+      }
+
+      // ============================
+      // RE-ENTRY CURSE CHECK FIRST
+      // (only after they already have the hammer)
+      // ============================
+      const alreadyHasHammer = !!alistairState.inventory.find(i => i.id === "barn_hammer");
+      if (alreadyHasHammer) {
+        alistairResetNextButton();
+
+        // take damage immediately
+        alistairTakeDamage(1);
+
+        const reentryLines = [
+          "That presence from before is stronger now.",
+          "It crawls over your skin. Your stomach flips.",
+          "You feel really sick.",
+          "I think we need to leave. Right now."
+        ];
+
+        alistairStartDialogue(reentryLines, () => {
+          // free roam INSIDE (no hotspots render because we have the hammer)
+          enterInteriorFreeRoam();
+        });
+
+        return; // don't run the first-time ladder/glimmer flow below
+      }
+
+      // ================
+      // helper: add hammer, talk, and leave the barn interior
+      // (used in *all* branches once hammer is obtained)
+      // ================
+      function awardHammerAndExitRoom(didGetHurt) {
+        // 1. Show hammer overlay zoom
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1761764082/ag-hammer_irioeo.png",
+          "Rusty Hammer",
+          () => {
+            // 2. Add hammer to inventory (if not already)
+            if (!alistairState.inventory.find(i => i.id === "barn_hammer")) {
+              alistairAddItem({
+                id: "barn_hammer",
+                name: "Rusty Hammer",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761764082/ag-hammer_irioeo.png"
+              });
+            }
+
+            // 3. Remove hotspots so you can't farm hammer
+            const ladderSpot = document.getElementById('alistair-ladder-hotspot');
+            if (ladderSpot) ladderSpot.remove();
+            const glimmerSpot = document.getElementById('alistair-glimmer-hotspot');
+            if (glimmerSpot) glimmerSpot.remove();
+
+            // 4. Final dialogue, then we bail out of the barn interior.
+            alistairResetNextButton();
+
+            const endLines = didGetHurt
+              ? [
+                  "I think this is what we needed.",
+                  "That hurt more than it should have.",
+                  "Let's get out of here."
+                ]
+              : [
+                  "I think this is what we needed.",
+                  "Let's get out of here."
+                ];
+
+            alistairStartDialogue(endLines, () => {
+              // After grabbing the hammer, we dump them back outside the barn
+              alistairPlayTransitionThenGoRoom('barn');
+            });
+          }
+        );
+      }
+
+      // ================
+      // helper: unsafe climb – you fall and take damage
+      // (used in Option 1 Yes path, and Option 2 "No I'll climb anyway" path)
+      // ================
+      function doUnsafeLadderClimb() {
+        alistairResetNextButton();
+
+        const fallLines = [
+          "You grab the ladder and start climbing.",
+          "Every rung creaks like it's going to snap.",
+          "Halfway up — it does.",
+          "You drop. You hit the floor hard.",
+          "White pain explodes up your leg."
+        ];
+
+        // Apply damage 1 heart
+        alistairTakeDamage(1);
+
+        alistairStartDialogue(fallLines, () => {
+          awardHammerAndExitRoom(true /*didGetHurt*/);
+        });
+      }
+
+      // ================
+      // helper: safe glimmer pickup – no damage
+      // (used when they backed off and went free roam and clicked the hotspot)
+      // ================
+      function doSafeGlimmerPickup() {
+        alistairResetNextButton();
+
+        const sneakLines = [
+          "You stay low and move slow.",
+          "You don't climb. You don't make a sound.",
+          "There — tucked under fallen boards. Metal.",
+          "You slide it free without the whole barn screaming about it."
+        ];
+
+        alistairStartDialogue(sneakLines, () => {
+          awardHammerAndExitRoom(false /*didGetHurt*/);
+        });
+      }
+
+      // ================
+      // helper: enable free roam mode INSIDE barn with the glimmer
+      // ================
+      function enterBarnInteriorFreeRoamWithGlimmer() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+
+        const glimmerSpot = document.getElementById('alistair-glimmer-hotspot');
+        if (glimmerSpot) {
+          glimmerSpot.classList.remove('alistair-glimmer-hidden');
+          glimmerSpot.addEventListener('click', () => {
+            doSafeGlimmerPickup();
+          });
+        }
+      }
+
+      // ================
+      // helper: second confirmation menu ("you sure?")
+      // ================
+      function confirmDontClimb() {
+        alistairShowChoices(
+          "You sure you don't want to climb the ladder?",
+          [
+            {
+              label: "Yes",
+              onClick: () => {
+                enterBarnInteriorFreeRoamWithGlimmer();
+              }
+            },
+            {
+              label: "No",
+              onClick: () => {
+                doUnsafeLadderClimb();
+              }
+            }
+          ]
+        );
+      }
+
+      // ================
+      // MAIN INTRO FLOW WHEN ENTERING BARN INTERIOR (first time)
+      // ================
+      const interiorIntroLines = [
         "You step into the barn.",
         "The air in here is wet and wrong. Sweet-rotten.",
-        "The light from the loft is still flickering, but nothing is moving.",
-        "Something metal is hanging above you, swaying just a little.",
-        "You shouldn't be in here alone."
+        "Something about this place makes your stomach twist. You shouldn't stay long.",
+        "But it feels like there's something in here that we NEED.",
+        "Oh. Look over there. There's a ladder up to the loft."
       ];
 
-      alistairStartDialogue(insideLines, () => {
-        // After the intro, we’ll later branch into:
-        // - climb for the key
-        // - maybe kill path
-        // - etc.
-        //
-        // For now we just leave them in here with the dialogue bar hidden
-        // (free roam state, like Forest did).
-        const bar = document.getElementById('alistair-dialogue-bar');
-        if (bar) {
-          bar.classList.add('hidden');
-        }
+      alistairStartDialogue(interiorIntroLines, () => {
+        alistairShowChoices(
+          "Do you climb the ladder?",
+          [
+            { label: "Yes", onClick: () => { doUnsafeLadderClimb(); } },
+            { label: "No",  onClick: () => {
+                alistairResetNextButton();
+                const warnLines = [
+                  "You freeze at the base of the ladder.",
+                  "Your skin is buzzing.",
+                  "Something in here does not want you going up there.",
+                  "You feel sick.",
+                  "Are you sure you don't want to climb?"
+                ];
+                alistairStartDialogue(warnLines, () => { confirmDontClimb(); });
+              }
+            }
+          ]
+        );
       });
+
     }
   };
 
