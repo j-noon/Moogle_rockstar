@@ -831,11 +831,19 @@ button[data-locked="true"] {
 #alistair-room-container {
   position: absolute;
   inset: 0;
-  padding-top: 60px; /* space so HUD doesn't cover intro text/buttons */
+  padding-top: 60px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  background-color: #000;
   overflow: hidden;
+}
+
+#alistair-wrapper.alistair-expanded #alistair-room-container {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #000;
 }
 
 /* placeholder / text panels inside room */
@@ -1065,6 +1073,51 @@ button[data-locked="true"] {
 /* hide signs until the well intro is over */
 .alistair-signs-hidden {
   display: none;
+}
+
+/* ============================
+   FOREST ROOM HOTSPOTS
+   ============================ */
+
+/* clickable rope hitbox over the skeleton */
+.alistair-rope-hotspot {
+  position: absolute;
+
+  /* ⬇⬇ tweak these to line up with the rope on the skeleton ⬇⬇ */
+  left: 48%;
+  top: 60%;
+  width: 80px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  /* ⬆⬆ tweak percent/px until it's sitting right on the rope ⬆⬆ */
+
+  cursor: pointer;
+  z-index: 10; /* above background */
+}
+
+/* clickable rope image hotspot */
+.alistair-hotspot-rope {
+  position: absolute;
+  right: 1%;
+  top: 95%;
+  transform: translate(-50%, -50%);
+  cursor: pointer;
+  z-index: 8;
+}
+
+.alistair-rope-img {
+  width: 40px;
+  height: 40;
+  pointer-events: none; /* ensures clicks go through to parent div */
+}
+
+.alistair-hotspot-pouch {
+  position: absolute;
+  bottom: 5px;   /* adjust visually to match pouch location */
+  left: 460px;     /* tune these by eye */
+  width: 30px;
+  height: 30px;
+  z-index: 6;
 }
 
 /*--------------------

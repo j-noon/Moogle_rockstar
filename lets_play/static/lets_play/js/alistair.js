@@ -1,14 +1,18 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-  // ====== GAME STATE ======
+  // ============================================================
+  // ===============  CORE GAME STATE / BOOT / UI  ===============
+  // ============================================================
+
+  // ----- GAME STATE -----
   const alistairState = {
     health: 3,
     // inventory now stores objects like { id, name, imgUrl }
     inventory: [],
     // journals store objects like { id, title, imgUrl }
     journals: [],
-    visitedRooms: [],
-    roomHistory: [],
+    visitedRooms: [],     // list of room ids we've visited so far
+    roomHistory: [],      // stack so Back button can work
     currentRoom: null,
     started: false,
 
@@ -16,11 +20,12 @@ document.addEventListener("DOMContentLoaded", function () {
     isJournalOpen: false,
     isInventoryOpen: false,
 
-    // 🟣 NEW: track if we've already shown the crossroads nav menu
+    // tracks if we've already shown the "where do you go?" nav
+    // at the Well crossroads. This prevents spamming the menu.
     hasSeenCrossroads: false,
   };
 
-  // ====== HOW TO PLAY INTRO SCREEN ======
+  // ----- "HOW TO PLAY" INTRO OVERLAY AT START -----
   function alistairShowHowToScreen() {
     const roomContainer = document.getElementById('alistair-room-container');
     if (!roomContainer) return;
@@ -55,11 +60,29 @@ document.addEventListener("DOMContentLoaded", function () {
     `;
   }
 
-  // ====== DIALOGUE SYSTEM ======
+
+  // ============================================================
+  // =====================  DIALOGUE SYSTEM  ====================
+  // ============================================================
+  //
+  // This controls:
+  // - scrolling narrative lines at the bottom bar ("Next", "Next", "Next")
+  // - branching choices buttons
+  // - when to hide/show the dialogue bar
+  //
+  // You mostly call:
+  //   alistairStartDialogue(linesArray, callbackWhenDone)
+  //   alistairShowChoices(question, [ {label, onClick}, ... ])
+  //   alistairResetNextButton()  (puts the bar back into single "Next" mode)
+  //
+
   let dialogueQueue = [];
   let dialogueOnComplete = null;
   let dialogueIndex = 0;
 
+  // Start a block of dialogue lines.
+  // linesArray = ["line1","line2",...]
+  // onComplete = function to run after last line is done
   function alistairStartDialogue(linesArray, onComplete) {
     dialogueQueue = Array.isArray(linesArray) ? linesArray : [];
     dialogueOnComplete = typeof onComplete === 'function' ? onComplete : null;
@@ -82,33 +105,34 @@ document.addEventListener("DOMContentLoaded", function () {
     textEl.textContent = dialogueQueue[0];
     bar.classList.remove('hidden');
 
-    // restore normal Next button look/behavior
+    // make sure the bar is in "Next" mode (not in "choice buttons" mode)
     alistairResetNextButton();
   }
 
+  // Called when player clicks "Next". Advances to next line or finishes.
   function alistairAdvanceDialogue() {
     dialogueIndex += 1;
     const bar = document.getElementById('alistair-dialogue-bar');
     const textEl = document.getElementById('alistair-dialogue-text');
 
     if (dialogueIndex < dialogueQueue.length) {
-      // still more lines
+      // still more lines to show
       textEl.textContent = dialogueQueue[dialogueIndex];
       return;
     }
 
-    // we're done with this block
+    // end of this dialogue block
     bar.classList.add('hidden');
 
     if (dialogueOnComplete) {
       const cb = dialogueOnComplete;
       dialogueOnComplete = null;
-      cb(); // e.g. show choices now
+      cb(); // e.g. now show choices...
     }
   }
 
-  // ====== DIALOGUE CHOICE SYSTEM ======
-  // Show a question + buttons instead of "Next"
+  // Show branching choices (replaces the "Next" button area
+  // with multiple buttons, each with .onClick)
   function alistairShowChoices(questionText, choicesArray) {
     const bar = document.getElementById('alistair-dialogue-bar');
     const textEl = document.getElementById('alistair-dialogue-text');
@@ -119,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function () {
     bar.classList.remove('hidden');
     textEl.textContent = questionText;
 
-    // wipe the Next button and replace with choice buttons
+    // wipe the Next button content and add our choice buttons
     nextBtn.replaceChildren();
     choicesArray.forEach(choice => {
       const btn = document.createElement('button');
@@ -132,7 +156,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Put the bottom bar back into "story mode" (single Next button)
+  // Put the bar back into story mode (single "Next" btn).
+  // Call this before using alistairStartDialogue again.
   function alistairResetNextButton() {
     const nextBtn = document.getElementById('alistair-dialogue-next');
     if (!nextBtn) return;
@@ -141,7 +166,18 @@ document.addEventListener("DOMContentLoaded", function () {
     nextBtn.onclick = alistairAdvanceDialogue;
   }
 
-  // ====== IMAGE OVERLAY ======
+
+  // ============================================================
+  // ======================  IMAGE OVERLAY  =====================
+  // ============================================================
+  //
+  // Full-screen popup image for an item, note, clue, etc.
+  // Usage:
+  //   alistairShowImageOverlay(imgUrl, captionText, () => {
+  //      ...what to do when closed...
+  //   })
+  //
+
   function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     const overlay = document.getElementById('alistair-image-overlay');
     const imgEl = document.getElementById('alistair-overlay-img');
@@ -164,7 +200,16 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.addEventListener('click', handleClose);
   }
 
-  // ====== JOURNAL SYSTEM ======
+
+  // ============================================================
+  // ====================  JOURNAL SYSTEM  ======================
+  // ============================================================
+  //
+  // Journals = lore notes you collect.
+  // Stored on alistairState.journals as {id, title, imgUrl}
+  // Renders in journal modal grid and supports click-to-open overlay.
+  //
+
   function alistairAddJournal(journalObj) {
     // journalObj: { id, title, imgUrl }
     if (!alistairState.journals.find(j => j.id === journalObj.id)) {
@@ -172,6 +217,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Draw the journal modal grid
   function alistairRenderJournalPanel() {
     const grid = document.getElementById('alistair-journal-grid');
     if (!grid) return;
@@ -179,7 +225,7 @@ document.addEventListener("DOMContentLoaded", function () {
     grid.innerHTML = '';
 
     if (alistairState.journals.length === 0) {
-      // show some empty slots so it still looks like a grid
+      // fill with some "empty" slots so layout looks good
       for (let i = 0; i < 6; i++) {
         const slot = document.createElement('div');
         slot.className = 'alistair-grid-slot';
@@ -195,13 +241,12 @@ document.addEventListener("DOMContentLoaded", function () {
       const slot = document.createElement('div');
       slot.className = 'alistair-grid-slot';
 
-      // show the note's image AND the title
       slot.innerHTML = `
         <img src="${journal.imgUrl}" alt="${journal.title}">
         <div class="alistair-grid-slot-title">${journal.title}</div>
       `;
 
-      // clicking opens full-screen readable view
+      // click a journal entry to see it fullscreen
       slot.addEventListener('click', () => {
         alistairShowImageOverlay(
           journal.imgUrl,
@@ -215,7 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   function alistairOpenJournal() {
-    // close inventory if open
+    // close inventory if it was open
     if (alistairState.isInventoryOpen) {
       alistairCloseInventory();
     }
@@ -235,7 +280,16 @@ document.addEventListener("DOMContentLoaded", function () {
     alistairState.isJournalOpen = false;
   }
 
-  // ====== INVENTORY SYSTEM ======
+
+  // ============================================================
+  // ===================  INVENTORY SYSTEM  =====================
+  // ============================================================
+  //
+  // Inventory = physical items (like the bucket).
+  // Stored in alistairState.inventory as {id, name, imgUrl}
+  // Shows in inventory modal grid. We also auto-create empty slots.
+  //
+
   function alistairAddItem(itemObj) {
     // itemObj: { id, name, imgUrl }
     if (!alistairState.inventory.find(i => i.id === itemObj.id)) {
@@ -243,14 +297,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Big grid panel (modal)
+  // Draw the inventory modal grid, with fixed min slots
   function alistairRenderInventoryPanel() {
     const grid = document.getElementById('alistair-inventory-grid');
     if (!grid) return;
 
     grid.innerHTML = '';
 
-    // For vibe: show 9 slots minimum (3 columns x 3 rows)
+    // Show 9 slots minimum (3x3 vibe)
     const totalSlots = Math.max(9, alistairState.inventory.length);
 
     for (let i = 0; i < totalSlots; i++) {
@@ -263,7 +317,7 @@ document.addEventListener("DOMContentLoaded", function () {
           <img src="${itemObj.imgUrl}" alt="${itemObj.name}">
           <div class="alistair-grid-slot-title">${itemObj.name}</div>
         `;
-        // later we could add click to "inspect item"
+        // future: we can add click handlers here to "inspect item"
       } else {
         slot.innerHTML = `
           <div class="alistair-grid-slot-title" style="opacity:.4;">(empty)</div>
@@ -295,7 +349,15 @@ document.addEventListener("DOMContentLoaded", function () {
     alistairState.isInventoryOpen = false;
   }
 
-  // ====== HELPERS: UI RENDER ======
+
+  // ============================================================
+  // ===================  HEALTH / HEARTS SYS  ==================
+  // ============================================================
+  //
+  // Renders hearts in the HUD and handles damage / death.
+  // Call alistairTakeDamage(1) etc.
+  //
+
   function alistairRenderHearts() {
     const heartsEl = document.getElementById('alistair-hearts');
     const fullHearts = "❤️".repeat(alistairState.health);
@@ -311,8 +373,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 🟣 NEW GLOBAL HELPER #1
-  // reveal the sign hotspots in the Well, and wire them to navigation
+
+  // ============================================================
+  // =====================  GLOBAL HELPERS  =====================
+  // ============================================================
+  //
+  // These are general-purpose helpers that multiple rooms can use.
+  // Example: "reveal the clickable signs" at the Well is useful
+  // both when we first arrive and any time later.
+  //
+  // IMPORTANT FOR YOU:
+  // - If you need new shared logic (like a Forest puzzle helper,
+  //   or a 'playScreamCutscene()'), add it HERE so it's global.
+  //
+
+  // Make The Well's direction signs visible + clickable.
+  // (Forest, Barn, Manor)
   function alistairRevealSignsOnly() {
     const signs = document.querySelectorAll('.alistair-hotspot-sign');
     signs.forEach(sign => {
@@ -335,7 +411,7 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // MANOR click (locked unless key)
+    // MANOR click (locked unless you have the key)
     const manorSign = document.querySelector('.alistair-sign-manor');
     if (manorSign) {
       manorSign.addEventListener('click', () => {
@@ -355,15 +431,14 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // 🟣 NEW GLOBAL HELPER #2
-  // This replaces the old inline showCrossroadsChoice() so we can call it
-  // from anywhere: bucket flow, skip-peek flow, after note, etc.
+  // Show the crossroads "Where do you go next?" menu at the well
+  // (or if we've already done it once, just leave the player free-roam).
   function alistairShowCrossroadsChoiceFromWell() {
     // always make signs clickable/visible
     alistairRevealSignsOnly();
 
-    // If we've already shown crossroads before, don't spam the menu again.
-    // Just leave the scene free-roam (dialogue bar hidden).
+    // already seen crossroads once? Then don't pop the menu again.
+    // Instead just hide the dialogue bar and leave hotspots active.
     if (alistairState.hasSeenCrossroads) {
       const bar = document.getElementById('alistair-dialogue-bar');
       if (bar) {
@@ -372,7 +447,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // First time we show crossroads
+    // first time we show crossroads
     alistairState.hasSeenCrossroads = true;
 
     alistairShowChoices(
@@ -402,9 +477,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 "The manor door won't open for you.",
                 "Not yet."
               ], () => {
-                // after warning, call it again —
-                // but because hasSeenCrossroads is now true,
-                // this will just free-roam hide the bar.
+                // after warning, call again:
+                // this time hasSeenCrossroads === true so it'll just exit to free roam
                 alistairShowCrossroadsChoiceFromWell();
               });
             }
@@ -419,7 +493,7 @@ document.addEventListener("DOMContentLoaded", function () {
               "The air tastes like rust.",
               "Something is watching to see what you choose."
             ], () => {
-              // free-roam: leave hotspots active, hide bar
+              // free roam mode: keep hotspots, hide bar
               alistairRevealSignsOnly();
               const bar = document.getElementById('alistair-dialogue-bar');
               if (bar) {
@@ -432,9 +506,22 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // ====== BUCKET PICKUP FLOW ======
-  // 🟣 CHANGED: now calls alistairShowCrossroadsChoiceFromWell()
-  // after the bucket logic finishes, instead of local showCrossroadsChoice()
+
+  // ============================================================
+  // ============  BUCKET FLOW / ITEM INTERACTION  ==============
+  // ============================================================
+  //
+  // This is specifically the interaction at The Well with the bucket,
+  // but you can copy this pattern for future "pick up X -> inspect X
+  // -> maybe bleed, maybe journal unlock" stuff in other rooms.
+  //
+  // HOW IT WORKS:
+  // - alistairHandleBucketPickupFlow()
+  //   runs when you choose "Pick it up"
+  // - it shows bucket zoom, gives you the bucket item,
+  //   removes hotspot, then asks if you reach in.
+  //
+
   function alistairHandleBucketPickupFlow() {
     alistairResetNextButton();
 
@@ -442,6 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
       "https://res.cloudinary.com/ddmslr9na/image/upload/v1761533389/ag-bucket_m4kfer.png",
       "Old wooden bucket. Iron handle. Damp. Smells like rot.",
       () => {
+        // add bucket to inventory
         alistairAddItem({
           id: "bucket",
           name: "Bucket",
@@ -454,7 +542,7 @@ document.addEventListener("DOMContentLoaded", function () {
           hotspot.remove();
         }
 
-        // now ask if they want to stick their hand in
+        // after zoom, ask "reach inside?"
         alistairShowChoices(
           "Do you reach inside the bucket?",
           [
@@ -463,7 +551,7 @@ document.addEventListener("DOMContentLoaded", function () {
               onClick: () => {
                 alistairResetNextButton();
 
-                // pain moment
+                // take damage 1 heart
                 alistairTakeDamage(1);
 
                 const hurtLines = [
@@ -474,30 +562,26 @@ document.addEventListener("DOMContentLoaded", function () {
                   "It looks... wet?"
                 ];
 
-                // After we show the hurtLines, we’ll show the note image,
-                // then add that note to the journal.
                 alistairStartDialogue(hurtLines, () => {
-                  // Show the note as an overlay the player can read
+                  // Show Herberts Note fullscreen
                   alistairShowImageOverlay(
                     "https://res.cloudinary.com/ddmslr9na/image/upload/v1761611469/ag-note-from-crab_l56g6a.png",
                     "Soaked Note",
                     () => {
-                      // When player closes the note overlay, add it to journal
+                      // add note to journal after close
                       alistairAddJournal({
                         id: "crab_note",
                         title: "Herberts Note",
                         imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761611469/ag-note-from-crab_l56g6a.png"
                       });
 
-                      // 🟣 NEW: after finishing the whole bucket->hurt->note path,
-                      // go to crossroads (will respect hasSeenCrossroads)
+                      // now show crossroads nav / free roam
                       alistairShowCrossroadsChoiceFromWell();
                     }
                   );
                 });
               }
             },
-            // "Don't" path here is basically same as confirmSkipPeek()
             {
               label: "Don't",
               onClick: () => {
@@ -509,8 +593,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ];
 
                 alistairStartDialogue(passLines, () => {
-                  // 🟣 NEW: after deciding not to reach, also go to crossroads
-                  // (again will respect hasSeenCrossroads)
+                  // also drop them to crossroads nav / free roam
                   alistairShowCrossroadsChoiceFromWell();
                 });
               }
@@ -521,7 +604,32 @@ document.addEventListener("DOMContentLoaded", function () {
     );
   }
 
-  // ====== ROOM MANAGEMENT ======
+
+  // ============================================================
+  // ======================  ROOM SYSTEM  =======================
+  // ============================================================
+  //
+  // alistairGoToRoom(id):
+  //   - swaps background
+  //   - injects that room's HTML (hotspots, etc)
+  //   - calls that room's onEnter() so it can set up dialogue, etc
+  //
+  // pattern for a room object:
+  //
+  // const SomeRoom = {
+  //   id: "some_id",
+  //   name: "Readable Name",
+  //   background: "IMAGE_URL",
+  //   render(gameState) {
+  //     return `...HTML TO INJECT...`;
+  //   },
+  //   onEnter(gameState) {
+  //     // runs every time we enter the room
+  //     // here you usually do narrative and attach event listeners
+  //   }
+  // }
+  //
+
   function alistairGoToRoom(roomId, opts = {}) {
     console.log("Alistair: alistairGoToRoom ->", roomId);
 
@@ -547,41 +655,42 @@ document.addEventListener("DOMContentLoaded", function () {
       alistairState.visitedRooms.push(nextRoom.id);
     }
 
-    // Update slim header room name
+    // Update slim header room name in HUD
     const roomNameEl = document.getElementById('alistair-room-name');
     if (roomNameEl) {
       roomNameEl.textContent = nextRoom.name || '';
     }
 
-    // Render background
+    // Render background for this room scene
     const roomContainer = document.getElementById('alistair-room-container');
     roomContainer.style.backgroundImage = nextRoom.background
       ? `url('${nextRoom.background}')`
       : 'none';
 
-    // Inject room hotspots / interactables
+    // Inject room hotspots / interactables markup
     roomContainer.innerHTML = '';
     const rawHtml = nextRoom.render(alistairState);
     if (rawHtml && rawHtml.trim() !== "") {
       roomContainer.innerHTML = rawHtml;
     }
 
-    // Hide dialogue until the room narrates
+    // Hide dialogue (room will open it when ready)
     const bar = document.getElementById('alistair-dialogue-bar');
     if (bar) {
       bar.classList.add('hidden');
     }
 
-    // Let the room handle its narrative / choices / hotspot wiring
+    // Call the room's script
     if (typeof nextRoom.onEnter === 'function') {
       nextRoom.onEnter(alistairState);
     }
 
-    // Refresh HUD
+    // Refresh HUD hearts + inventory panel data
     alistairRenderHearts();
     alistairRenderInventoryPanel();
   }
 
+  // go back to previous room (Back button)
   function alistairGoBack() {
     const prev = alistairState.roomHistory.pop();
     if (prev) {
@@ -589,7 +698,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ====== MAP MODAL ======
+
+  // ============================================================
+  // ======================  MAP / MODALS  ======================
+  // ============================================================
+  //
+  // Map modal: shows list of visited rooms so you can jump.
+  // Journal modal & Inventory modal are handled above.
+  //
+
   function alistairOpenMap() {
     const modal = document.getElementById('alistair-map-modal');
     const list = document.getElementById('alistair-map-list');
@@ -616,7 +733,15 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById('alistair-map-modal').classList.add('hidden');
   }
 
-  // ====== EXPAND / SHRINK VIEW ======
+
+  // ============================================================
+  // =======================  VIEW MODES  =======================
+  // ============================================================
+  //
+  // Expand: turns the game div fullscreen.
+  // Collapse: puts it back in-card.
+  //
+
   function alistairToggleExpand() {
     const wrapper = document.getElementById('alistair-wrapper');
     const btn = document.getElementById('alistair-expand-btn');
@@ -631,7 +756,15 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ====== GAME OVER / ENDINGS ======
+
+  // ============================================================
+  // =====================  GAME OVER LOGIC  ====================
+  // ============================================================
+  //
+  // alistairShowGameOver(msg) pops modal with Restart.
+  // alistairRestart() resets all state & shows intro again.
+  //
+
   function alistairShowGameOver(messageText) {
     const modal = document.getElementById('alistair-gameover-modal');
     const content = document.getElementById('alistair-gameover-content');
@@ -664,29 +797,48 @@ document.addEventListener("DOMContentLoaded", function () {
     alistairState.isJournalOpen = false;
     alistairState.isInventoryOpen = false;
 
-    // 🟣 UPDATED: reset crossroads flag on restart
+    // also reset crossroads flag at the well
     alistairState.hasSeenCrossroads = false;
 
     // Show intro screen again on restart
     alistairShowHowToScreen();
     alistairRenderHearts();
-    
   }
 
-  // ====== ROOM DEFINITIONS ======
 
-  // ENTRANCE GATES
+  // ============================================================
+  // ========================  ROOMS  ===========================
+  // ============================================================
+  //
+  // THIS is where we define each location.
+  // Each room object has:
+  //   id, name, background, render(), onEnter()
+  //
+  // render() => returns HTML string for hotspots in that room.
+  // onEnter() => runs logic each time you arrive (narration, etc)
+  //
+  // IMPORTANT FOR YOU:
+  // - To add new scene content / choices / puzzle for FOREST,
+  //   edit AlistairRoom_ForestGrounds.onEnter() and .render().
+  //   Look at The Well for reference on branching, items, etc.
+  //
+  // - If a new scene needs cutscenes / helpers, put those helper
+  //   functions up in GLOBAL HELPERS so it's reusable (like we did
+  //   for the well's crossroads logic).
+  //
+
+  // --- ENTRANCE GATES ---
   const AlistairRoom_EntranceGates = {
     id: "entrance_gates",
     name: "Entrance Gates",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761530233/ag-gates-closed_ldpuwk.png",
 
     render(gameState) {
+      // gates scene doesn't inject hotspots yet
       return ``;
     },
 
     onEnter(gameState) {
-      // Intro lore lines at the gates
       const introLines = [
         "The air is colder here. You shouldn't even be on these grounds.",
         "They said Alistair vanished beyond these gates. They said anyone who looks for him doesn't come back.",
@@ -695,7 +847,6 @@ document.addEventListener("DOMContentLoaded", function () {
       ];
 
       alistairStartDialogue(introLines, () => {
-        // After intro, ask the big question
         alistairShowChoices(
           "Do you dare to enter? Once you pass these gates you might never return.",
           [
@@ -721,7 +872,10 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   };
 
-  //  THE WELL 
+
+  // --- THE WELL / CROSSROADS HUB ---
+  // This is the "main hub" where you can pick up the bucket, get hurt,
+  // unlock a journal entry, and choose where to go next
   const AlistairRoom_TheWell = {
     id: "the_well",
     name: "The Well",
@@ -765,7 +919,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     onEnter(gameState) {
 
-      // === helper: confirm "are you sure you don't want to peek?"
+      // local helper: "are you sure you don't want to peek inside the bucket?"
       function confirmSkipPeek() {
         alistairShowChoices(
           "You sure you don’t want to peek inside?",
@@ -779,7 +933,7 @@ document.addEventListener("DOMContentLoaded", function () {
                   "Whatever's inside can stay inside."
                 ];
                 alistairStartDialogue(passLines, () => {
-                  // after refusing to peek, go to crossroads menu/free roam
+                  // drop into crossroads / free roam
                   alistairShowCrossroadsChoiceFromWell();
                 });
               }
@@ -794,11 +948,11 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      // === helper: the hurt / crab / note sequence, then crossroads
+      // local helper: the "reach into bucket and get hurt" storyline
       function doBucketReachInSequence() {
         alistairResetNextButton();
 
-        // pain moment
+        // take damage 1 heart
         alistairTakeDamage(1);
 
         const hurtLines = [
@@ -810,26 +964,26 @@ document.addEventListener("DOMContentLoaded", function () {
         ];
 
         alistairStartDialogue(hurtLines, () => {
-          // Show Herberts Note fullscreen
+          // Show Herbert's Note fullscreen
           alistairShowImageOverlay(
             "https://res.cloudinary.com/ddmslr9na/image/upload/v1761611469/ag-note-from-crab_l56g6a.png",
             "Soaked Note",
             () => {
-              // add note to journal
+              // add note to journal when overlay closes
               alistairAddJournal({
                 id: "crab_note",
                 title: "Herberts Note",
                 imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761611469/ag-note-from-crab_l56g6a.png"
               });
 
-              // after closing the note overlay, go to crossroads/free roam
+              // then show crossroads nav / free roam
               alistairShowCrossroadsChoiceFromWell();
             }
           );
         });
       }
 
-      // === helper: first bucket question "Do you pick up the bucket?"
+      // local helper: first bucket decision ("pick up bucket?" yes/no)
       function startBucketPrompt() {
         alistairShowChoices(
           "Do you pick up the bucket?",
@@ -837,10 +991,10 @@ document.addEventListener("DOMContentLoaded", function () {
             {
               label: "Pick it up",
               onClick: () => {
-                // zoom bucket + add to inv + remove hotspot
+                // zoom bucket, add to inv, remove hotspot, ask reach in
                 alistairHandleBucketPickupFlow();
 
-                // after picking it up, we immediately ask "reach in?"
+                // after pickup finishes we immediately ask "reach in?"
                 setTimeout(() => {
                   alistairShowChoices(
                     "Do you reach inside the bucket?",
@@ -854,8 +1008,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       {
                         label: "Don't",
                         onClick: () => {
-                          // this gives them the confirm, which will
-                          // eventually drop into alistairShowCrossroadsChoiceFromWell()
+                          // ask "you SURE?" which can route to crossroads
                           confirmSkipPeek();
                         }
                       }
@@ -875,7 +1028,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 ];
 
                 alistairStartDialogue(leaveLines, () => {
-                  // after refusing bucket, go to crossroads/free roam
+                  // after refusing bucket, go to crossroads / free roam
                   alistairShowCrossroadsChoiceFromWell();
                 });
               }
@@ -884,7 +1037,7 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      // ----- WELL INTRO LINES -----
+      // ---- Well intro lines when you arrive here ----
       const wellIntroLines = [
         "The gates slam shut, almost welded.",
         "Is that the tree whispering to me? Distant voices.",
@@ -893,63 +1046,291 @@ document.addEventListener("DOMContentLoaded", function () {
         "As you approach the well you see a bucket on the floor."
       ];
 
-      // grab hotspot so we can check if bucket exists
+      // grab bucket hotspot if it's still in scene
       const hotspot = document.getElementById('alistair-bucket-hotspot');
 
-      // make the signs visible / wired as soon as we enter
+      // make the directional signs (forest / barn / manor) visible + clickable
+      // so even if player skips dialogue, they can still navigate
       alistairRevealSignsOnly();
 
-      // allow clicking bucket in-scene whenever
+      // allow direct click on bucket hotspot
       if (hotspot) {
         hotspot.addEventListener('click', () => {
           startBucketPrompt();
         });
       }
 
-      // run intro, then branch to bucket or straight to crossroads
+      // run intro dialogue, then branch:
+      // if bucket is there => ask them about bucket
+      // if already collected => jump straight to crossroads/nav
       alistairStartDialogue(wellIntroLines, () => {
         if (hotspot && document.body.contains(hotspot)) {
-          // bucket still here (first time)
+          // first time, bucket still exists
           startBucketPrompt();
         } else {
-          // bucket already collected on a past visit
+          // bucket is already taken on a previous visit
           alistairShowCrossroadsChoiceFromWell();
         }
       });
     }
   };
 
-  // >>> NEW ROOMS GO HERE <<<
 
   // FOREST GROUNDS
   const AlistairRoom_ForestGrounds = {
     id: "forest_grounds",
     name: "Forest Grounds",
-    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761681141/adventure-garden-forest-skelly_erq5ay.png",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761701137/adventure-garden-forest-skelly_mynpdj.png",
 
-    render(gameState) {
-      return ``;
-    },
+render(gameState) {
+  const hasRope = !!gameState.inventory.find(i => i.id === "rope");
+
+  return `
+    ${hasRope ? "" : `
+      <div id="alistair-rope-hotspot" class="alistair-hotspot-rope">
+        <img
+          src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png"
+          alt="Coiled rope on the ground"
+          class="alistair-rope-img">
+      </div>
+    `}
+  `;
+},
 
     onEnter(gameState) {
-      const lines = [
-        "The trees lean in like they're trying to listen to you breathe.",
-        "Bones are half-sunk in the mud. They're not all animal.",
-        "Something was dragged through here recently. You can still see the grooves."
-      ];
-      alistairStartDialogue(lines, () => {
-        // future forest interactions
+
+      // -------------------------------------------------
+      // helper: FREE ROAM MODE in forest
+      // hides the dialogue bar so player can click hotspots
+      // -------------------------------------------------
+      function enterForestFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) {
+          bar.classList.add('hidden');
+        }
+        // nothing else right now, just leave hotspots active
+      }
+
+      // -------------------------------------------------
+      // helper: award rope to player
+      //  - shows rope overlay
+      //  - adds rope to inventory
+      //  - removes clickable hotspot
+      //  - returns to free roam
+      // We call this in BOTH cases:
+      //   - if they were kind ("Yes"),
+      //   - or if they click hotspot later.
+      // -------------------------------------------------
+      function givePlayerRopeFromSkeleton() {
+        // show rope zoom overlay
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png",
+          "Rope (still smells like the well.)",
+          () => {
+            // add rope to inventory if not already there
+            if (!alistairState.inventory.find(i => i.id === "rope")) {
+              alistairAddItem({
+                id: "rope",
+                name: "Length of Rope",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761696498/ag-rope_fzhaop.png"
+              });
+            }
+
+            // remove hotspot so you can't farm rope forever
+            const ropeHotspot = document.getElementById('alistair-rope-hotspot');
+            if (ropeHotspot) {
+              ropeHotspot.remove();
+            }
+
+            // "maybe have a look around" vibe after picking it up
+            alistairResetNextButton();
+            alistairStartDialogue([
+              "You coil the rope. It's heavier than it looks.",
+              "Might be useful later.",
+              "Maybe have a look around."
+            ], () => {
+              enterForestFreeRoam();
+            });
+          }
+        );
+      }
+
+      // -------------------------------------------------
+      // helper: wire the rope hotspot so in free roam,
+      // player can still collect it if they said "No".
+      // We call this AFTER we've rendered the scene.
+      // -------------------------------------------------
+      function wireRopeHotspot() {
+        const ropeHotspot = document.getElementById('alistair-rope-hotspot');
+        if (!ropeHotspot) return;
+
+        ropeHotspot.addEventListener('click', () => {
+          // player is manually looting the rope in free roam
+          givePlayerRopeFromSkeleton();
+        });
+      }
+
+      // -------------------------------------------------
+      // helper: branch after "No" (you don't help him)
+      // - we guilt them
+      // - we drop to free roam
+      // - hotspot stays active so they can STILL loot rope
+      // -------------------------------------------------
+      function refuseToHelp() {
+        alistairResetNextButton();
+        alistairStartDialogue([
+          "You leave him twisted in the dirt.",
+          "Somewhere in your head, a voice that isn't yours says:",
+          "\"I knew humans were cruel.\"",
+          "You feel like you missed something."
+        ], () => {
+          // go to free roam, keep hotspot
+          enterForestFreeRoam();
+        });
+      }
+
+    // --- helper: pouch hotspot for Greaves’ note
+    function initPouchHotspot() {
+      const roomContainer = document.getElementById('alistair-room-container');
+      if (!roomContainer) return;
+
+      const pouchSpot = document.createElement('div');
+      pouchSpot.className = 'alistair-hotspot-pouch';
+      roomContainer.appendChild(pouchSpot);
+
+      pouchSpot.addEventListener('click', () => {
+        alistairResetNextButton();
+
+        // Little "you found something" beat before showing the parchment
+        alistairStartDialogue(
+          ["Oh. What have we found here...?"],
+          () => {
+            // Show the pirate note full screen
+            alistairShowImageOverlay(
+              "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png",
+              "T. Greaves’ Note",
+              () => {
+
+                // === after they CLOSE the parchment overlay ===
+                // (1) store it in the journal RIGHT AWAY
+                alistairAddJournal({
+                  id: "greaves_note",
+                  title: "T. Greaves’ Note",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761703184/ag-pirates-note_fl7mml.png"
+                });
+
+                // (2) narrator reads / reacts to it
+                alistairResetNextButton();
+                alistairStartDialogue(
+                  [
+                    "T. Greaves... quartermaster of the Wailing Star...",
+                    "He says he dropped something down the well and it called his name back.",
+                    "He couldn't leave the forest after that.",
+                    "So the well is keeping this pirate here.. how i wonder?"
+                  ],
+                  () => {
+                    // (3) when the reading ends:
+                    //     - open the Journal so player sees it's been added
+                    //     - then drop them back to free roam
+
+                    // open + render journal modal
+                    alistairOpenJournal();
+
+                    // after a tiny delay, hide the dialogue bar so it feels like free roam,
+                    // but keep the journal open for them to look at.
+                    const bar = document.getElementById('alistair-dialogue-bar');
+                    if (bar) {
+                      bar.classList.add('hidden');
+                    }
+
+                    // Optional: if you DON'T want to force-open the journal,
+                    // comment out alistairOpenJournal() above and just do:
+                    // enterForestFreeRoam();
+                    // (but right now we're showing it on purpose)
+                  }
+                );
+              }
+            );
+          }
+        );
       });
+    }
+
+      // -------------------------------------------------
+      // helper: branch after "Yes" (you help him)
+      // - we narrate being kind
+      // - immediately give rope
+      // (ropeHotspot will get removed in givePlayerRopeFromSkeleton)
+      // -------------------------------------------------
+      function helpSkeleton() {
+        alistairResetNextButton();
+        alistairStartDialogue([
+          "You kneel beside the skeleton.",
+          "The rope is dug so deep into bone you have to twist it loose.",
+          "You tell him you'll make him more comfortable.",
+          "He doesn't answer — but the forest goes a little quieter.",
+          "You got a rope."
+        ], () => {
+          givePlayerRopeFromSkeleton();
+        });
+      }
+
+      // -------------------------------------------------
+      // forest intro lines (first arrival)
+      // -------------------------------------------------
+      const forestIntroLines = [
+        "The trees lean in, like they're trying to listen to you breathe.",
+        "The mud is full of bones. Not all of them are animal.",
+        "Something was dragged here and left to sink.",
+        "There's a skeleton sitting propped against a stump.",
+        "The rope around its chest is pulled tight. Too tight.",
+        "The forest past this point is too dense to walk. Dead end… unless you take what you need."
+      ];
+
+      // We only want to do the intro + Yes/No ONCE per visit,
+      // not every time they come back from another room.
+      // You can make this fancier later (track visited state per room),
+      // but for now we always play it when entering.
+      alistairStartDialogue(forestIntroLines, () => {
+        // AFTER intro, ask if we make him more comfy.
+        alistairShowChoices(
+          "Do you make him more comfortable?",
+          [
+            {
+              label: "Yes",
+              onClick: () => {
+                helpSkeleton(); // gives rope immediately
+              }
+            },
+            {
+              label: "No",
+              onClick: () => {
+                refuseToHelp(); // guilt, free roam, hotspot still there
+              }
+            }
+          ]
+        );
+      });
+
+      // finally: make sure hotspot works for both branches
+      // (if they said No and we're in free roam,
+      // or if they skip the choice somehow and just click it)
+      wireRopeHotspot();
+      initPouchHotspot();
     }
   };
 
+
+  // --- THE BARN ---
   const AlistairRoom_Barn = {
     id: "barn",
     name: "The Barn",
-    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761681141/adventure-garden-barn_fhe6iu.png",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761700725/adventure-garden-barn_u6dvj3.png",
 
     render(gameState) {
-      return ``;
+      return `
+        <!-- 👉 BARN HOTSPOTS GO HERE LATER -->
+      `;
     },
 
     onEnter(gameState) {
@@ -959,18 +1340,23 @@ document.addEventListener("DOMContentLoaded", function () {
         "Something metal is creaking in the rafters. Slow. Repeating."
       ];
       alistairStartDialogue(lines, () => {
-        // future barn interactions (maybe the key 👀)
+        // 👉 Add Barn choices / key pickup logic here later.
+        // e.g. alistairAddItem({id:"front_key",name:"Front Door Key",imgUrl:"..."})
       });
     }
   };
 
+
+  // --- MANOR FRONT DOOR ---
   const AlistairRoom_ManorFront = {
     id: "manor_front",
     name: "Manor de Montreux",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761681141/adventure-garden-mansion_ooljdo.png",
 
     render(gameState) {
-      return ``;
+      return `
+        <!-- 👉 MANOR HOTSPOTS GO HERE LATER -->
+      `;
     },
 
     onEnter(gameState) {
@@ -981,13 +1367,14 @@ document.addEventListener("DOMContentLoaded", function () {
         "It already knows your name."
       ];
       alistairStartDialogue(lines, () => {
-        // future manor / unlock logic
+        // 👉 later: if player has key, maybe unlock front_door_inside, etc.
       });
     }
   };
 
 
-  // Room registry
+  // ----- ROOM REGISTRY -----
+  // This is how alistairGoToRoom("room_id") knows what to load.
   const ALISTAIR_ROOMS = {
     entrance_gates: AlistairRoom_EntranceGates,
     the_well: AlistairRoom_TheWell,
@@ -996,7 +1383,17 @@ document.addEventListener("DOMContentLoaded", function () {
     manor_front: AlistairRoom_ManorFront,
   };
 
-  // ====== CUTSCENE HANDLER ======
+
+  // ============================================================
+  // ======================  CUTSCENES ETC  =====================
+  // ============================================================
+  //
+  // Small helpers for playing little video clips between rooms.
+  // You can copy this pattern for other transitions if you get
+  // more cutscenes (scream cam, chase cam, etc).
+  //
+
+  // Gates opening cutscene, then send you to Well.
   function alistairPlayGateCutsceneThenGoWell() {
     const roomContainer = document.getElementById('alistair-room-container');
 
@@ -1025,6 +1422,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Generic transition cutscene (used when walking between areas)
   function alistairPlayTransitionThenGoRoom(nextRoomId) {
     const roomContainer = document.getElementById('alistair-room-container');
 
@@ -1054,11 +1452,22 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // ====== START GAME ======
+
+  // ============================================================
+  // =====================  GAME STARTUP  =======================
+  // ============================================================
+  //
+  // Start game sets started=true, shows hearts,
+  // unhides the room header, and jumps to first room.
+  //
+  // Then we wire up all the HUD buttons.
+  //
+
   function alistairStartGame() {
     console.log("Alistair: starting game");
     alistairState.started = true;
     alistairRenderHearts();
+
     const roomHeaderEl = document.getElementById('alistair-room-header');
     if (roomHeaderEl) {
       roomHeaderEl.classList.remove('hidden-room-header');
@@ -1068,7 +1477,11 @@ document.addEventListener("DOMContentLoaded", function () {
     alistairGoToRoom('entrance_gates');
   }
 
-  // ====== INIT BUTTONS / EVENT LISTENERS ======
+
+  // ============================================================
+  // ================  HUD BUTTONS / LISTENERS  =================
+  // ============================================================
+
   const playBtn = document.getElementById('advent-btn');
   const backBtn = document.getElementById('alistair-back-btn');
   const mapBtn = document.getElementById('alistair-map-btn');
@@ -1091,10 +1504,10 @@ document.addEventListener("DOMContentLoaded", function () {
         if (howto) {
           howto.remove();
         }
-        // now start the actual game
+        // boot game
         alistairStartGame();
       } else {
-        // already started -> do nothing OR we could restart
+        // if already started, we could optionally restart
         // alistairRestart();
       }
     });
@@ -1132,10 +1545,9 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // click outside to close journal
+  // clicking the dark backdrop (but not the white box) closes journal modal
   if (journalModal) {
     journalModal.addEventListener('click', (evt) => {
-      // if you click the dark backdrop (modal) but NOT the inner content box
       if (evt.target === journalModal) {
         alistairCloseJournal();
       }
@@ -1154,11 +1566,11 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (invCloseBtn) {
     invCloseBtn.addEventListener('click', () => {
-      alistairCloseInventory();
+        alistairCloseInventory();
     });
   }
 
-  // click outside to close inventory
+  // clicking the dark backdrop (but not the white box) closes inventory modal
   if (invModal) {
     invModal.addEventListener('click', (evt) => {
       if (evt.target === invModal) {
@@ -1167,8 +1579,15 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // ====== INITIAL LOAD ======
-  // Show HUD info and the How to Play overlay right away
+
+  // ============================================================
+  // =====================  FIRST RENDER  =======================
+  // ============================================================
+  //
+  // Show "How to Play" screen sitting in the game area
+  // and show hearts in HUD.
+  //
+
   alistairShowHowToScreen();
   alistairRenderHearts();
 
