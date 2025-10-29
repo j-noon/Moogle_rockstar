@@ -1328,24 +1328,235 @@ render(gameState) {
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761700725/adventure-garden-barn_u6dvj3.png",
 
     render(gameState) {
+      // Check if player already has the herb in inventory
+      const alreadyHasHerb = !!gameState.inventory.find(i => i.id === "strange_herb");
+
       return `
-        <!-- 👉 BARN HOTSPOTS GO HERE LATER -->
+        <!-- Barn exterior scene -->
+
+        <!-- DEV DOOR HOTSPOT (yellow box placeholder) -->
+        <div id="alistair-barn-door-hotspot" class="alistair-barn-door-hotspot">
+          <!-- dev rectangle for placement -->
+        </div>
+
+        ${
+          alreadyHasHerb
+            ? ""
+            : `
+              <!-- HERB HOTSPOT -->
+              <div id="alistair-herb-hotspot" class="alistair-herb-hotspot">
+                <img
+                  src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761750412/ag-herb-for-potion-of-dispell_wafxps.png"
+                  alt="Strange herb"
+                  class="alistair-herb-img">
+              </div>
+            `
+        }
       `;
     },
 
     onEnter(gameState) {
-      const lines = [
-        "The barn smells like rope rot and warm animal panic.",
-        "There's light coming from the loft, but you don't hear anyone moving.",
-        "Something metal is creaking in the rafters. Slow. Repeating."
+      // helper: puts us in "free roam mode" = dialogue bar hidden,
+      // but leaves hotspots clickable in the scene.
+      function enterBarnFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) {
+          bar.classList.add('hidden');
+        }
+
+        // wire hotspots now that the scene HTML is injected
+        wireBarnDoorHotspot();
+        wireHerbHotspot();
+      }
+
+      // hotspot: clicking the barn door (yellow square) should act
+      // like "go inside" even if they chickened out in dialogue.
+      function wireBarnDoorHotspot() {
+        const doorSpot = document.getElementById('alistair-barn-door-hotspot');
+        if (!doorSpot) return;
+
+        doorSpot.addEventListener('click', () => {
+          // tension beat, then transition into interior
+          alistairResetNextButton();
+          const stepInLines = [
+            "You edge up to the barn doors.",
+            "Your fingertips brush the wood. It's damp.",
+            "Something on the other side is VERY still now.",
+            "You push it open just wide enough to slip inside..."
+          ];
+          alistairStartDialogue(stepInLines, () => {
+            alistairPlayTransitionThenGoRoom('barn_interior');
+          });
+        });
+      }
+
+      // hotspot: clicking the herb
+      function wireHerbHotspot() {
+        const herbSpot = document.getElementById('alistair-herb-hotspot');
+        if (!herbSpot) return;
+
+        herbSpot.addEventListener('click', () => {
+          // show image overlay of the herb first
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1761750412/ag-herb-for-potion-of-dispell_wafxps.png",
+            "What a strange herb...",
+            () => {
+              // once the overlay closes:
+
+              // 1. add herb to inventory if we don't already have it
+              if (!alistairState.inventory.find(i => i.id === "strange_herb")) {
+                alistairAddItem({
+                  id: "strange_herb",
+                  name: "Unmarked Herb",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761750412/ag-herb-for-potion-of-dispell_wafxps.png"
+                });
+              }
+
+              // 2. REMOVE the herb hotspot from the scene so it can't be picked again
+              //    (this matches how we handled bucket/rope)
+              const herbNode = document.getElementById('alistair-herb-hotspot');
+              if (herbNode) {
+                herbNode.remove();
+              }
+
+              // now give dialogue + branch "look closer?"
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "What a strange herb...",
+                  "Maybe we should look closer."
+                ],
+                () => {
+                  // ask if they want to examine further
+                  alistairShowChoices(
+                    "Do you take a closer look?",
+                    [
+                      {
+                        label: "No",
+                        onClick: () => {
+                          // back to free roam, nothing else
+                          enterBarnFreeRoam();
+                        }
+                      },
+                      {
+                        label: "Yes",
+                        onClick: () => {
+                          alistairResetNextButton();
+                          const inspectLines = [
+                            "You turn the stems in your hand.",
+                            "After examining this herb, you realise it's part of the Nightsinger's family...",
+                            "But you can't identify exactly which one.",
+                            "You feel like it matters."
+                          ];
+                          alistairStartDialogue(inspectLines, () => {
+                            // drop back to free roam afterwards
+                            enterBarnFreeRoam();
+                          });
+                        }
+                      }
+                    ]
+                  );
+                }
+              );
+            }
+          );
+        });
+      }
+
+      // ---- Barn arrival narration (outside the barn) ----
+      const approachLines = [
+        "Finally... we made it to the barn.",
+        "It smells really rancid here.",
+        "I've never smelled anything like this. This definitely isn't a normal barn.",
+        "Wait... what was that.",
+        "I think there's something moving around in there.",
+        "Let's go take a look."
       ];
-      alistairStartDialogue(lines, () => {
-        // 👉 Add Barn choices / key pickup logic here later.
-        // e.g. alistairAddItem({id:"front_key",name:"Front Door Key",imgUrl:"..."})
+
+      // After narration, offer choice: go in?
+      alistairStartDialogue(approachLines, () => {
+        alistairShowChoices(
+          "Do you go and look inside?",
+          [
+            {
+              label: "No",
+              onClick: () => {
+                // Player refuses to enter.
+                alistairResetNextButton();
+                const noLines = [
+                  "Okay... maybe we should head back.",
+                  "It doesn't feel right in there.",
+                  "But... something in that barn is important.",
+                  "If we leave now, we might miss it."
+                ];
+
+                alistairStartDialogue(noLines, () => {
+                  // Now we release control to free roam outside the barn.
+                  enterBarnFreeRoam();
+                });
+              }
+            },
+            {
+              label: "Yes",
+              onClick: () => {
+                // Player wants to enter immediately.
+                alistairResetNextButton();
+                const yesLines = [
+                  "You move closer to the barn, each step slow and careful.",
+                  "You can hear dead silence now.",
+                  "Whatever was moving... stopped.",
+                  "It's waiting."
+                ];
+
+                alistairStartDialogue(yesLines, () => {
+                  // cutscene then move to interior room
+                  alistairPlayTransitionThenGoRoom('barn_interior');
+                });
+              }
+            }
+          ]
+        );
       });
     }
   };
 
+  //BARN-INTERIOR
+  const AlistairRoom_BarnInterior = {
+    id: "barn_interior",
+    name: "Inside the Barn",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761754559/ag-barn-interior_icwcfu.png",
+
+    render(gameState) {
+      return `
+        <!-- Barn interior hotspots will go here (loft / hanging metal / key) -->
+      `;
+    },
+
+    onEnter(gameState) {
+      // When you first step inside the barn
+      const insideLines = [
+        "You step into the barn.",
+        "The air in here is wet and wrong. Sweet-rotten.",
+        "The light from the loft is still flickering, but nothing is moving.",
+        "Something metal is hanging above you, swaying just a little.",
+        "You shouldn't be in here alone."
+      ];
+
+      alistairStartDialogue(insideLines, () => {
+        // After the intro, we’ll later branch into:
+        // - climb for the key
+        // - maybe kill path
+        // - etc.
+        //
+        // For now we just leave them in here with the dialogue bar hidden
+        // (free roam state, like Forest did).
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) {
+          bar.classList.add('hidden');
+        }
+      });
+    }
+  };
 
   // --- MANOR FRONT DOOR ---
   const AlistairRoom_ManorFront = {
@@ -1380,6 +1591,7 @@ render(gameState) {
     the_well: AlistairRoom_TheWell,
     forest_grounds: AlistairRoom_ForestGrounds,
     barn: AlistairRoom_Barn,
+    barn_interior: AlistairRoom_BarnInterior,
     manor_front: AlistairRoom_ManorFront,
   };
 

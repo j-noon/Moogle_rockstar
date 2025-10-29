@@ -876,6 +876,10 @@ button[data-locked="true"] {
   display: none;
 }
 
+#alistair-map-list {
+  list-style: none;
+}
+
 .alistair-modal {
   position: fixed;
   inset: 0;
@@ -884,6 +888,7 @@ button[data-locked="true"] {
   display: flex;
   align-items: center;
   justify-content: center;
+  list-style: none;
 }
 
 .alistair-modal-content {
@@ -1118,6 +1123,44 @@ button[data-locked="true"] {
   width: 30px;
   height: 30px;
   z-index: 6;
+}
+
+/* =========================
+   BARN EXTERIOR HOTSPOTS
+   ========================= */
+
+.alistair-barn-door-hotspot {
+  position: absolute;
+  left: 39%;         /* tweak this */
+  top: 59%;          /* tweak this */
+  width: 110px;       /* tweak this */
+  height: 70px;     /* tweak this */
+  transform: translate(-50%, -50%);
+  background: rgba(255,255,0,0.4);
+  border: 2px solid #ffff00;
+  cursor: pointer;
+  z-index: 10;
+}
+
+/* Herb hotspot - clickable */
+.alistair-herb-hotspot {
+  position: absolute;
+  right: 2%;         /* tweak this to where the herb should sit */
+  bottom: 90px;      /* tweak this for vertical placement */
+  width: 10px;
+  height: 10px;
+  cursor: pointer;
+  z-index: 11;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.alistair-herb-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  pointer-events: none; /* ensures click hits parent div */
 }
 
 /*--------------------
