@@ -903,6 +903,22 @@ button[data-locked="true"] {
   position: relative;
 }
 
+.alistair-modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fff;
+  color: #000;
+  border: 2px solid #000;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  line-height: 24px;
+  text-align: center;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 .alistair-scrollbox {
   max-height: 300px;
   overflow-y: auto;
@@ -1046,6 +1062,17 @@ button[data-locked="true"] {
   border-radius: 8px;
   text-align: center;
   color: #fff;
+}
+
+#alistair-dialogue-bar.alistair-choices #alistair-dialogue-next {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+#alistair-dialogue-bar.alistair-choices #alistair-dialogue-next .alistair-ctrl-btn {
+  pointer-events: auto;
 }
 
 

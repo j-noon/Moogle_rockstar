@@ -141,6 +141,10 @@ document.addEventListener("DOMContentLoaded", function () {
     if (!bar || !textEl || !nextBtn) return;
 
     bar.classList.remove('hidden');
+
+    bar.classList.add('alistair-choices');
+    nextBtn.onclick = null;
+
     textEl.textContent = questionText;
 
     // wipe the Next button content and add our choice buttons
@@ -161,6 +165,8 @@ document.addEventListener("DOMContentLoaded", function () {
   function alistairResetNextButton() {
     const nextBtn = document.getElementById('alistair-dialogue-next');
     if (!nextBtn) return;
+    const bar = document.getElementById('alistair-dialogue-bar');
+    if (bar) bar.classList.remove('alistair-choices', 'alistair-list-choices');
     nextBtn.replaceChildren();
     nextBtn.textContent = "Next";
     nextBtn.onclick = alistairAdvanceDialogue;
@@ -178,27 +184,37 @@ document.addEventListener("DOMContentLoaded", function () {
   //   })
   //
 
-  function alistairShowImageOverlay(imgUrl, captionText, onClose) {
-    const overlay = document.getElementById('alistair-image-overlay');
-    const imgEl = document.getElementById('alistair-overlay-img');
-    const capEl = document.getElementById('alistair-overlay-caption');
+function alistairShowImageOverlay(imgUrl, captionText, onClose) {
+  const overlay = document.getElementById('alistair-image-overlay');
+  const imgEl = document.getElementById('alistair-overlay-img');
+  const capEl = document.getElementById('alistair-overlay-caption');
+  const closeBtn = document.getElementById('alistair-image-close');
 
-    if (!overlay || !imgEl || !capEl) return;
+  if (!overlay || !imgEl || !capEl) return;
 
-    imgEl.src = imgUrl;
-    capEl.textContent = captionText || "";
+  imgEl.src = imgUrl;
+  capEl.textContent = captionText || "";
+  overlay.classList.remove('hidden');
 
-    overlay.classList.remove('hidden');
-
-    function handleClose() {
-      overlay.classList.add('hidden');
-      overlay.removeEventListener('click', handleClose);
-      if (onClose) onClose();
-    }
-
-    // click anywhere to close
-    overlay.addEventListener('click', handleClose);
+  function handleClose() {
+    overlay.classList.add('hidden');
+    overlay.removeEventListener('click', backdropClose);
+    if (closeBtn) closeBtn.removeEventListener('click', handleClose);
+    if (onClose) onClose();
   }
+
+  // clicking the backdrop (outside white box) still closes
+  function backdropClose(evt) {
+    // only close if click is on the dark backdrop, not inside the content
+    if (evt.target === overlay) {
+      handleClose();
+    }
+  }
+
+  // wire close button + backdrop
+  if (closeBtn) closeBtn.addEventListener('click', handleClose);
+  overlay.addEventListener('click', backdropClose);
+}
 
 
   // ============================================================
@@ -411,22 +427,44 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
-    // MANOR click (locked unless you have the key)
+    // MANOR click (custom flow per your spec)
     const manorSign = document.querySelector('.alistair-sign-manor');
     if (manorSign) {
       manorSign.addEventListener('click', () => {
         const hasKey = !!alistairState.inventory.find(i => i.id === "front_key");
-        if (hasKey) {
-          alistairPlayTransitionThenGoRoom('manor_front');
-        } else {
+
+        if (!hasKey) {
+          // No key: hint and return to free roam
           alistairResetNextButton();
-          alistairStartDialogue([
-            "You follow the path toward Manor de Montreux.",
-            "The front door is chained from the inside.",
-            "Something on the other side leans against the wood and listens.",
-            "You’re going to need the front key."
-          ], () => {});
+          alistairStartDialogue(
+            [
+              "I think you're missing something.",
+              "Go wander the grounds."
+            ],
+            () => {
+              // free roam: keep the signs live and hide the bar
+              alistairRevealSignsOnly();
+              const bar = document.getElementById('alistair-dialogue-bar');
+              if (bar) bar.classList.add('hidden');
+            }
+          );
+          return;
         }
+
+        // Has key: mood lines, then transition clip -> manor front
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "The manor is just up ahead.",
+            "Whispers ride the wind: \"Turn back now.\"",
+            "You remember the gates behind you — sealed shut.",
+            "Forward is the only way.",
+            "Onwards…"
+          ],
+          () => {
+            alistairPlayTransitionThenGoRoom('manor_front');
+          }
+        );
       });
     }
   }
@@ -951,6 +989,20 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     }
 
+        // re-wire the bucket hotspot safely (idempotent)
+    function wireBucketHotspot() {
+      const spot = document.getElementById('alistair-bucket-hotspot');
+      if (!spot) return;
+
+      // drop any old listeners in case we bounced in/out
+      const clone = spot.cloneNode(true);
+      spot.replaceWith(clone);
+
+      clone.addEventListener('click', () => {
+        startBucketPrompt();   // uses your existing flow
+      });
+    }
+
       function handleWellPuzzleOrHint() {
         const hasBucket = !!alistairState.inventory.find(i => i.id === "bucket");
         const hasRope   = !!alistairState.inventory.find(i => i.id === "rope");
@@ -1213,6 +1265,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const hasAll    = hasBucket && hasRope && hasHammer;
 
         wireWellHotspotForReentry();
+        wireBucketHotspot();
 
         alistairResetNextButton();
 
@@ -2159,6 +2212,36 @@ document.addEventListener("DOMContentLoaded", function () {
       }
     });
   }
+
+  if (invModal) {
+    invModal.addEventListener('click', (evt) => {
+      if (evt.target === invModal) {
+        alistairCloseInventory();
+      }
+    });
+  }
+
+  // ======= GLOBAL DIALOGUE CLICK-LOCK =======
+  // While the dialogue bar is visible, ignore clicks that are NOT inside it.
+  document.addEventListener(
+    'click',
+    (evt) => {
+      const bar = document.getElementById('alistair-dialogue-bar');
+      if (!bar || bar.classList.contains('hidden')) return;
+
+      // Allow clicks inside the dialogue bar (Next / choices)
+      if (bar.contains(evt.target)) return;
+
+      // ✅ Allow clicks inside any visible modal (overlays, journal, inventory, etc.)
+      const openModal = document.querySelector('.alistair-modal:not(.hidden)');
+      if (openModal && openModal.contains(evt.target)) return;
+
+      // Block everything else while dialogue is open
+      evt.stopPropagation();
+      evt.preventDefault();
+    },
+    true
+  );
 
 
   // ============================================================
