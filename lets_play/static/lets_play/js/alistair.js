@@ -23,7 +23,23 @@ document.addEventListener("DOMContentLoaded", function () {
     // tracks if we've already shown the "where do you go?" nav
     // at the Well crossroads. This prevents spamming the menu.
     hasSeenCrossroads: false,
+    currentAct: 1,            // which act the player is currently in
+    seenActSplash: {},        // { 1: true, 2: true } to prevent repeat splashes
   };
+
+  const ALISTAIR_SUB_LOCK_ENABLED = false;
+
+  // Replace this later with your real check (JWT, API, etc.)
+  function alistairIsSubscriber() {
+    return false; // <- CHANGE to `true` (or real logic) when wiring subs
+  }
+
+  // Central gate: allow Act 1 for everyone; restrict later acts if lock is on.
+  function alistairGateActAccess(targetAct) {
+    if (!ALISTAIR_SUB_LOCK_ENABLED) return true;        // free-to-play mode
+    if (targetAct <= 1) return true;                    // Act 1 always open
+    return alistairIsSubscriber();                      // Act 2+ need sub
+  }
 
   // ----- "HOW TO PLAY" INTRO OVERLAY AT START -----
   function alistairShowHowToScreen() {
@@ -402,6 +418,25 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   // - If you need new shared logic (like a Forest puzzle helper,
   //   or a 'playScreamCutscene()'), add it HERE so it's global.
   //
+
+  const ALISTAIR_ACT_LABELS = {
+    1: "ACT I — Outside",
+    2: "ACT II — The Manor",
+    3: "ACT III — (TBD)"
+  };
+
+  function alistairEnterAct(actNo) {
+    alistairState.currentAct = actNo;
+    if (!alistairState.seenActSplash[actNo]) {
+      alistairState.seenActSplash[actNo] = true;
+      const label = ALISTAIR_ACT_LABELS[actNo] || `ACT ${actNo}`;
+      alistairResetNextButton();
+      alistairStartDialogue([label], () => {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+      });
+    }
+  }
 
   // Make The Well's direction signs visible + clickable.
   // (Forest, Barn, Manor)
@@ -850,6 +885,8 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
     // also reset crossroads flag at the well
     alistairState.hasSeenCrossroads = false;
+    alistairState.currentAct = 1;
+    alistairState.seenActSplash = {};
 
     // Show intro screen again on restart
     alistairShowHowToScreen();
@@ -880,6 +917,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // --- ENTRANCE GATES ---
   const AlistairRoom_EntranceGates = {
+    act: 1,
     id: "entrance_gates",
     name: "Entrance Gates",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761530233/ag-gates-closed_ldpuwk.png",
@@ -890,6 +928,30 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     },
 
     onEnter(gameState) {
+      // Re-entry handler: if we've been here before (e.g., via Map),
+      // punish the attempt to leave, then send the player back to the Well.
+      const seenBefore = !!alistairState._enteredGatesOnce;
+      alistairState._enteredGatesOnce = true;
+
+      if (seenBefore) {
+        alistairResetNextButton();
+        const lines = [
+          "You thought you were clever climbing over the gates.",
+          "I told you already: you cannot leave this place.",
+          "I'm watching you at all times.",
+          "Here—take this!",
+          "ouch that hurt!"
+        ];
+
+        alistairStartDialogue(lines, () => {
+          // -1 heart, then run the same cutscene that starts the game
+          alistairTakeDamage(1);
+          alistairPlayGateCutsceneThenGoWell();
+        });
+        return;
+      }
+
+      // ---- original first-time intro (unchanged) ----
       const introLines = [
         "The air is colder here. You shouldn't even be on these grounds.",
         "They said Alistair vanished beyond these gates. They said anyone who looks for him doesn't come back.",
@@ -926,6 +988,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // --- THE WELL / CROSSROADS HUB ---
   const AlistairRoom_TheWell = {
+    act: 1,
     id: "the_well",
     name: "The Well",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761530097/adventure-gardens-well-NEEDSSIGNS_aww91m.png",
@@ -1330,6 +1393,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // FOREST GROUNDS
   const AlistairRoom_ForestGrounds = {
+    act: 1,
     id: "forest_grounds",
     name: "Forest Grounds",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761701137/adventure-garden-forest-skelly_mynpdj.png",
@@ -1532,6 +1596,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // --- THE BARN ---
   const AlistairRoom_Barn = {
+    act: 1,
     id: "barn",
     name: "The Barn",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761700725/adventure-garden-barn_u6dvj3.png",
@@ -1747,6 +1812,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   //BARN-INTERIOR
   const AlistairRoom_BarnInterior = {
+    act: 1,
     id: "barn_interior",
     name: "Inside the Barn",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761754559/ag-barn-interior_icwcfu.png",
@@ -1983,6 +2049,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // --- MANOR FRONT DOOR ---
   const AlistairRoom_ManorFront = {
+    act: 1,
     id: "manor_front",
     name: "Manor de Montreux",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761681141/adventure-garden-mansion_ooljdo.png",
@@ -2017,7 +2084,23 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         const clone = door.cloneNode(true);
         door.replaceWith(clone);
 
+        // ⬇️ GATED ACT II CLICK HANDLER
         clone.addEventListener('click', () => {
+          // ⛔ Block Act II if lock is enabled and user not subbed
+          if (!alistairGateActAccess(2)) {
+            alistairResetNextButton();
+            alistairStartDialogue([
+              "The key turns easily in the sticky lock… then stops.",
+              "Beyond this door begins **Act II**.",
+              "Support the project to continue."
+            ], () => {
+              // Optional: bounce them somewhere else if you want:
+              // alistairPlayTransitionThenGoRoom('the_well');
+            });
+            return;
+          }
+
+          // ✅ Allowed into Act II
           alistairResetNextButton();
           alistairStartDialogue(
             [
@@ -2027,8 +2110,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
               "The latch unlatches."
             ],
             () => {
-              // TODO: replace with your Cloudinary cutscene link when ready
               const cutsceneUrl = "https://res.cloudinary.com/ddmslr9na/video/upload/v1761786439/ag-mansion-front-entry-transistion_l7yblk.mp4";
+              // Plays the entrance cutscene, then:
+              // inside that helper you already set: alistairEnterAct(2); alistairGoToRoom('manor_hall');
               alistairPlayManorEntranceCutsceneThenGoHall(cutsceneUrl);
             }
           );
@@ -2039,6 +2123,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // --- MANOR HALL (Act 2) ---
   const AlistairRoom_ManorHall = {
+    act: 2,
     id: "manor_hall",
     name: "The Manor Hall",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761784130/ag-main-hall_wplaif.png",
@@ -2067,6 +2152,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     },
 
     onEnter() {
+      alistairEnterAct(2);
       alistairResetNextButton();
       alistairStartDialogue([
         "You step inside the Manor de Montreux.",
@@ -2092,6 +2178,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   }
 
   const AlistairRoom_ManorBedroom = {
+    act: 2,
     id: "manor_bedroom",
     name: "Master Bedroom",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790325/ag-master-bedroom_adicsr.png",
@@ -2103,6 +2190,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   const AlistairRoom_ManorBathroom = {
+    act: 2,
     id: "manor_bathroom",
     name: "Bathroom",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790298/ag-bath-room_mwkgvs.png",
@@ -2114,6 +2202,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   const AlistairRoom_ManorWineCellar = {
+    act: 2,
     id: "manor_wine_cellar",
     name: "Wine Cellar",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790397/ag-wine-celler_ns44ow.png",
@@ -2125,6 +2214,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   const AlistairRoom_ManorStudy = {
+    act: 2,
     id: "manor_study",
     name: "Study",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790371/ag-study_pn9jrx.png",
@@ -2136,6 +2226,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   const AlistairRoom_ManorParlour = {
+    act: 2,
     id: "manor_parlour",
     name: "Parlour",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790350/ag-parlour_pfv9si.png",
@@ -2147,6 +2238,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   const AlistairRoom_ManorKitchen = {
+    act: 2,
     id: "manor_kitchen",
     name: "Kitchen",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790276/ag-kitchen_nrlmf2.png",
@@ -2316,21 +2408,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     `;
 
     const vid = document.getElementById('alistair-manor-entrance-video');
-
-    // on success: go to the Manor Hall
-    if (vid) {
-      vid.addEventListener('ended', () => {
-        alistairGoToRoom('manor_hall');
-      });
-
-      // fallback: if the video errors, still proceed
-      vid.addEventListener('error', () => {
-        alistairGoToRoom('manor_hall');
-      });
-    } else {
-      // if the video element failed to mount, just proceed
-      alistairGoToRoom('manor_hall');
-    }
+    const go = () => { alistairGoToRoom('manor_hall'); };
+    if (vid) { vid.addEventListener('ended', go); vid.addEventListener('error', go); }
+    else { go(); }
   }
 
 

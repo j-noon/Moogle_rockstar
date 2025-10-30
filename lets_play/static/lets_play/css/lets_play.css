@@ -878,7 +878,19 @@ button[data-locked="true"] {
 
 #alistair-map-list {
   list-style: none;
+  margin-left: -30px;
+
 }
+
+#alistair-map-list li {
+  padding: 5px;
+  margin-bottom: 2px;
+}
+
+#alistair-map-list button {
+  border: solid black 2px; 
+}
+
 
 .alistair-modal {
   position: fixed;
