@@ -386,293 +386,17 @@ button[data-locked="true"] {
   margin-top: 1rem;
 }
 
-/* ADVENTURE GAME!!!!!!*/
+/*------------------------
+   adventure game start
+-------------------------*/
+
 #adventure-card {
   display:none;
 }
 
-/* MEDIA QUERIES */
-
-@media (min-width: 768px) {
-
-  #hero-letsplay { 
-    margin-top: 70px; 
-  }
-
-  #lets-play-hero-img { 
-    height: auto; 
-  }
-
-  .games-grid {
-    max-width: 1100px;
-    margin: 100px auto 0;
-    padding: 0 16px;
-    grid-template-columns: repeat(2, 1fr);
-    column-gap: 32px;
-    row-gap: 32px;
-    justify-items: stretch;
-    align-items: start;
-  }
-
-  .game-card {
-    width: 100%;
-    max-width: none;
-    padding-top: 1px;
-  }
-
-  .game-card h2 {
-    margin: 0 0 10px;
-    text-align: center;
-  }
-
-  #memory-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 52px;
-    padding: 0 20px;
-    margin: 0;
-  }
-
-  #memory-match-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    width: 100%;
-    text-align: center;
-  }
-
-  #memory-match-start-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 52px;
-    padding: 0 20px;
-    margin: 0;
-  }
-
-  #memory-match-timer {
-    margin: 0;
-    line-height: 1;
-  }
-
-  #memory-grid {
-    padding-top: 0;
-    margin-top: 24px;
-  }
-
-  #memory-match-board {
-    flex-basis: 100%;
-    margin: 12px auto 0;
-  }
-
-  #memory-game,
-  #memory-match-board { width: 320px; }
-
-  #typing-card > #typingGame_startBtn,
-  #math-card  > #mathGame_startBtn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 52px;
-    padding: 0 20px;
-    margin: 0;
-  }
-
-  .typing-game-container,
-  #mathGame {
-    margin: 12px auto 0;
-    max-width: 560px;
-    width: 100%;
-  }
-
-  .words-game-instructions,
-  .math-game-instructions { margin: 12px auto 24px; }
+.alistair-modal.hidden {
+   display: none; 
 }
-
-@media (min-width: 1024px) {
-  .games-grid {
-    grid-template-columns:
-      minmax(300px, 1.2fr)
-      minmax(120px, 0.8fr)
-      minmax(120px, 0.8fr)
-      minmax(300px, 1.2fr);
-    column-gap: 20px;
-    row-gap: 32px;
-    align-items: start;
-    justify-items: stretch;
-    max-width: min(1200px, 100vw - 24px);
-    padding: 0 12px;
-    margin-top: 200px;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .game-card {
-    width: 100%;
-    max-width: none;
-  }
-
-  #game1-card {
-    grid-column: 1 / span 1;
-    width: auto;
-    justify-self: center;
-  }
-  #memory-match-card {
-    grid-column: 4 / span 1;
-    width: auto;
-    justify-self: center;
-  }
-
-  #typing-card {
-     grid-column: 1 / span 2;
-     }
-
-  #math-card { 
-    grid-column: 3 / span 2;
-   }
-
-  #memory-game,
-  #memory-match-board {
-    width: clamp(320px, 28vw, 360px);
-    table-layout: fixed;
-  }
-
-  .memory-tile {
-    width: 60px;
-    height: 60px;
-    font-size: 26px;
-  }
-}
-
-
-@media (min-width: 1440px) {
-
-  .games-grid {
-    grid-template-columns:
-      minmax(290px, 1fr)   /* far left (Game 1)  */
-      minmax(320px, .8fr)  /* middle-left        */
-      minmax(320px, .8fr)  /* middle-right       */
-      minmax(290px, 1fr);  /* far right (Game 2) */
-    column-gap: 32px;
-    row-gap: 32px;
-    padding: 0 40px;
-    max-width: min(1380px, 100vw - 80px);
-    margin-top: 370px;
-    margin-left: auto;
-    margin-right: auto;
-    justify-items: stretch;
-    align-items: start;
-    grid-auto-flow: dense;
-  }
-
-  #adventure-card {
-    display: block;
-    grid-column: 2 / span 2;
-    grid-row: 1;
-    align-self: start;
-  }
-
-  /* push Game 1 left, Game 2 right, keep on row 1 */
-  #game1-card {
-    grid-column: 1 / span 1;
-    grid-row: 1;
-    width: auto;
-    justify-self: center;
-  }
-  #memory-match-card {
-    grid-column: 4 / span 1;
-    grid-row: 1;
-    width: auto;
-    justify-self: center;
-  }
-
-  /* bottom row: games 3 & 4 under the three above */
-  #typing-card {
-     grid-column: 1 / span 2;
-      grid-row: 2;
-    
-    }
-  #math-card { grid-column: 3 / span 2;
-     grid-row: 2;
-     }
-
-  #memory-game,
-  #memory-match-board {
-    width: clamp(360px, 26vw, 400px);
-    table-layout: fixed;
-  }
-
-  #typing-card,
-  #math-card {
-    justify-self: stretch;
-    align-self: start;
-    width: 100%;
-  }
-
-  #typing-card .typing-game-container,
-  #math-card  #mathGame {
-    max-width: none;
-    width: 100%;
-    box-sizing: border-box;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  #typing-card .words-game-instructions,
-  #math-card  .math-game-instructions {
-    max-width: none;
-    width: 100%;
-    box-sizing: border-box;
-    margin-left: 0;
-    margin-right: 0;
-  }
-
-  #typing-card > #typingGame_startBtn,
-  #math-card   > #mathGame_startBtn {
-    justify-self: center;
-  }
-
-  #typing-card .typing-game-container { 
-    padding: 28px; 
-    min-height: 440px;
-   }
-
-  #typing-card .typing-box {
-     min-height: 160px;
-      padding: 36px;
-     }
-
-  #typing-card #typingGame_input {
-     height: 40px;
-      font-size: 1.05rem;
-     }
-
-  #typing-card .typing-score-panel {
-     margin-top: 24px;
-     }
-
-  #math-card #mathGame {
-     padding: 24px;
-      min-height: 420px;
-     }
-
-  #math-card #mathGame_sumDisplay {
-     font-size: 2.2em;
-      margin: 20px 0;
-     }
-
-  #math-card #mathGame_answerInput { 
-    height: 42px;
-     font-size: 1.05rem;
-     }
-
-
-/*------------------------
-   adventure game start
--------------------------*/
 
 /* intro / how-to-play screen */
 #alistair-howto-screen {
@@ -1313,15 +1037,315 @@ button[data-locked="true"] {
 /*--------------------
   adventure game end
 ---------------------*/
+
+/* MEDIA QUERIES */
+
+@media (min-width: 768px) {
+
+  #hero-letsplay { 
+    margin-top: 70px; 
+  }
+
+  #lets-play-hero-img { 
+    height: auto; 
+  }
+
+  .games-grid {
+    max-width: 1100px;
+    margin: 100px auto 0;
+    padding: 0 16px;
+    grid-template-columns: repeat(2, 1fr);
+    column-gap: 32px;
+    row-gap: 32px;
+    justify-items: stretch;
+    align-items: start;
+  }
+
+  .game-card {
+    width: 100%;
+    max-width: none;
+    padding-top: 1px;
+  }
+
+  .game-card h2 {
+    margin: 0 0 10px;
+    text-align: center;
+  }
+
+  #memory-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  #memory-match-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    text-align: center;
+  }
+
+  #memory-match-start-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  #memory-match-timer {
+    margin: 0;
+    line-height: 1;
+  }
+
+  #memory-grid {
+    padding-top: 0;
+    margin-top: 24px;
+  }
+
+  #memory-match-board {
+    flex-basis: 100%;
+    margin: 12px auto 0;
+  }
+
+  #memory-game,
+  #memory-match-board { width: 320px; }
+
+  #typing-card > #typingGame_startBtn,
+  #math-card  > #mathGame_startBtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 52px;
+    padding: 0 20px;
+    margin: 0;
+  }
+
+  .typing-game-container,
+  #mathGame {
+    margin: 12px auto 0;
+    max-width: 560px;
+    width: 100%;
+  }
+
+  .words-game-instructions,
+  .math-game-instructions { margin: 12px auto 24px; }
+}
+
+@media (min-width: 1024px) {
+  .games-grid {
+    grid-template-columns:
+      minmax(300px, 1.2fr)
+      minmax(120px, 0.8fr)
+      minmax(120px, 0.8fr)
+      minmax(300px, 1.2fr);
+    column-gap: 20px;
+    row-gap: 32px;
+    align-items: start;
+    justify-items: stretch;
+    max-width: min(1200px, 100vw - 24px);
+    padding: 0 12px;
+    margin-top: 200px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .game-card {
+    width: 100%;
+    max-width: none;
+  }
+
+  #game1-card {
+    grid-column: 1 / span 1;
+    width: auto;
+    justify-self: center;
+  }
+  #memory-match-card {
+    grid-column: 4 / span 1;
+    width: auto;
+    justify-self: center;
+  }
+
+  #typing-card {
+     grid-column: 1 / span 2;
+     }
+
+  #math-card { 
+    grid-column: 3 / span 2;
+   }
+
+  #memory-game,
+  #memory-match-board {
+    width: clamp(320px, 28vw, 360px);
+    table-layout: fixed;
+  }
+
+  .memory-tile {
+    width: 60px;
+    height: 60px;
+    font-size: 26px;
+  }
+}
+
+/* Laptop-only: fully hide Alistair on <1024, including modals/overlays */
+@media (max-width: 1023.98px) {
+  #adventure-card,
+  #alistair-map-modal,
+  #alistair-journal-modal,
+  #alistair-inventory-modal,
+  #alistair-gameover-modal,
+  #alistair-image-overlay {
+    display: none !important;
+  }
+}
+
+/* 1024–1439px: show Alistair and pin it AFTER Game 4, full width */
+@media (min-width: 1024px) and (max-width: 1439.98px) {
+  #adventure-card {
+    display: block;        /* override the global display:none */
+    grid-column: 1 / -1;   /* span all columns */
+    grid-row: 3;          /* effectively "last" */
+    justify-self: stretch;
+    align-self: start;
+    margin-top: 16px; 
+  }
+
+  /* optional: make the game frame breathe a bit */
+  #adventure-card #game-space {
+    width: 100%;
+    margin: 16px 0 0;
+  }
 }
 
 
+@media (min-width: 1440px) {
 
+  .games-grid {
+    grid-template-columns:
+      minmax(290px, 1fr)   /* far left (Game 1)  */
+      minmax(320px, .8fr)  /* middle-left        */
+      minmax(320px, .8fr)  /* middle-right       */
+      minmax(290px, 1fr);  /* far right (Game 2) */
+    column-gap: 32px;
+    row-gap: 32px;
+    padding: 0 40px;
+    max-width: min(1380px, 100vw - 80px);
+    margin-top: 370px;
+    margin-left: auto;
+    margin-right: auto;
+    justify-items: stretch;
+    align-items: start;
+    grid-auto-flow: dense;
+  }
 
+  #adventure-card {
+    display: block;
+    grid-column: 2 / span 2;
+    grid-row: 1;
+    align-self: start;
+  }
 
+  /* push Game 1 left, Game 2 right, keep on row 1 */
+  #game1-card {
+    grid-column: 1 / span 1;
+    grid-row: 1;
+    width: auto;
+    justify-self: center;
+  }
+  #memory-match-card {
+    grid-column: 4 / span 1;
+    grid-row: 1;
+    width: auto;
+    justify-self: center;
+  }
 
+  /* bottom row: games 3 & 4 under the three above */
+  #typing-card {
+     grid-column: 1 / span 2;
+      grid-row: 2;
+    
+    }
+  #math-card { grid-column: 3 / span 2;
+     grid-row: 2;
+     }
 
+  #memory-game,
+  #memory-match-board {
+    width: clamp(360px, 26vw, 400px);
+    table-layout: fixed;
+  }
 
+  #typing-card,
+  #math-card {
+    justify-self: stretch;
+    align-self: start;
+    width: 100%;
+  }
+
+  #typing-card .typing-game-container,
+  #math-card  #mathGame {
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #typing-card .words-game-instructions,
+  #math-card  .math-game-instructions {
+    max-width: none;
+    width: 100%;
+    box-sizing: border-box;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  #typing-card > #typingGame_startBtn,
+  #math-card   > #mathGame_startBtn {
+    justify-self: center;
+  }
+
+  #typing-card .typing-game-container { 
+    padding: 28px; 
+    min-height: 440px;
+   }
+
+  #typing-card .typing-box {
+     min-height: 160px;
+      padding: 36px;
+     }
+
+  #typing-card #typingGame_input {
+     height: 40px;
+      font-size: 1.05rem;
+     }
+
+  #typing-card .typing-score-panel {
+     margin-top: 24px;
+     }
+
+  #math-card #mathGame {
+     padding: 24px;
+      min-height: 420px;
+     }
+
+  #math-card #mathGame_sumDisplay {
+     font-size: 2.2em;
+      margin: 20px 0;
+     }
+
+  #math-card #mathGame_answerInput { 
+    height: 42px;
+     font-size: 1.05rem;
+     }
+}
 
 
 @media (min-width: 1920px) {
