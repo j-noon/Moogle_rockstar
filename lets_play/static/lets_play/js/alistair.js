@@ -1988,34 +1988,85 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
     render(gameState) {
       return `
-        <!-- 👉 MANOR HOTSPOTS GO HERE LATER -->
+        <!-- dev hotspot for the front door -->
+        <div id="alistair-manor-door-hotspot" class="alistair-dev-hotspot"></div>
       `;
     },
 
     onEnter(gameState) {
+      alistairResetNextButton();
+
       const lines = [
-        "You stand at the doors of Manor de Montreux.",
-        "The glass in the windows has gone milky with age.",
-        "Something behind the wood is definitely awake.",
-        "It already knows your name."
+        "You made it.",
+        "Well done for getting this far.",
+        "Act One is now complete.",
+        "For a moment, the front steps feel almost safe.",
+        "Almost.",
+        "The glass is milky with age; the stone sweats.",
+        "You can feel eyes on you from somewhere behind the curtains.",
+        "Rest if you must — but remember: nowhere here is truly safe.",
+        "Maybe you should try the door. The key feels cold in your hand."
       ];
+
       alistairStartDialogue(lines, () => {
-        // 👉 later: if player has key, maybe unlock front_door_inside, etc.
+        const door = document.getElementById('alistair-manor-door-hotspot');
+        if (!door) return;
+
+        // ensure fresh listener on re-entry
+        const clone = door.cloneNode(true);
+        door.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            [
+              "You press the key into the goopy, sticky lock.",
+              "It slides in without resistance.",
+              "You turn it — *click.*",
+              "The latch unlatches."
+            ],
+            () => {
+              // TODO: replace with your Cloudinary cutscene link when ready
+              const cutsceneUrl = "https://res.cloudinary.com/ddmslr9na/video/upload/v1761786439/ag-mansion-front-entry-transistion_l7yblk.mp4";
+              alistairPlayManorEntranceCutsceneThenGoHall(cutsceneUrl);
+            }
+          );
+        });
       });
     }
   };
 
+  // --- MANOR HALL (Act 2) ---
+  const AlistairRoom_ManorHall = {
+    id: "manor_hall",
+    name: "The Manor Hall",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761784130/ag-main-hall_wplaif.png",
 
-  // ----- ROOM REGISTRY -----
-  // This is how alistairGoToRoom("room_id") knows what to load.
-  const ALISTAIR_ROOMS = {
-    entrance_gates: AlistairRoom_EntranceGates,
-    the_well: AlistairRoom_TheWell,
-    forest_grounds: AlistairRoom_ForestGrounds,
-    barn: AlistairRoom_Barn,
-    barn_interior: AlistairRoom_BarnInterior,
-    manor_front: AlistairRoom_ManorFront,
+    render() {
+      return ``; // add hotspots later
+    },
+
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue([
+        "You step inside the Manor de Montreux.",
+        "The door eases shut behind you.",
+        "The house listens."
+      ]);
+    }
   };
+
+    // ----- ROOM REGISTRY -----
+    // This is how alistairGoToRoom("room_id") knows what to load.
+    const ALISTAIR_ROOMS = {
+      entrance_gates: AlistairRoom_EntranceGates,
+      the_well: AlistairRoom_TheWell,
+      forest_grounds: AlistairRoom_ForestGrounds,
+      barn: AlistairRoom_Barn,
+      barn_interior: AlistairRoom_BarnInterior,
+      manor_front: AlistairRoom_ManorFront,
+      manor_hall: AlistairRoom_ManorHall,
+    };
 
 
   // ============================================================
@@ -2109,6 +2160,46 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
     console.log("Alistair: going to entrance_gates");
     alistairGoToRoom('entrance_gates');
+  }
+
+  // Manor Entrance cutscene -> go to Manor Hall
+  function alistairPlayManorEntranceCutsceneThenGoHall(videoUrl) {
+    const roomContainer = document.getElementById('alistair-room-container');
+
+    // hide dialogue during the cutscene
+    const bar = document.getElementById('alistair-dialogue-bar');
+    if (bar) bar.classList.add('hidden');
+
+    // clear current visuals and play the manor entrance clip
+    roomContainer.style.backgroundImage = 'none';
+    roomContainer.innerHTML = `
+      <video id="alistair-manor-entrance-video"
+            autoplay
+            playsinline
+            style="width:100%;height:100%;object-fit:cover;">
+        <source src="${videoUrl}" type="video/mp4">
+      </video>
+      <div class="alistair-room-inner">
+        <p>…the house inhales.</p>
+      </div>
+    `;
+
+    const vid = document.getElementById('alistair-manor-entrance-video');
+
+    // on success: go to the Manor Hall
+    if (vid) {
+      vid.addEventListener('ended', () => {
+        alistairGoToRoom('manor_hall');
+      });
+
+      // fallback: if the video errors, still proceed
+      vid.addEventListener('error', () => {
+        alistairGoToRoom('manor_hall');
+      });
+    } else {
+      // if the video element failed to mount, just proceed
+      alistairGoToRoom('manor_hall');
+    }
   }
 
 

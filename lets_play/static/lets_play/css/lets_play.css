@@ -1245,6 +1245,22 @@ button[data-locked="true"] {
   display: none;
 }
 
+/* =========================
+   MANOR FRONT HOTSPOT
+   ========================= */
+
+/* dev-visible hotspot square for the front door */
+#alistair-manor-door-hotspot {
+  position: absolute;
+  bottom: 120px;          /* tweak placement as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+  z-index: 10;
+}
+
 
 
 /*--------------------
