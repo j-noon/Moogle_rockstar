@@ -1084,17 +1084,18 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 },
                 {
                   // ❌ Wrong: fall in (3 damage)
-                  label: "Tie the rope to the bucket and lower it straight into the well.",
+                  label: "Tie the rope to the bucket, hit the crank with hammer and lower it.",
                   onClick: () => {
                     alistairClearListChoices();
                     alistairResetNextButton();
                     alistairStartDialogue(
                       [
                         "You knot the rope and begin lowering the bucket.",
-                        "It just hangs there… snagged on something below.",
+                        "Then you swing the hammer at the crank.",
+                        "The bucket just hangs there… snagged on something below.",
                         "You lean over the lip to see what’s blocking it—",
                         "—and the stone is slick.",
-                        "You slip."
+                        "You slip and fell into the well."
                       ],
                       () => {
                         alistairTakeDamage(3);
@@ -1104,7 +1105,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 },
                 {
                   // ❌ Wrong: foot damage (1)
-                  label: "Use the hammer on the crank first, then tie the rope to the bucket.",
+                  label: "Use the hammer on the crank first, then tie the rope to the bucket and lower it",
                   onClick: () => {
                     alistairClearListChoices();
                     alistairResetNextButton();
@@ -2043,7 +2044,26 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761784130/ag-main-hall_wplaif.png",
 
     render() {
-      return ``; // add hotspots later
+      return `
+        <div class="alistair-hall-hotspot" id="hall-to-room-1" data-target="manor_bedroom">
+          <span class="alistair-hotspot-label">To Master Bedroom</span>
+        </div>
+        <div class="alistair-hall-hotspot" id="hall-to-room-2" data-target="manor_bathroom">
+          <span class="alistair-hotspot-label">To Bathroom</span>
+        </div>
+        <div class="alistair-hall-hotspot" id="hall-to-room-3" data-target="manor_wine_cellar">
+          <span class="alistair-hotspot-label">To Wine Cellar</span>
+        </div>
+        <div class="alistair-hall-hotspot" id="hall-to-room-4" data-target="manor_study">
+          <span class="alistair-hotspot-label">To Study</span>
+        </div>
+        <div class="alistair-hall-hotspot" id="hall-to-room-5" data-target="manor_parlour">
+          <span class="alistair-hotspot-label">To Parlour</span>
+        </div>
+        <div class="alistair-hall-hotspot" id="hall-to-room-6" data-target="manor_kitchen">
+          <span class="alistair-hotspot-label">To Kitchen</span>
+        </div>
+      `;
     },
 
     onEnter() {
@@ -2053,6 +2073,87 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         "The door eases shut behind you.",
         "The house listens."
       ]);
+
+      // Wire Hall → Room hotspots
+      const spots = document.querySelectorAll('.alistair-hall-hotspot');
+      spots.forEach((el) => {
+        const target = el.dataset.target; // e.g. "manor_kitchen"
+        if (!target) return;
+
+        // avoid duplicate listeners on re-entry
+        const clone = el.cloneNode(true);
+        el.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          alistairPlayHallTransitionThenGo(target);
+        });
+      });
+    }
+  }
+
+  const AlistairRoom_ManorBedroom = {
+    id: "manor_bedroom",
+    name: "Master Bedroom",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790325/ag-master-bedroom_adicsr.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
+    }
+  };
+
+  const AlistairRoom_ManorBathroom = {
+    id: "manor_bathroom",
+    name: "Bathroom",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790298/ag-bath-room_mwkgvs.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
+    }
+  };
+
+  const AlistairRoom_ManorWineCellar = {
+    id: "manor_wine_cellar",
+    name: "Wine Cellar",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790397/ag-wine-celler_ns44ow.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
+    }
+  };
+
+  const AlistairRoom_ManorStudy = {
+    id: "manor_study",
+    name: "Study",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790371/ag-study_pn9jrx.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
+    }
+  };
+
+  const AlistairRoom_ManorParlour = {
+    id: "manor_parlour",
+    name: "Parlour",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790350/ag-parlour_pfv9si.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
+    }
+  };
+
+  const AlistairRoom_ManorKitchen = {
+    id: "manor_kitchen",
+    name: "Kitchen",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790276/ag-kitchen_nrlmf2.png",
+    render() { return ``; },
+    onEnter() {
+      alistairResetNextButton();
+      alistairStartDialogue(["You have entered a new room."]);
     }
   };
 
@@ -2066,6 +2167,12 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       barn_interior: AlistairRoom_BarnInterior,
       manor_front: AlistairRoom_ManorFront,
       manor_hall: AlistairRoom_ManorHall,
+      manor_bedroom: AlistairRoom_ManorBedroom,
+      manor_bathroom: AlistairRoom_ManorBathroom,
+      manor_wine_cellar: AlistairRoom_ManorWineCellar,
+      manor_study: AlistairRoom_ManorStudy,
+      manor_parlour: AlistairRoom_ManorParlour,
+      manor_kitchen: AlistairRoom_ManorKitchen,
     };
 
 
@@ -2135,6 +2242,30 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       // fallback if <video> didn't mount
       alistairGoToRoom(nextRoomId);
     }
+  }
+
+  // ======= HALL → ROOM TRANSITION (custom cutscene) =======
+  const ALISTAIR_HALL_TRANSITION_URL =
+    "https://res.cloudinary.com/ddmslr9na/video/upload/v1761790246/videoplayback_6_giwqj0.mp4";
+
+  function alistairPlayHallTransitionThenGo(nextRoomId) {
+    const roomContainer = document.getElementById('alistair-room-container');
+    const bar = document.getElementById('alistair-dialogue-bar');
+    if (bar) bar.classList.add('hidden');
+
+    roomContainer.style.backgroundImage = 'none';
+    roomContainer.innerHTML = `
+      <video id="alistair-hall-transition-video"
+            autoplay
+            playsinline>
+        <source src="${ALISTAIR_HALL_TRANSITION_URL}" type="video/mp4">
+      </video>
+    `;
+
+    const vid = document.getElementById('alistair-hall-transition-video');
+    const go = () => alistairGoToRoom(nextRoomId);
+    if (vid) { vid.addEventListener('ended', go); vid.addEventListener('error', go); }
+    else { go(); }
   }
 
 

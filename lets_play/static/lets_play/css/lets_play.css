@@ -1249,10 +1249,9 @@ button[data-locked="true"] {
    MANOR FRONT HOTSPOT
    ========================= */
 
-/* dev-visible hotspot square for the front door */
 #alistair-manor-door-hotspot {
   position: absolute;
-  bottom: 120px;          /* tweak placement as needed */
+  bottom: 120px;
   left: 50%;
   transform: translateX(-50%);
   width: 100px;
@@ -1261,10 +1260,46 @@ button[data-locked="true"] {
   z-index: 10;
 }
 
+/* -----------------------------
+     ACT TWO ---- MANOR HALL
+  ------------------------------*/
+
+/* DEV: Yellow labeled hotspots for Manor Hall */
+.alistair-hall-hotspot {
+  position: absolute;
+  left: 50%;
+  top: 60%;
+  width: 120px;
+  height: 80px;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 235, 0, 0.85);
+  border: 2px solid #000;
+  border-radius: 6px;
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 700;
+  font-size: 12px;
+  cursor: pointer;
+  z-index: 12;
+  box-shadow: 0 0 0 2px #000 inset;
+}
+.alistair-hotspot-label { padding: 4px 6px; line-height: 1.2; }
+
+/* Example placements — adjust to match your hall art */
+#hall-to-room-1 { left: 20%; top: 55%; width: 130px; height: 70px; }
+#hall-to-room-2 { left: 35%; top: 50%; width: 130px; height: 70px; }
+#hall-to-room-3 { left: 50%; top: 48%; width: 130px; height: 70px; }
+#hall-to-room-4 { left: 65%; top: 50%; width: 130px; height: 70px; }
+#hall-to-room-5 { left: 80%; top: 55%; width: 130px; height: 70px; }
+#hall-to-room-6 { left: 50%; top: 72%; width: 160px; height: 80px; }
+
 
 
 /*--------------------
-   adventure game end
+  adventure game end
 ---------------------*/
 }
 
