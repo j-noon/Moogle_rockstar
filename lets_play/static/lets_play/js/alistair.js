@@ -985,8 +985,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
+  //---------------------------------
   // --- THE WELL / CROSSROADS HUB ---
+  //----------------------------------
   const AlistairRoom_TheWell = {
     act: 1,
     id: "the_well",
@@ -1390,8 +1391,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
-  // FOREST GROUNDS
+  //---------------------------------
+  // --- FOREST GROUNDS
+  //----------------------------------
   const AlistairRoom_ForestGrounds = {
     act: 1,
     id: "forest_grounds",
@@ -1593,8 +1595,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
-  // --- THE BARN ---
+  //---------------------------------
+  // ---THE BARN ---
+  //----------------------------------
   const AlistairRoom_Barn = {
     act: 1,
     id: "barn",
@@ -1809,8 +1812,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
-  //BARN-INTERIOR
+  //---------------------------------
+  // ---BARN INTERIOR ---
+  //----------------------------------
   const AlistairRoom_BarnInterior = {
     act: 1,
     id: "barn_interior",
@@ -2047,7 +2051,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+  //---------------------------------
   // --- MANOR FRONT DOOR ---
+  //---------------------------------- 
   const AlistairRoom_ManorFront = {
     act: 1,
     id: "manor_front",
@@ -2121,7 +2127,11 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-  // --- MANOR HALL (Act 2) ---
+
+  //---------------------------------
+  // --- MANOR HALL (ACT 2) ---
+  //---------------------------------- 
+
   const AlistairRoom_ManorHall = {
     act: 2,
     id: "manor_hall",
@@ -2177,6 +2187,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   }
 
+
+   //---------------------------------
+  // ---  BEDROOM ---
+  //---------------------------------- 
   const AlistairRoom_ManorBedroom = {
     act: 2,
     id: "manor_bedroom",
@@ -2189,6 +2203,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+  //---------------------------------
+  // --- BATHROOM ---
+  //---------------------------------- 
   const AlistairRoom_ManorBathroom = {
     act: 2,
     id: "manor_bathroom",
@@ -2201,6 +2218,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+
+  //---------------------------------
+  // --- WINE CELLAR ---
+  //---------------------------------- 
   const AlistairRoom_ManorWineCellar = {
     act: 2,
     id: "manor_wine_cellar",
@@ -2213,6 +2234,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+
+  //---------------------------------
+  // --- STUDY ---
+  //---------------------------------- 
   const AlistairRoom_ManorStudy = {
     act: 2,
     id: "manor_study",
@@ -2225,6 +2250,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+
+  //---------------------------------
+  // --- PARLOUR ---
+  //---------------------------------- 
   const AlistairRoom_ManorParlour = {
     act: 2,
     id: "manor_parlour",
@@ -2237,6 +2266,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+
+  //---------------------------------
+  //   ---- KITCHEN ------
+  //---------------------------------- 
   const AlistairRoom_ManorKitchen = {
     act: 2,
     id: "manor_kitchen",
@@ -2279,7 +2312,11 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // Gates opening cutscene, then send you to Well.
   function alistairPlayGateCutsceneThenGoWell() {
+    
     const roomContainer = document.getElementById('alistair-room-container');
+
+    alistairGoToRoom('AlistairRoom_Well');
+
 
     // hide dialogue while cutscene is playing
     const bar = document.getElementById('alistair-dialogue-bar');
@@ -2298,7 +2335,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     const vid = document.getElementById('alistair-gate-video');
     if (vid) {
       vid.addEventListener('ended', () => {
-        alistairGoToRoom('the_well');
+        alistairGoToRoom('the_well');   
       });
     } else {
       // fallback if <video> didn't mount
@@ -2338,7 +2375,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // ======= HALL → ROOM TRANSITION (custom cutscene) =======
   const ALISTAIR_HALL_TRANSITION_URL =
-    "https://res.cloudinary.com/ddmslr9na/video/upload/v1761790246/videoplayback_6_giwqj0.mp4";
+    "https://res.cloudinary.com/ddmslr9na/video/upload/v1761869702/ag-manor-house-transition_rryuwj.mp4";
 
   function alistairPlayHallTransitionThenGo(nextRoomId) {
     const roomContainer = document.getElementById('alistair-room-container');
@@ -2349,7 +2386,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     roomContainer.innerHTML = `
       <video id="alistair-hall-transition-video"
             autoplay
-            playsinline>
+            muted
+            playsinline
+            preload="auto"
+            style="position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:cover; object-position:center;">
         <source src="${ALISTAIR_HALL_TRANSITION_URL}" type="video/mp4">
       </video>
     `;
