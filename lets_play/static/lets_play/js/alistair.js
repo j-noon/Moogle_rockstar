@@ -2689,21 +2689,232 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+
   //---------------------------------
-  // --- BACK GARDEN (placeholder) ---
+  // --- BACK GARDEN ---
   //----------------------------------
   const AlistairRoom_ManorGarden = {
     act: 2,
     id: "manor_garden",
     name: "Back Garden",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762099418/ag-manor-back-garden_fyruqh.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      const hasCellarKey = !!gameState.inventory.find(i => i.id === "cellar_key");
+
+      return `
+        <!-- Statue hotspot (yellow dev box with empty img for now) -->
+        <div id="alistair-garden-statue-hotspot" class="alistair-garden-statue-hotspot">
+          <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762121084/ag-statue-plaque_bwmp9l.png" alt="Statue Placeholder">
+        </div>
+
+        <!-- Cellar Key hotspot (only if not already picked up) -->
+        ${hasCellarKey ? "" : `
+        <div id="alistair-garden-key-hotspot" class="alistair-garden-key-hotspot">
+          <img
+            src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762118719/ag-wine-celler-key_b2sm1w.png"
+            alt="Cellar Key"
+          >
+        </div>
+        `}
+      `;
+    },
+
+    onEnter(gameState) {
+      const seenBefore = !!alistairState._enteredGardenOnce;
+      alistairState._enteredGardenOnce = true;
+
+      // helper: free roam mode
+      function enterGardenFreeRoam() {
+        const bar = document.getElementById("alistair-dialogue-bar");
+        if (bar) bar.classList.add("hidden");
+        wireStatueHotspot();
+        wireKeyHotspot();
+        wireWaterHotspot();
+      }
+
+      // --- Statue logic (heals only once) ---
+      function wireStatueHotspot() {
+        const node = document.getElementById("alistair-garden-statue-hotspot");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          // Placeholder image for statue
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762121084/ag-statue-plaque_bwmp9l.png",
+            "Statue of the Divine Maiden",
+            () => {
+              alistairResetNextButton();
+              alistairStartDialogue([
+                "A plaque beneath the statue reads:",
+                "‘This is the Maiden of the Moon — protector of the pure.’",
+                "‘Are you of pure heart?’"
+              ], () => {
+                alistairShowChoices(
+                  "Are you of pure heart?",
+                  [
+                    {
+                      label: "Yes",
+                      onClick: () => {
+                        const cursed = !!alistairState.isCursed;
+                        const alreadyHealed = !!alistairState._gardenHealedOnce;
+                        alistairResetNextButton();
+
+                        if (!cursed) {
+                          if (alreadyHealed) {
+                            // Already healed once: no more healing
+                            alistairStartDialogue([
+                              "The statue remains still.",
+                              "A whisper rattles the leaves: “Do not be greedy, mortal.”",
+                              "“I have aided as much as I can for now… the rest is up to you.”"
+                            ], () => {
+                              giveBlessedWater();
+                            });
+                          } else {
+                            // First and only heal
+                            alistairState.health = 3;
+                            alistairRenderHearts();
+                            alistairState._gardenHealedOnce = true;
+                            alistairStartDialogue([
+                              "A warm light surrounds you… the statue glows softly.",
+                              "Your wounds fade — your strength restored."
+                            ], () => {
+                              giveBlessedWater();
+                            });
+                          }
+                        } else {
+                          // Cursed: no heal
+                          alistairStartDialogue([
+                            "The statue’s eyes flicker with sorrow.",
+                            "‘Your heart may have been pure once... but it is now tainted.’",
+                            "‘I can only heal those untouched by the curse.’"
+                          ], () => {
+                            giveBlessedWater();
+                          });
+                        }
+                      }
+                    },
+                    {
+                      label: "No",
+                      onClick: () => {
+                        alistairResetNextButton();
+                        alistairStartDialogue([
+                          "You admit your flaws quietly.",
+                          "The statue seems to understand… but offers no warmth in return."
+                        ], () => {
+                          giveBlessedWater();
+                        });
+                      }
+                    }
+                  ]
+                );
+              });
+            }
+          );
+        });
+      }
+
+      // --- Give Blessed Water item (only once) ---
+      function giveBlessedWater() {
+        const alreadyHave = alistairState.inventory.some(i => i.id === "blessed_water");
+        if (alreadyHave) {
+          enterGardenFreeRoam();
+          return;
+        }
+
+        alistairAddItem({
+          id: "blessed_water",
+          name: "Blessed Water",
+          imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762118749/ag-blessed-water_rpcymh.png"
+        });
+        alistairRenderInventoryPanel();
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1762118749/ag-blessed-water_rpcymh.png",
+          "You find a small flask of Blessed Water lying beside the statue.",
+          () => {
+            alistairResetNextButton();
+            alistairStartDialogue([
+              "I think this might be used with that potion brewing bench in the kitchen."
+            ], () => {
+              enterGardenFreeRoam();
+            });
+          }
+        );
+      }
+
+      // --- Cellar Key logic (remove from scene after pickup) ---
+      function wireKeyHotspot() {
+        const node = document.getElementById("alistair-garden-key-hotspot");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          const alreadyHave = alistairState.inventory.some(i => i.id === "cellar_key");
+          if (alreadyHave) {
+            alistairStartDialogue(["You've already picked up the key."]);
+            return;
+          }
+
+          alistairAddItem({
+            id: "cellar_key",
+            name: "Cellar Key",
+            imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762118719/ag-wine-celler-key_b2sm1w.png"
+          });
+          alistairRenderInventoryPanel();
+
+          // Remove the key hotspot so it no longer shows in scene
+          const keySpot = document.getElementById("alistair-garden-key-hotspot");
+          if (keySpot) keySpot.remove();
+
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762118719/ag-wine-celler-key_b2sm1w.png",
+            "Looks like we’ve found a key — it’s engraved with the word ‘Cellar’.",
+            () => {
+              alistairResetNextButton();
+              alistairStartDialogue([
+                "Let’s keep this… it might open something deeper within the manor."
+              ], () => {
+                enterGardenFreeRoam();
+              });
+            }
+          );
+        });
+      }
+
+      // --- Blessed Water hotspot (for dev testing, optional direct pickup) ---
+      function wireWaterHotspot() {
+        const node = document.getElementById("alistair-garden-water-hotspot");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+        clone.addEventListener("click", () => {
+          giveBlessedWater();
+        });
+      }
+
+      // --- Entry dialogue ---
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue([
+          "It’s more fresh out here, and this feels as if I’m ok to rest a while.",
+          "Let’s head back inside when we’re ready."
+        ], () => {
+          enterGardenFreeRoam();
+        });
+        return;
+      }
+
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered the back garden."], () => {
-        const bar = document.getElementById('alistair-dialogue-bar');
-        if (bar) bar.classList.add('hidden');
-        // free roam placeholder
+      alistairStartDialogue([
+        "You step into the back garden.",
+        "The air feels different — cleaner. Protected from the darkness inside the manor.",
+        "A statue of a divine figure stands watching over the overgrown path.",
+        "A magpie bursts from the bushes — startled — something shiny glints where it flew from."
+      ], () => {
+        enterGardenFreeRoam();
       });
     }
   };
