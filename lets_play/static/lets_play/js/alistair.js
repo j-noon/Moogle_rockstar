@@ -2127,7 +2127,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
   //---------------------------------
   // --- MANOR HALL (ACT 2) ---
   //---------------------------------- 
@@ -2138,8 +2137,11 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     name: "The Manor Hall",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761784130/ag-main-hall_wplaif.png",
 
-    render() {
+    render(gameState) {
+      const hasCoat = !!gameState.inventory.find(i => i.id === "alistair_coat");
+
       return `
+        <!-- Travel Hotspots -->
         <div class="alistair-hall-hotspot" id="hall-to-room-1" data-target="manor_bedroom">
           <span class="alistair-hotspot-label">To Master Bedroom</span>
         </div>
@@ -2158,34 +2160,164 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         <div class="alistair-hall-hotspot" id="hall-to-room-6" data-target="manor_kitchen">
           <span class="alistair-hotspot-label">To Kitchen</span>
         </div>
+
+        <!-- NEW: Alistair’s Coat Hotspot -->
+        ${hasCoat ? "" : `
+          <div id="alistair-coat-hotspot" class="alistair-hotspot-coat">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1761958038/ag-alistairs-coat_nwuvov.png"
+              alt="Alistair’s coat"
+              class="alistair-coat-img">
+          </div>
+        `}
       `;
     },
 
-    onEnter() {
+    onEnter(gameState) {
+      // Ensure act label + intro
       alistairEnterAct(2);
       alistairResetNextButton();
-      alistairStartDialogue([
-        "You step inside the Manor de Montreux.",
-        "The door eases shut behind you.",
-        "The house listens."
-      ]);
 
-      // Wire Hall → Room hotspots
-      const spots = document.querySelectorAll('.alistair-hall-hotspot');
-      spots.forEach((el) => {
-        const target = el.dataset.target; // e.g. "manor_kitchen"
-        if (!target) return;
+      const seenBefore = !!alistairState._enteredManorHallOnce;
+      alistairState._enteredManorHallOnce = true;
 
-        // avoid duplicate listeners on re-entry
-        const clone = el.cloneNode(true);
-        el.replaceWith(clone);
+      // Wire hall → room navigation first
+      function wireTravelHotspots() {
+        const spots = document.querySelectorAll(".alistair-hall-hotspot");
+        spots.forEach((el) => {
+          const target = el.dataset.target;
+          if (!target) return;
 
-        clone.addEventListener('click', () => {
-          alistairPlayHallTransitionThenGo(target);
+          const clone = el.cloneNode(true);
+          el.replaceWith(clone);
+
+          clone.addEventListener("click", () => {
+            alistairPlayHallTransitionThenGo(target);
+          });
         });
+      }
+
+      // After exploring/coat flow is done → free roam
+      function enterManorFreeRoam() {
+        const bar = document.getElementById("alistair-dialogue-bar");
+        if (bar) bar.classList.add("hidden");
+        wireTravelHotspots();
+      }
+
+      // Handle coat pickup + choice
+      function handleCoatPickup() {
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1761958038/ag-alistairs-coat_nwuvov.png",
+          "Alistair’s Coat",
+          () => {
+            // Add coat to inventory
+            if (!alistairState.inventory.find(i => i.id === "alistair_coat")) {
+              alistairAddItem({
+                id: "alistair_coat",
+                name: "Alistair’s Coat",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761958038/ag-alistairs-coat_nwuvov.png"
+              });
+            }
+
+            // Remove coat hotspot
+            const coatSpot = document.getElementById("alistair-coat-hotspot");
+            if (coatSpot) coatSpot.remove();
+
+            // Start follow-up dialogue
+            alistairResetNextButton();
+            alistairStartDialogue(
+              [
+                "Wait a minute...",
+                "This is Alistair’s coat — but there’s something different about it.",
+                "He never takes it off, let alone leaves it here.",
+                "Something’s not right."
+              ],
+              () => {
+                alistairShowChoices(
+                  "Do you put the coat on to feel closer to Alistair?",
+                  [
+                    {
+                      label: "Yes",
+                      onClick: () => {
+                        alistairState.health = 3;
+                        alistairRenderHearts();
+                        alistairResetNextButton();
+                        alistairStartDialogue(
+                          [
+                            "This feels nice... I miss him.",
+                            "Where could he have gone?",
+                            "Hint: click the doors to explore the manor and go to other rooms."
+                          ],
+                          () => {
+                            enterManorFreeRoam();
+                          }
+                        );
+                      }
+                    },
+                    {
+                      label: "No",
+                      onClick: () => {
+                        alistairResetNextButton();
+                        alistairStartDialogue(
+                          [
+                            "You wrap the jacket around your waist.",
+                            "You wouldn’t catch me dead in this ratty tatty thing — he’s had it for years.",
+                            "Hint: click the doors to explore the manor and go to other rooms."
+                          ],
+                          () => {
+                            enterManorFreeRoam();
+                          }
+                        );
+                      }
+                    }
+                  ]
+                );
+              }
+            );
+          }
+        );
+      }
+
+      // Wire coat hotspot if it’s there
+      function wireCoatHotspot() {
+        const spot = document.getElementById("alistair-coat-hotspot");
+        if (!spot) return;
+
+        const clone = spot.cloneNode(true);
+        spot.replaceWith(clone);
+        clone.addEventListener("click", handleCoatPickup);
+      }
+
+      // --- Entry flow ---
+      if (seenBefore) {
+        // Re-entry, skip intro
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Back in the manor hall.", "The air still feels heavy here."],
+          () => {
+            enterManorFreeRoam();
+          }
+        );
+        wireCoatHotspot();
+        return;
+      }
+
+      // First time entry dialogue
+      const hallIntro = [
+        "We made it... finally! Phew...",
+        "Definitely warmer in here than outside.",
+        "Not so sure why he came here... my stupid husband Alistair.",
+        "Useless he is. What a foolish man — chasing made up stories.",
+        "Where could he have gotten to?",
+        "Let's take a look around."
+      ];
+
+      alistairStartDialogue(hallIntro, () => {
+        wireCoatHotspot();
+        enterManorFreeRoam();
       });
     }
-  }
+  };
 
 
    //---------------------------------
@@ -2204,17 +2336,114 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   //---------------------------------
-  // --- BATHROOM ---
+  // --- BATHROOM --- 
   //---------------------------------- 
   const AlistairRoom_ManorBathroom = {
     act: 2,
     id: "manor_bathroom",
     name: "Bathroom",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790298/ag-bath-room_mwkgvs.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      return `
+        <!-- Bath sludge hotspot -->
+        <div id="alistair-bath-sludge" class="alistair-bath-hotspot">
+          <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png"
+              alt="Bath Sludge">
+        </div>
+
+        <!-- Hidden note hotspot (yellow box for dev) — renamed -->
+        <div id="alistair-bathroom-note" class="alistair-bathroom-note"></div>
+      `;
+    },
+
+    onEnter(gameState) {
+      const visitedBefore = alistairState.visitedRooms.includes("manor_bathroom");
+
+      if (visitedBefore && alistairState._enteredBathroomOnce) {
+        // Re-entry = sickness + damage
+        alistairResetNextButton();
+        alistairStartDialogue([
+          "I knew we shouldn't have come back here.",
+          "You feel extremely sick again... worse than in the barn."
+        ], () => {
+          alistairTakeDamage(2);
+        });
+        return;
+      }
+
+      alistairState._enteredBathroomOnce = true;
+
+      // First visit narrative
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue([
+        "You step into the bathroom.",
+        "The air is heavy and foul. A thick stench of rot clings to everything.",
+        "A bath sits in the corner, filled with some kind of dark, viscous sludge.",
+        "As awful as it looks, you can’t shake the feeling it might be... useful.",
+        "You feel there’s something hidden in this room and its not that sludgy stuff.",
+        "Where could it be?."
+      ], () => {
+        const sludge = document.getElementById("alistair-bath-sludge");
+        const hidden = document.getElementById("alistair-bathroom-note");
+
+        // --- Sludge hotspot ---
+        if (sludge) {
+          sludge.addEventListener("click", () => {
+            const alreadyHave = alistairState.inventory.some(i => i.id === "bath_sludge");
+            if (!alreadyHave) {
+              alistairAddItem({
+                id: "bath_sludge",
+                name: "Bath Sludge",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png"
+              });
+              alistairRenderInventoryPanel();
+              alistairShowImageOverlay(
+                "https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png",
+                "You scoop up some of the foul sludge. It feels unearthly — wrong.",
+                () => {
+                  alistairResetNextButton();
+                  alistairStartDialogue([
+                    "You scoop up some of the foul sludge.",
+                    "It feels unearthly — like it was never meant to be touched."
+                  ]);
+                }
+              );
+            } else {
+              alistairStartDialogue(["You've already collected some of the sludge."]);
+            }
+          });
+        }
+
+        // --- Hidden note hotspot (bathroom-note) ---
+        if (hidden) {
+          hidden.addEventListener("click", () => {
+            const alreadyHaveNote = alistairState.journals.some(j => j.id === "ritual_note");
+            if (!alreadyHaveNote) {
+              alistairAddJournal({
+                id: "ritual_note",
+                title: "Ritual Instructions",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762096363/ag-ritual-insructions_o4poxe.png"
+              });
+              alistairRenderJournalPanel();
+              alistairShowImageOverlay(
+                "https://res.cloudinary.com/ddmslr9na/image/upload/v1762096363/ag-ritual-insructions_o4poxe.png",
+                "A tattered note — ritual instructions. The words twist your stomach just reading them.",
+                () => {
+                  alistairResetNextButton();
+                  alistairStartDialogue([
+                    "A hidden note…",
+                    "It describes some kind of ritual. You can barely stand to read it.",
+                    "I think we’d better leave right now!"
+                  ]);
+                }
+              );
+            } else {
+              alistairStartDialogue(["There's nothing else hidden here."]);
+            }
+          });
+        }
+      });
     }
   };
 
@@ -2242,7 +2471,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     act: 2,
     id: "manor_study",
     name: "Study",
-    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790371/ag-study_pn9jrx.png",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761950535/ag-study-2_o8skms.png",
     render() { return ``; },
     onEnter() {
       alistairResetNextButton();
@@ -2268,17 +2497,214 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
 
   //---------------------------------
-  //   ---- KITCHEN ------
-  //---------------------------------- 
+  // --- KITCHEN ---
+  //----------------------------------
   const AlistairRoom_ManorKitchen = {
     act: 2,
     id: "manor_kitchen",
     name: "Kitchen",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790276/ag-kitchen_nrlmf2.png",
+
+    render(gameState) {
+      const hasKnife = !!gameState.inventory.find(i => i.id === "kitchen_knife");
+
+      return `
+        <!-- DEV HOTSPOTS (yellow squares) -->
+        <div id="alistair-kitchen-door-hotspot" class="alistair-dev-hotspot"></div>
+        ${hasKnife ? "" : `<div id="alistair-kitchen-knife-hotspot" class="alistair-dev-hotspot"></div>`}
+
+        <!-- ALCHEMY HOTSPOT uses image -->
+        <div id="alistair-kitchen-alchemy-hotspot" class="alistair-kitchen-alchemy-hotspot">
+          <img
+            src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762107459/ag-potion-hot-spot_saii68.png"
+            alt="Potion Workbench"
+          >
+        </div>
+      `;
+    },
+    onEnter(gameState) {
+      // --- helpers ---
+      function enterKitchenFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+        wireDoorHotspot();
+        wireKnifeHotspot();
+        wireAlchemyHotspot();
+      }
+
+      function wireDoorHotspot() {
+        const node = document.getElementById('alistair-kitchen-door-hotspot');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+        clone.addEventListener('click', () => {
+          // play the manor transition cutscene and go to Back Garden
+          alistairPlayHallTransitionThenGo('manor_garden');
+        });
+      }
+
+      function wireKnifeHotspot() {
+        const node = document.getElementById('alistair-kitchen-knife-hotspot');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+        clone.addEventListener('click', () => {
+          // Show knife, add to inventory, remove hotspot, speak, free roam
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762098371/ag-kitchen-knife_seq1sj.png",
+            "Kitchen Knife",
+            () => {
+              if (!alistairState.inventory.find(i => i.id === "kitchen_knife")) {
+                alistairAddItem({
+                  id: "kitchen_knife",
+                  name: "Kitchen Knife",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762098371/ag-kitchen-knife_seq1sj.png"
+                });
+                alistairRenderInventoryPanel();
+              }
+              const knifeSpot = document.getElementById('alistair-kitchen-knife-hotspot');
+              if (knifeSpot) knifeSpot.remove();
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "What's this doing here?",
+                  "I can feel my husband… he's close. He must be here.",
+                  "This knife is connected to him—but it feels heavier than it used to."
+                ],
+                () => { enterKitchenFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      function wireAlchemyHotspot() {
+        const node = document.getElementById('alistair-kitchen-alchemy-hotspot');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+        clone.addEventListener('click', () => {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            [
+              "Small tools and empty vials… a pestle and mortar.",
+              "I think we could craft a potion here."
+            ],
+            () => {
+              alistairShowChoices(
+                "Do you have all you need to craft?",
+                [
+                  {
+                    label: "Yes",
+                    onClick: () => {
+                      const hasWater = !!alistairState.inventory.find(i => i.id === "blessed_water");
+                      const hasHerb  = !!alistairState.inventory.find(i => i.id === "strange_herb"); // Nightsingers Herb
+                      const hasMold  = !!alistairState.inventory.find(i => i.id === "cellar_mold");
+                      const haveAll  = hasWater && hasHerb && hasMold;
+
+                      alistairResetNextButton();
+
+                      if (haveAll) {
+                        // Success craft: add Cure Curse
+                        alistairShowImageOverlay(
+                          "https://res.cloudinary.com/ddmslr9na/image/upload/v1762098684/ag-cure_curse_potion_gcoasg.png",
+                          "Cure Curse",
+                          () => {
+                            if (!alistairState.inventory.find(i => i.id === "cure_curse")) {
+                              alistairAddItem({
+                                id: "cure_curse",
+                                name: "Cure Curse",
+                                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762098684/ag-cure_curse_potion_gcoasg.png"
+                              });
+                              alistairRenderInventoryPanel();
+                            }
+                            alistairResetNextButton();
+                            alistairStartDialogue(
+                              ["We’ve found a cure!"],
+                              () => { enterKitchenFreeRoam(); }
+                            );
+                          }
+                        );
+                      } else {
+                        // ❌ Missing ingredients: story beat → damage → hint → free roam
+                        alistairResetNextButton();
+                        alistairStartDialogue(
+                          [
+                            "Oops… there’s definitely something missing.",
+                            "The Watcher laughs. You hear a voice, but the words are not clear.",
+                            "That voice shudders through your body and chips at your mind."
+                          ],
+                          () => {
+                            alistairTakeDamage(1);
+                            alistairResetNextButton();
+                            alistairStartDialogue(
+                              ["Come back when all ingredients are found."],
+                              () => { enterKitchenFreeRoam(); }
+                            );
+                          }
+                        );
+                      }
+                    }
+                  },
+                  {
+                    label: "No",
+                    onClick: () => {
+                      enterKitchenFreeRoam();
+                    }
+                  }
+                ]
+              );
+            }
+          );
+        });
+      }
+
+      // --- entry flow ---
+      const seenBefore = !!alistairState._enteredKitchenOnce;
+      alistairState._enteredKitchenOnce = true;
+
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Back in the kitchen. It still feels wrong in here."],
+          () => { enterKitchenFreeRoam(); }
+        );
+        return;
+      }
+
+      // First-time narration
+      alistairResetNextButton();
+      alistairStartDialogue(
+        [
+          "You step into the kitchen. It’s eerie—quiet—like the room is holding its breath.",
+          "This doesn’t look like the cooks have been here in a long time.",
+          "We’re still looking for Alistair… I thought we would’ve found the fat fool in the kitchen.",
+          "There must be something useful in here to find.",
+          "Must be something in cupboards or draws?",
+          "The back door looks… open."
+        ],
+        () => { enterKitchenFreeRoam(); }
+      );
+    }
+  };
+
+  //---------------------------------
+  // --- BACK GARDEN (placeholder) ---
+  //----------------------------------
+  const AlistairRoom_ManorGarden = {
+    act: 2,
+    id: "manor_garden",
+    name: "Back Garden",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762099418/ag-manor-back-garden_fyruqh.png",
     render() { return ``; },
     onEnter() {
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue(["You have entered the back garden."], () => {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+        // free roam placeholder
+      });
     }
   };
 
@@ -2298,7 +2724,46 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       manor_study: AlistairRoom_ManorStudy,
       manor_parlour: AlistairRoom_ManorParlour,
       manor_kitchen: AlistairRoom_ManorKitchen,
+      manor_garden: AlistairRoom_ManorGarden
     };
+
+ // -------------------------------   
+//    DEV JUMP TO ROOM FOR TESTING
+//    REMOVE ONCE FINISHED
+// ---------------------------------  
+  // --- DEV CONSOLE HELPERS (remove for production) ---
+  window.ag = {
+    /** Jump instantly to a room (no cutscene). */
+    go: (roomId, recordHistory = false) => alistairGoToRoom(roomId, { recordHistory }),
+
+    /** Play the generic transition, then go to a room (Act I style). */
+    cut: (roomId) => alistairPlayTransitionThenGoRoom(roomId),
+
+    /** Play the hall transition (Act II style), then go to a room. */
+    hall: (roomId) => alistairPlayHallTransitionThenGo(roomId),
+
+    /** Force the act splash (handy if a room expects Act 2). */
+    act: (n) => alistairEnterAct(n),
+
+    /** Peek at/modify state quickly. */
+    state: alistairState,
+
+    /** Quick helpers */
+    hideDialogue: () => document.getElementById('alistair-dialogue-bar')?.classList.add('hidden'),
+    showDialogue: () => document.getElementById('alistair-dialogue-bar')?.classList.remove('hidden'),
+
+    /** Toggle “first time” flags if needed during testing */
+    flags: {
+      resetBathroomOnce: () => { delete alistairState._enteredBathroomOnce; },
+      resetKitchenOnce:  () => { delete alistairState._enteredKitchenOnce; },
+      resetHallOnce:     () => { delete alistairState._enteredManorHallOnce; },
+    },
+  };
+  console.log("ag dev helpers ready. Try ag.go('manor_bathroom')");
+
+  // USE COMMMAND IN DEVTOOLS CONSOLE 
+  // EXAMPLE 
+  // ag.go('manor_kitchen'); TO GO TO  KITCHEN
 
 
   // ============================================================
@@ -2315,7 +2780,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     
     const roomContainer = document.getElementById('alistair-room-container');
 
-    alistairGoToRoom('AlistairRoom_Well');
+    alistairGoToRoom('the_well');
 
 
     // hide dialogue while cutscene is playing
