@@ -883,10 +883,21 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     alistairState.isJournalOpen = false;
     alistairState.isInventoryOpen = false;
 
-    // also reset crossroads flag at the well
+  // also reset crossroads flag at the well
     alistairState.hasSeenCrossroads = false;
     alistairState.currentAct = 1;
     alistairState.seenActSplash = {};
+    delete alistairState.isCursed;
+    delete alistairState._gardenHealedOnce;
+
+  // clear per-room "entered once" flags
+    delete alistairState._enteredGatesOnce;
+    delete alistairState._enteredWellOnce;
+    delete alistairState._enteredForestOnce;
+    delete alistairState._enteredBathroomOnce;
+    delete alistairState._enteredKitchenOnce;
+    delete alistairState._enteredManorHallOnce;
+    delete alistairState._enteredGardenOnce;
 
     // Show intro screen again on restart
     alistairShowHowToScreen();
@@ -2402,10 +2413,16 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 "https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png",
                 "You scoop up some of the foul sludge. It feels unearthly — wrong.",
                 () => {
+                  // NEW: mark the player as cursed on first pickup
+                  alistairState.isCursed = true;
+
                   alistairResetNextButton();
                   alistairStartDialogue([
                     "You scoop up some of the foul sludge.",
-                    "It feels unearthly — like it was never meant to be touched."
+                    "It feels unearthly — like it was never meant to be touched.",
+                    "The mere touch crawls under your skin… a slow, creeping rot settles in.",
+                    "You feel it taking hold of you.",
+                    "You have been cursed."
                   ]);
                 }
               );
@@ -2988,11 +3005,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   // Gates opening cutscene, then send you to Well.
   function alistairPlayGateCutsceneThenGoWell() {
-    
     const roomContainer = document.getElementById('alistair-room-container');
-
-    alistairGoToRoom('the_well');
-
 
     // hide dialogue while cutscene is playing
     const bar = document.getElementById('alistair-dialogue-bar');
@@ -3009,14 +3022,9 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     `;
 
     const vid = document.getElementById('alistair-gate-video');
-    if (vid) {
-      vid.addEventListener('ended', () => {
-        alistairGoToRoom('the_well');   
-      });
-    } else {
-      // fallback if <video> didn't mount
-      alistairGoToRoom('the_well');
-    }
+    const go = () => { alistairGoToRoom('the_well'); };
+    if (vid) { vid.addEventListener('ended', go); vid.addEventListener('error', go); }
+    else { go(); }
   }
 
   // Generic transition cutscene (used when walking between areas)
