@@ -2203,6 +2203,40 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           el.replaceWith(clone);
 
           clone.addEventListener("click", () => {
+            // Special handling for Wine Cellar door
+            if (target === "manor_wine_cellar") {
+              // If previously unlocked, go straight in
+              if (alistairState._cellarUnlocked) {
+                alistairPlayHallTransitionThenGo(target);
+                return;
+              }
+
+              const hasCellarKey = !!alistairState.inventory.find(i => i.id === "cellar_key");
+
+              // No key yet → simple locked message
+              if (!hasCellarKey) {
+                alistairResetNextButton();
+                alistairStartDialogue([
+                  "This door is locked."
+                ]);
+                return;
+              }
+
+              // Has key but not unlocked yet → unlocking narration (click again to enter)
+              alistairResetNextButton();
+              alistairStartDialogue([
+                "Let’s try the key we found in the garden…",
+                "It looks like it fits.",
+                "You place the key in the lock and it turns on its own,",
+                "as if allowing you entry."
+              ], () => {
+                // Mark as unlocked so future clicks (now and on re-entry) go straight through
+                alistairState._cellarUnlocked = true;
+              });
+              return;
+            }
+
+            // Default behavior for all other doors
             alistairPlayHallTransitionThenGo(target);
           });
         });
@@ -2467,19 +2501,295 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   //---------------------------------
   // --- WINE CELLAR ---
-  //---------------------------------- 
+  //----------------------------------
   const AlistairRoom_ManorWineCellar = {
     act: 2,
     id: "manor_wine_cellar",
     name: "Wine Cellar",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790397/ag-wine-celler_ns44ow.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      const hasRecipeNote = gameState.journals.some(j => j.id === "cure_curse_recipe");
+
+      return `
+        <!-- Cellar Mold hotspot -->
+        <div id="alistair-cellar-mold" class="alistair-cellar-mold-hotspot">
+          <img
+            src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762126722/ag-mold_bgolll.png"
+            alt="Cellar Mold">
+        </div>
+
+        <!-- Table Note hotspot (only render if not yet picked up) -->
+        ${hasRecipeNote ? "" : `
+          <div id="alistair-cellar-note" class="alistair-cellar-note-hotspot">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762126738/ag-note-hotspot_c8ewej.png"
+              alt="Note on Table">
+          </div>
+        `}
+
+        <!-- Fancy Wine hotspot (yellow dev box; no image) -->
+        <div id="alistair-cellar-wine" class="alistair-cellar-wine-hotspot"></div>
+      `;
+    },
+    onEnter(gameState) {
+      const seenBefore = !!alistairState._enteredCellarOnce;
+      alistairState._enteredCellarOnce = true;
+
+      function enterCellarFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+        wireMoldHotspot();
+        wireNoteHotspot();
+        wireWineHotspot();
+      }
+
+      // --- Mold ---
+      function wireMoldHotspot() {
+        const node = document.getElementById('alistair-cellar-mold');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          const alreadyHave = alistairState.inventory.some(i => i.id === "cellar_mold");
+          if (alreadyHave) {
+            alistairResetNextButton();
+            alistairStartDialogue(["We already have some of this mold."]);
+            return;
+          }
+
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762126722/ag-mold_bgolll.png",
+            "Cellar Mold",
+            () => {
+              if (!alistairState.inventory.find(i => i.id === "cellar_mold")) {
+                alistairAddItem({
+                  id: "cellar_mold",
+                  name: "Cellar Mold",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762126722/ag-mold_bgolll.png"
+                });
+                alistairRenderInventoryPanel();
+              }
+              alistairResetNextButton();
+              alistairStartDialogue([
+                "This looks like mold… but not ordinary mold.",
+                "Better collect this with caution.",
+                "You carefully scrape a small sample into a vial."
+              ], () => { enterCellarFreeRoam(); });
+            }
+          );
+        });
+      }
+
+      // --- Note on table (Cure Curse Recipe) ---
+      function wireNoteHotspot() {
+        const node = document.getElementById('alistair-cellar-note');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          const alreadyHaveNote = alistairState.journals.some(j => j.id === "cure_curse_recipe");
+          if (alreadyHaveNote) {
+            alistairResetNextButton();
+            alistairStartDialogue(["Nothing else on the table."]);
+            return;
+          }
+
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127078/ag-cure-curse-potion_odv5vm.png",
+            "Cure Curse — Recipe",
+            () => {
+              // Add to journal
+              alistairAddJournal({
+                id: "cure_curse_recipe",
+                title: "Cure Curse — Recipe",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127078/ag-cure-curse-potion_odv5vm.png"
+              });
+              alistairRenderJournalPanel();
+
+              // ✅ Remove the note hotspot so it’s gone from the scene
+              const noteSpot = document.getElementById('alistair-cellar-note');
+              if (noteSpot) noteSpot.remove();
+
+              // Dialogue
+              alistairResetNextButton();
+              alistairStartDialogue([
+                "This looks like a recipe for curing a curse.",
+                "It details how to prepare the potion."
+              ], () => { enterCellarFreeRoam(); });
+            }
+          );
+        });
+      }
+
+      // --- Fancy Wine (one-time) ---
+      function wireWineHotspot() {
+        const node = document.getElementById('alistair-cellar-wine');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          if (alistairState._cellarWineTaken) {
+            alistairResetNextButton();
+            alistairStartDialogue([
+              "We’ve already sampled that bottle. Best not push our luck."
+            ]);
+            return;
+          }
+
+          alistairResetNextButton();
+          alistairStartDialogue([
+            "No WAY!! This is the most expensive bottle of wine in the world.",
+            "I can't believe this is here — I’ve got to try some."
+          ], () => {
+            alistairShowChoices(
+              "Do you drink the wine? You're never going to get to taste this ever again.",
+              [
+                {
+                  label: "Yes",
+                  onClick: () => {
+                    // Drinking path
+                    alistairResetNextButton();
+                    alistairStartDialogue([
+                      "You sip the wine — the taste is to die for.",
+                      "You took a tiny sip, ",
+                      "the wine whispers to you, ",
+                      " thats enough.....! ",
+                      " put me down, i am not ment for you...! ",
+                      "As you lower the bottle, you notice a note attached to the bottom."
+                    ], () => {
+                      // Add journal note from bottle bottom
+                      alistairShowImageOverlay(
+                        "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127512/ag-servants-note-wine_eapmgu.png",
+                        "Servant’s Note — Wine",
+                        () => {
+                          if (!alistairState.journals.find(j => j.id === "wine_note")) {
+                            alistairAddJournal({
+                              id: "wine_note",
+                              title: "Servant’s Note — Wine",
+                              imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127512/ag-servants-note-wine_eapmgu.png"
+                            });
+                            alistairRenderJournalPanel();
+                          }
+
+                          // Heal +1 (cap at 3)
+                          alistairState.health = Math.min(3, alistairState.health + 1);
+                          alistairRenderHearts();
+
+                          // Mark as taken so it’s one-time
+                          alistairState._cellarWineTaken = true;
+
+                          alistairResetNextButton();
+                          alistairStartDialogue([
+                            "That note reads.",
+                            "In all my years of service, never have i known a cellar such as this.",
+                            "The masters wine-rich and dark as midnight warms the chest.",
+                            "Stirs the heart as though one were reborn with every sip.",
+                            "They say this vinatage weas gifted to the De Montreux line long ago.",
+                            "A recipe older than the manor itself",
+                            "I know not its secrets, yet each night i find myself drawn to it",
+                            "For it's taste lingers like a blessing and a curse alike.",
+                            "signed: The saervant- Gertrude",
+                            "That was… refreshing."
+                          ], () => { enterCellarFreeRoam(); });
+                        }
+                      );
+                    });
+                  }
+                },
+                {
+                  label: "No",
+                  onClick: () => {
+                    // “Are you sure?” confirm
+                    alistairShowChoices(
+                      "Are you sure?",
+                      [
+                        {
+                          label: "Yes, I'm sure.",
+                          onClick: () => {
+                            alistairResetNextButton();
+                            alistairStartDialogue([
+                              "You place the bottle down and step away."
+                            ], () => { enterCellarFreeRoam(); });
+                          }
+                        },
+                        {
+                          label: "Ok, I'll take a sip.",
+                          onClick: () => {
+                            // Reuse the Yes flow
+                            // (simulate a click-through to keep code DRY)
+                            // We'll just call the 'Yes' branch directly:
+                            // replicate short path:
+                            alistairResetNextButton();
+                            alistairStartDialogue([
+                              "You sip the wine — the taste is to die for.",
+                              "You took a tiny sip, ",
+                              "the wine whispers to you, ", 
+                              " thats enough.....! ",
+                              " put me down, i am not meant for you...! ",
+                              "As you lower the bottle, you notice a note attached to the bottom."
+                            ], () => {
+                              alistairShowImageOverlay(
+                                "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127512/ag-servants-note-wine_eapmgu.png",
+                                "Servant’s Note — Wine",
+                                () => {
+                                  if (!alistairState.journals.find(j => j.id === "wine_note")) {
+                                    alistairAddJournal({
+                                      id: "wine_note",
+                                      title: "Servant’s Note — Wine",
+                                      imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762127512/ag-servants-note-wine_eapmgu.png"
+                                    });
+                                    alistairRenderJournalPanel();
+                                  }
+                                  alistairState.health = Math.min(3, alistairState.health + 1);
+                                  alistairRenderHearts();
+                                  alistairState._cellarWineTaken = true;
+
+                                  alistairResetNextButton();
+                                  alistairStartDialogue([
+                                    "That was… refreshing."
+                                  ], () => { enterCellarFreeRoam(); });
+                                }
+                              );
+                            });
+                          }
+                        }
+                      ]
+                    );
+                  }
+                }
+              ]
+            );
+          });
+        });
+      }
+
+      // --- Entry flow ---
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Back down here. Glad the lights are still on."],
+          () => { enterCellarFreeRoam(); }
+        );
+        return;
+      }
+
+      // First-time intro
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue(
+        [
+          "Oh— not as bad as I was expecting.",
+          "Looks moderately comfy, actually. Thank God the lights are on…",
+          "Oh my— look at all this wine. There’s enough down here to last a lifetime.",
+          "Is that a note on the table?"
+        ],
+        () => { enterCellarFreeRoam(); }
+      );
     }
   };
-
 
   //---------------------------------
   // --- STUDY ---
@@ -2512,7 +2822,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
-
   //---------------------------------
   // --- KITCHEN ---
   //----------------------------------
@@ -2539,6 +2848,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         </div>
       `;
     },
+
     onEnter(gameState) {
       // --- helpers ---
       function enterKitchenFreeRoam() {
@@ -2637,9 +2947,83 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                               alistairRenderInventoryPanel();
                             }
                             alistairResetNextButton();
+                            // original line
                             alistairStartDialogue(
                               ["We’ve found a cure!"],
-                              () => { enterKitchenFreeRoam(); }
+                              () => {
+                                // ask to consume it right now
+                                alistairShowChoices(
+                                  "Oh my… what did I do? What is this I’ve made… The label says: “Potion of Cure Curses — remedy to cure the most evil curses and sickness.” Do you wish to consume this potion?",
+                                  [
+                                    {
+                                      label: "Yes, drink it",
+                                      onClick: () => {
+                                        alistairResetNextButton();
+                                        alistairStartDialogue(
+                                          [
+                                            "You pop the cork and start gulping this tonic.",
+                                            "The taste is dreamy — not awful in any way.",
+                                            "You can feel this rot feeling leaving your bones.",
+                                            "The curse has been cured."
+                                          ],
+                                          () => {
+                                            // actually cure the curse
+                                            alistairState.isCursed = false;
+
+                                            // ⬇️ NEW: give Moon Maiden’s Blade
+                                            const alreadyHaveBlade = alistairState.inventory.find(i => i.id === "moon_maiden_blade");
+                                            alistairShowImageOverlay(
+                                              "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png",
+                                              "Moon Maiden’s Blade",
+                                              () => {
+                                                if (!alreadyHaveBlade) {
+                                                  alistairAddItem({
+                                                    id: "moon_maiden_blade",
+                                                    name: "Moon Maiden’s Blade",
+                                                    imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png"
+                                                  });
+                                                  alistairRenderInventoryPanel();
+                                                }
+
+                                                alistairResetNextButton();
+                                                alistairStartDialogue(
+                                                  [
+                                                    "This is the Moon Maiden’s knife.",
+                                                    "An extremely rare, powerful dagger — blessed enough to strike down any demonic or evil presence.",
+                                                    "We should keep this close."
+                                                  ],
+                                                  () => {
+                                                    const bar = document.getElementById('alistair-dialogue-bar');
+                                                    if (bar) bar.classList.add('hidden');
+                                                    enterKitchenFreeRoam();
+                                                  }
+                                                );
+                                              }
+                                            );
+                                          }
+                                        );
+                                      }
+                                    },
+                                    {
+                                      label: "No, save it",
+                                      onClick: () => {
+                                        alistairResetNextButton();
+                                        alistairStartDialogue(
+                                          [
+                                            "Okay, we’ve put this away safe.",
+                                            "Maybe we can drink it later."
+                                          ],
+                                          () => {
+                                            const bar = document.getElementById('alistair-dialogue-bar');
+                                            if (bar) bar.classList.add('hidden');
+                                            enterKitchenFreeRoam();
+                                          }
+                                        );
+                                      }
+                                    }
+                                  ]
+                                );
+                              }
                             );
                           }
                         );

@@ -1191,6 +1191,59 @@ button[data-locked="true"] {
   pointer-events: none;
 }
 
+/* =========================
+      — WINE CELLER
+   ========================= */
+
+
+/* Shared base for all cellar hotspots */
+#alistair-cellar-mold,
+#alistair-cellar-note,
+#alistair-cellar-wine {
+  position: absolute;
+  cursor: pointer;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Images shouldn’t eat clicks */
+#alistair-cellar-mold img,
+#alistair-cellar-note img {
+  max-width: 100%;
+  max-height: 100%;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ---------------------------
+   INDIVIDUAL POSITIONING
+   --------------------------- */
+
+/* Mold hotspot */
+#alistair-cellar-mold {
+  bottom: 2%;
+  left: 10%;
+  width: 15px;
+  height: 15px;
+}
+
+/* Table note hotspot */
+#alistair-cellar-note {
+  bottom: 12%;
+  left: 65%;
+  width: 5%;
+  height: 10%;
+}
+
+/* Wine hotspot (yellow dev box) */
+#alistair-cellar-wine {
+  top: 40%;
+  left: 57%;
+  width: 40px;
+  height: 160px;
+}
 
 /*--------------------
   adventure game end
