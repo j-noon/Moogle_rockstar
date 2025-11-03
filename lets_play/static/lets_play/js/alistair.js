@@ -1622,7 +1622,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       return `
         <!-- Barn exterior scene -->
 
-        <!-- DEV DOOR HOTSPOT (yellow box placeholder) -->
         <div id="alistair-barn-door-hotspot" class="alistair-barn-door-hotspot">
           <!-- dev rectangle for placement -->
         </div>
@@ -1657,7 +1656,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         wireHerbHotspot();
       }
 
-      // hotspot: clicking the barn door (yellow square) should act
       // like "go inside" even if they chickened out in dialogue.
       function wireBarnDoorHotspot() {
         const doorSpot = document.getElementById('alistair-barn-door-hotspot');
@@ -2154,22 +2152,22 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       return `
         <!-- Travel Hotspots -->
         <div class="alistair-hall-hotspot" id="hall-to-room-1" data-target="manor_bedroom">
-          <span class="alistair-hotspot-label">To Master Bedroom</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
         <div class="alistair-hall-hotspot" id="hall-to-room-2" data-target="manor_bathroom">
-          <span class="alistair-hotspot-label">To Bathroom</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
         <div class="alistair-hall-hotspot" id="hall-to-room-3" data-target="manor_wine_cellar">
-          <span class="alistair-hotspot-label">To Wine Cellar</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
         <div class="alistair-hall-hotspot" id="hall-to-room-4" data-target="manor_study">
-          <span class="alistair-hotspot-label">To Study</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
         <div class="alistair-hall-hotspot" id="hall-to-room-5" data-target="manor_parlour">
-          <span class="alistair-hotspot-label">To Parlour</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
         <div class="alistair-hall-hotspot" id="hall-to-room-6" data-target="manor_kitchen">
-          <span class="alistair-hotspot-label">To Kitchen</span>
+          <span class="alistair-hotspot-label"></span>
         </div>
 
         <!-- NEW: Alistair’s Coat Hotspot -->
@@ -2577,9 +2575,12 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                       "You slowly bend down to look.",
                       "You pull back the bed drapes…",
                       "There’s nothing — just a single crab claw.",
-                      "Like it was left behind… but not recently."
+                      "Like it was left behind… but not recently.",
+                      "you reech under the get the claw and the claws grabs your finger",
+                      "you manage to shake it off and it crumbles to dust when it hits the hard woo floor",
+                      "ouch that hurt.....!"
                     ],
-                    () => { enterBedroomFreeRoam(); }
+                    () => { alistairTakeDamage(1), enterBedroomFreeRoam(); }
                   );
                 }
               },
@@ -2620,7 +2621,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
               alt="Bath Sludge">
         </div>
 
-        <!-- Hidden note hotspot (yellow box for dev) — renamed -->
         <div id="alistair-bathroom-note" class="alistair-bathroom-note"></div>
       `;
     },
@@ -2751,7 +2751,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           </div>
         `}
 
-        <!-- Fancy Wine hotspot (yellow dev box; no image) -->
         <div id="alistair-cellar-wine" class="alistair-cellar-wine-hotspot"></div>
       `;
     },
@@ -3016,19 +3015,312 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   //---------------------------------
   // --- STUDY ---
-  //---------------------------------- 
+  //----------------------------------
   const AlistairRoom_ManorStudy = {
     act: 2,
     id: "manor_study",
     name: "Study",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761950535/ag-study-2_o8skms.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      const hasWatchersNote = !!gameState.journals.find(j => j.id === "watchers_note");
+      // 👇 we still read the flag, but we always render the safe hotspot
+      const safeOpened = !!alistairState._studySafeOpened;
+
+      return `
+        <!-- Hotspot 1: note on table -->
+        ${hasWatchersNote ? "" : `
+          <div id="alistair-study-note" class="alistair-study-hotspot">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762126738/ag-note-hotspot_c8ewej.png"
+              alt="Note on table">
+          </div>
+        `}
+
+        <!-- Hotspot 2: the safe (we render it even if opened, so we can click it again) -->
+        <div id="alistair-study-safe" class="alistair-study-hotspot"></div>
+      `;
+    },
+
+    onEnter(gameState) {
+      // free roam helper
+      function enterStudyFreeRoam() {
+        const bar = document.getElementById("alistair-dialogue-bar");
+        if (bar) bar.classList.add("hidden");
+        wireNoteHotspot();
+        wireSafeHotspot();
+      }
+
+      // note hotspot logic
+      function wireNoteHotspot() {
+        const node = document.getElementById("alistair-study-note");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          const imgUrl = "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181383/ag-wachers-note_jan3ov.png";
+          alistairShowImageOverlay(
+            imgUrl,
+            "Watcher’s Note",
+            () => {
+              // add to journal if not already
+              if (!alistairState.journals.find(j => j.id === "watchers_note")) {
+                alistairAddJournal({
+                  id: "watchers_note",
+                  title: "Watcher’s Note",
+                  imgUrl
+                });
+                alistairRenderJournalPanel();
+              }
+
+              // remove the hotspot immediately so it doesn't show again this visit
+              const noteEl = document.getElementById("alistair-study-note");
+              if (noteEl) noteEl.remove();
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "This seems to be a warning from this ‘Watcher’ thing.",
+                  "He’s claiming the family wealth belongs to him while it’s under his watch.",
+                  "As long as he watches… souls must be condemned.",
+                  "He doesn’t think we’re ever getting that treasure behind the numbers."
+                ],
+                () => { enterStudyFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // safe hotspot logic
+      function wireSafeHotspot() {
+        const node = document.getElementById("alistair-study-safe");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          // 👇 NEW: if safe already opened, just show open-safe + line, then free roam
+          if (alistairState._studySafeOpened) {
+            alistairShowImageOverlay(
+              "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181792/ag-safe-open_se29bt.png",
+              "Safe (Opened)",
+              () => {
+                alistairResetNextButton();
+                alistairStartDialogue(
+                  [
+                    "Don’t be greedy.",
+                    "You’ve already taken the deeds of the manor.",
+                    "You are now the sole owner of this estate…",
+                    "Only the Watcher stands between you and all the wealth on offer."
+                  ],
+                  () => { enterStudyFreeRoam(); }
+                );
+              }
+            );
+            return;
+          }
+
+          // ORIGINAL flow (safe not opened yet)
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181581/ag-safe-closed_qkp2np.png",
+            "Locked Safe",
+            () => {
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "You try to turn the handle.",
+                  "As expected — it’s locked."
+                ],
+                () => {
+                  alistairShowChoices(
+                    "Do you wish to try the code?",
+                    [
+                      {
+                        label: "No",
+                        onClick: () => {
+                          alistairResetNextButton();
+                          alistairStartDialogue(
+                            ["The code must be around this place somewhere."],
+                            () => { enterStudyFreeRoam(); }
+                          );
+                        }
+                      },
+                      {
+                        label: "Yes",
+                        onClick: () => {
+                          showSafeCodeInput();
+                        }
+                      }
+                    ]
+                  );
+                }
+              );
+            }
+          );
+        });
+      }
+
+      // build + show the safe code input overlay
+      function showSafeCodeInput() {
+        // hide dialogue so global click-lock doesn't eat the button click
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+
+        let overlay = document.getElementById("alistair-safe-overlay");
+        if (!overlay) {
+          overlay = document.createElement("div");
+          overlay.id = "alistair-safe-overlay";
+          overlay.className = "alistair-safe-overlay";
+          overlay.innerHTML = `
+            <div class="alistair-safe-box">
+              <h3>Enter 4-digit code</h3>
+              <div class="alistair-safe-inputs">
+                <input maxlength="1" class="alistair-safe-digit" />
+                <input maxlength="1" class="alistair-safe-digit" />
+                <input maxlength="1" class="alistair-safe-digit" />
+                <input maxlength="1" class="alistair-safe-digit" />
+              </div>
+              <div class="alistair-safe-actions">
+                <button id="alistair-safe-submit" class="alistair-safe-btn">Unlock</button>
+                <button id="alistair-safe-cancel" class="alistair-safe-btn alt">Cancel</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(overlay);
+        } else {
+          overlay.classList.remove("hidden");
+        }
+
+        const digits = overlay.querySelectorAll(".alistair-safe-digit");
+        const submitBtn = overlay.querySelector("#alistair-safe-submit");
+        const cancelBtn = overlay.querySelector("#alistair-safe-cancel");
+
+        // focus on first
+        digits[0].focus();
+
+        // auto move to next
+        digits.forEach((inp, idx) => {
+          inp.value = "";
+          inp.oninput = () => {
+            if (inp.value.length === 1 && idx < digits.length - 1) {
+              digits[idx + 1].focus();
+            }
+          };
+        });
+
+        function closeOverlay() {
+          overlay.classList.add("hidden");
+        }
+
+        // cancel -> just close and go back to roam
+        cancelBtn.onclick = () => {
+          closeOverlay();
+          enterStudyFreeRoam();
+        };
+
+        // submit -> check the code
+        submitBtn.onclick = () => {
+          const code = Array.from(digits).map(d => d.value).join("");
+          closeOverlay();
+
+          if (code === "9274") {
+            handleSafeSuccess();
+          } else {
+            handleSafeFail();
+          }
+        };
+      }
+
+      // success: show open safe, add bonds, crab talks, free roam
+      function handleSafeSuccess() {
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181792/ag-safe-open_se29bt.png",
+          "Safe Opened",
+          () => {
+            // add bonds to inventory
+            if (!alistairState.inventory.find(i => i.id === "bonds")) {
+              alistairAddItem({
+                id: "bonds",
+                name: "Manor Bonds / Deeds",
+                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181873/ag-manor-bonds_uw6o9t.png"
+              });
+              alistairRenderInventoryPanel();
+            }
+
+            // mark safe opened so we don't render the locked flow again
+            alistairState._studySafeOpened = true;
+
+            // now show the crab
+            alistairShowImageOverlay(
+              "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181922/ag-the-crab_sonkzy.png",
+              "The Crab",
+              () => {
+                alistairResetNextButton();
+                alistairStartDialogue(
+                  [
+                    "“We meet again, soft one.”",
+                    "“I did not think you’d make it this far.”",
+                    "“You should not have taken the bonds.”",
+                    "“But… I wish you luck.”",
+                    "The crab skitters off toward the parlour."
+                  ],
+                  () => { enterStudyFreeRoam(); }
+                );
+              }
+            );
+          }
+        );
+      }
+
+      // failure: wrong code
+      function handleSafeFail() {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "That’s not right.",
+            "The safe sparks with some kind of warding field!"
+          ],
+          () => {
+            alistairTakeDamage(1);
+            alistairResetNextButton();
+            alistairStartDialogue(
+              ["Ouch — that hurt."],
+              () => { enterStudyFreeRoam(); }
+            );
+          }
+        );
+      }
+
+      // --- entry flow ---
+      const seenBefore = !!alistairState._enteredStudyOnce;
+      alistairState._enteredStudyOnce = true;
+
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Back to the study… it still feels like something is watching."],
+          () => { enterStudyFreeRoam(); }
+        );
+        return;
+      }
+
+      // first time
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue(
+        [
+          "You step into the study.",
+          "This room is heavy — like you’re being watched closely.",
+          "There’s a note on the table there…",
+          "And — oh my God — look at that safe.",
+          "I wonder what’s inside. Maybe that’s the family wealth Alistair mentioned in his letter.",
+          "Let’s have a look around…"
+        ],
+        () => { enterStudyFreeRoam(); }
+      );
     }
   };
-
 
   //---------------------------------
   // --- PARLOUR ---
@@ -3044,7 +3336,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       const hasDaughtersNote = !!gameState.journals.find(j => j.id === "daughters_note");
 
       return `
-        <!-- Hotspot 1: fireplace / secret way (yellow) -->
         <div id="alistair-parlour-fireplace" class="alistair-parlour-hotspot"></div>
 
         <!-- Hotspot 2: Demon Ash (only if not collected) -->
@@ -3056,7 +3347,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           </div>
         `}
 
-        <!-- Hotspot 3: hidden note (yellow for now) -->
         ${hasDaughtersNote ? "" : `
           <div id="alistair-parlour-note" class="alistair-parlour-hotspot"></div>
         `}
@@ -3073,6 +3363,116 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         wireNoteHotspot();
       }
 
+      // ✅ NEW helper: final chance to drink cure potion before going through
+      function offerFinalCureBeforeRitual() {
+        const isCursed = !!alistairState.isCursed;
+        const hasCurePotion = !!alistairState.inventory.find(i => i.id === "cure_curse");
+
+        // if not cursed or no potion, just go through like normal
+        if (!isCursed || !hasCurePotion) {
+          alistairPlayHallTransitionThenGo("manor_ritual_room");
+          return;
+        }
+
+        // otherwise offer the choice
+        alistairResetNextButton();
+        alistairShowChoices(
+          "Before we go… do you wish to drink the Cure Curse potion?",
+          [
+            {
+              label: "Yes, drink it now",
+              onClick: () => {
+                // cure, give blade, show modal, then go
+                alistairState.isCursed = false;
+
+                alistairShowImageOverlay(
+                  "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png",
+                  "Moon Maiden’s Blade",
+                  () => {
+                    // add to inventory if not there
+                    if (!alistairState.inventory.find(i => i.id === "moon_maiden_blade")) {
+                      alistairAddItem({
+                        id: "moon_maiden_blade",
+                        name: "Moon Maiden’s Blade",
+                        imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png"
+                      });
+                      alistairRenderInventoryPanel();
+                    }
+
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "This dagger fills me with hope.",
+                        "I can feel its radiance of pure energy.",
+                        "We should keep this at hand."
+                      ],
+                      () => {
+                        alistairPlayHallTransitionThenGo("manor_ritual_room");
+                      }
+                    );
+                  }
+                );
+              }
+            },
+            {
+              label: "No, don’t drink it",
+              onClick: () => {
+                // second confirm
+                alistairShowChoices(
+                  "Are you sure? This will be your last chance.",
+                  [
+                    {
+                      label: "Yes, I won’t drink it.",
+                      onClick: () => {
+                        alistairResetNextButton();
+                        alistairStartDialogue(
+                          ["Let’s go."],
+                          () => {
+                            alistairPlayHallTransitionThenGo("manor_ritual_room");
+                          }
+                        );
+                      }
+                    },
+                    {
+                      label: "No, I’ll drink it.",
+                      onClick: () => {
+                        // same as drink branch
+                        alistairState.isCursed = false;
+                        alistairShowImageOverlay(
+                          "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png",
+                          "Moon Maiden’s Blade",
+                          () => {
+                            if (!alistairState.inventory.find(i => i.id === "moon_maiden_blade")) {
+                              alistairAddItem({
+                                id: "moon_maiden_blade",
+                                name: "Moon Maiden’s Blade",
+                                imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png"
+                              });
+                              alistairRenderInventoryPanel();
+                            }
+                            alistairResetNextButton();
+                            alistairStartDialogue(
+                              [
+                                "This dagger fills me with hope.",
+                                "I can feel its radiance of pure energy.",
+                                "We should keep this at hand."
+                              ],
+                              () => {
+                                alistairPlayHallTransitionThenGo("manor_ritual_room");
+                              }
+                            );
+                          }
+                        );
+                      }
+                    }
+                  ]
+                );
+              }
+            }
+          ]
+        );
+      }
+
       // check if player is ready to go through the fireplace passage
       function playerHasRitualRequirements() {
         // at least ONE of these
@@ -3082,10 +3482,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           alistairState.inventory.find(i => i.id === "moon_maiden_blade");
 
         // AND must have ALL of these 4
-        const hasCandle       = !!alistairState.inventory.find(i => i.id === "candle");
-        const hasRedHeart     = !!alistairState.inventory.find(i => i.id === "red_heart_stone");
-        const hasBathSludge   = !!alistairState.inventory.find(i => i.id === "bath_sludge");
-        const hasDemonAsh     = !!alistairState.inventory.find(i => i.id === "demon_ash");
+        const hasCandle     = !!alistairState.inventory.find(i => i.id === "candle");
+        const hasRedHeart   = !!alistairState.inventory.find(i => i.id === "red_heart_stone");
+        const hasBathSludge = !!alistairState.inventory.find(i => i.id === "bath_sludge");
+        const hasDemonAsh   = !!alistairState.inventory.find(i => i.id === "demon_ash");
 
         const hasAllFour = hasCandle && hasRedHeart && hasBathSludge && hasDemonAsh;
 
@@ -3139,7 +3539,8 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                           alistairStartDialogue(
                             ["You may pass ahead."],
                             () => {
-                              alistairPlayHallTransitionThenGo("manor_ritual_room");
+                              // ✅ now we give them the “drink cure?” chance
+                              offerFinalCureBeforeRitual();
                             }
                           );
                         } else {
@@ -3189,7 +3590,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
               "Like there’s something behind it."
             ],
             () => {
-              // ... your first-time choices (unchanged)
+              // you can later drop the same “have you got everything” flow here too if you want
             }
           );
         });
@@ -3218,7 +3619,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 alistairRenderInventoryPanel();
               }
 
-              // 🔴 remove the ash hotspot from the scene so it’s gone immediately
+              // remove from scene
               const ashNode = document.getElementById("alistair-parlour-ash");
               if (ashNode) ashNode.remove();
 
@@ -3245,7 +3646,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         node.replaceWith(clone);
 
         clone.addEventListener("click", () => {
-          // TODO: replace this URL with the actual daughter's note image
           const daughtersNoteImg = "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170648/ag-diary-note-safe-code_adgxux.png";
 
           alistairShowImageOverlay(
@@ -3319,7 +3719,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       const hasKnife = !!gameState.inventory.find(i => i.id === "kitchen_knife");
 
       return `
-        <!-- DEV HOTSPOTS (yellow squares) -->
         <div id="alistair-kitchen-door-hotspot" class="alistair-dev-hotspot"></div>
         ${hasKnife ? "" : `<div id="alistair-kitchen-knife-hotspot" class="alistair-dev-hotspot"></div>`}
 
@@ -3588,7 +3987,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       const hasCellarKey = !!gameState.inventory.find(i => i.id === "cellar_key");
 
       return `
-        <!-- Statue hotspot (yellow dev box with empty img for now) -->
         <div id="alistair-garden-statue-hotspot" class="alistair-garden-statue-hotspot">
           <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762121084/ag-statue-plaque_bwmp9l.png" alt="Statue Placeholder">
         </div>
