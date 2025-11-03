@@ -1287,6 +1287,55 @@ button[data-locked="true"] {
 }
 
 /*--------------------
+      BEDROOM
+---------------------*/
+
+/* base style for bedroom hotspots */
+.alistair-bedroom-hotspot {
+  position: absolute;
+  cursor: pointer;
+}
+
+/* 1) Candle hotspot */
+#alistair-bedroom-candle {
+  top: 47%;
+  left: 15%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+#alistair-bedroom-candle img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 2) Red heart stone hotspot */
+#alistair-bedroom-heart {
+  top: 60%;
+  right: 7%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+#alistair-bedroom-heart img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 3) Note hotspot */
+#alistair-bedroom-note {
+  top: 50%;
+  left: 35%;
+  width: 120px;
+  height: 30px;
+}
+
+
+
+
+/*--------------------
   adventure game end
 ---------------------*/
 

@@ -2373,10 +2373,233 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     id: "manor_bedroom",
     name: "Master Bedroom",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790325/ag-master-bedroom_adicsr.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      const hasCandle = !!gameState.inventory.find(i => i.id === "candle");
+      const hasHeart  = !!gameState.inventory.find(i => i.id === "red_heart_stone");
+      const hasNote   = !!gameState.journals.find(j => j.id === "bedroom_note");
+
+      return `
+        <!-- Hotspot 1: Candle -->
+        ${hasCandle ? "" : `
+          <div id="alistair-bedroom-candle" class="alistair-bedroom-hotspot">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177042/ag-demon-candle_fjbow5.png"
+              alt="Candle">
+          </div>
+        `}
+
+        <!-- Hotspot 2: Red Heart Stone -->
+        ${hasHeart ? "" : `
+          <div id="alistair-bedroom-heart" class="alistair-bedroom-hotspot">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177049/ag-crystals-red_kcww1l.png"
+              alt="Red Heart Stone">
+          </div>
+        `}
+
+        ${hasNote ? "" : `
+          <div id="alistair-bedroom-note" class="alistair-bedroom-hotspot" ></div>
+        `}
+      `;
+    },
+
+    onEnter(gameState) {
+      // free roam = hide dialogue, rewire hotspots
+      function enterBedroomFreeRoam() {
+        const bar = document.getElementById('alistair-dialogue-bar');
+        if (bar) bar.classList.add('hidden');
+        wireCandleHotspot();
+        wireHeartHotspot();
+        wireNoteHotspot();
+      }
+
+      // candle hotspot
+      function wireCandleHotspot() {
+        const node = document.getElementById('alistair-bedroom-candle');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762177042/ag-demon-candle_fjbow5.png",
+            "Ritual Candle",
+            () => {
+              if (!alistairState.inventory.find(i => i.id === "candle")) {
+                alistairAddItem({
+                  id: "candle",
+                  name: "Candle",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762177042/ag-demon-candle_fjbow5.png"
+                });
+                alistairRenderInventoryPanel();
+              }
+
+              // remove from scene so it’s gone
+              const c = document.getElementById('alistair-bedroom-candle');
+              if (c) c.remove();
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "This candle… it feels symbolic.",
+                  "Like it represents greed — or a price to be paid.",
+                  "I’ve got a feeling we’ll need this."
+                ],
+                () => { enterBedroomFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // red heart stone hotspot
+      function wireHeartHotspot() {
+        const node = document.getElementById('alistair-bedroom-heart');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762177049/ag-crystals-red_kcww1l.png",
+            "Red Heart Stone",
+            () => {
+              if (!alistairState.inventory.find(i => i.id === "red_heart_stone")) {
+                alistairAddItem({
+                  id: "red_heart_stone",
+                  name: "Red Heart Stone",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762177049/ag-crystals-red_kcww1l.png"
+                });
+                alistairRenderInventoryPanel();
+              }
+
+              // remove from scene so it’s gone
+              const h = document.getElementById('alistair-bedroom-heart');
+              if (h) h.remove();
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "This glowing red stone… it’s warm.",
+                  "It actually gives you joy holding it.",
+                  "Keep this close — I think we’ll need it when the time comes."
+                ],
+                () => { enterBedroomFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // note hotspot
+      function wireNoteHotspot() {
+        const node = document.getElementById('alistair-bedroom-note');
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener('click', () => {
+          // you can swap this for a proper note image:
+          const noteImg = "https://res.cloudinary.com/ddmslr9na/image/upload/v1762179369/ag-alistairs-note_t3yt6y.png";
+
+          alistairShowImageOverlay(
+            noteImg,
+            "Bedroom Note",
+            () => {
+              if (!alistairState.journals.find(j => j.id === "bedroom_note")) {
+                alistairAddJournal({
+                  id: "bedroom_note",
+                  title: "Bedroom Note",
+                  imgUrl: noteImg
+                });
+                alistairRenderJournalPanel();
+              }
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "It reads like a message…",
+                  "It seems to be a love letter from Aister to me.!",
+                  "We should read it together",
+                  "“Oh Alistair, you fool. Why did you do this?”",
+                  "“I’m coming to get you — don’t worry, my love, im coming.”"
+                ],
+                () => { enterBedroomFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // --- entry flow ---
+      const seenBefore = !!alistairState._enteredBedroomOnce;
+      alistairState._enteredBedroomOnce = true;
+
+      if (seenBefore) {
+        // check if anything is still in the room
+        const stillNeedsCandle = !alistairState.inventory.find(i => i.id === "candle");
+        const stillNeedsHeart  = !alistairState.inventory.find(i => i.id === "red_heart_stone");
+        const stillNeedsNote   = !alistairState.journals.find(j => j.id === "bedroom_note");
+
+        alistairResetNextButton();
+        alistairStartDialogue(
+          stillNeedsCandle || stillNeedsHeart || stillNeedsNote
+            ? ["The master room once more… let’s look around."]
+            : ["The master room once more.", "Nothing left for us here — let’s get out of here."],
+          () => { enterBedroomFreeRoam(); }
+        );
+        return;
+      }
+
+      // first-time narration + under-bed choice
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue(
+        [
+          "You step into the master bedroom.",
+          "Large bed, moon light thats seeping through the dust covered windows,",
+          "Clearly no ones been in this room for very long time",
+          "Dispsite the dark cold, dusty room, this room reminds you of home, its like being in your own room at home",
+          "And of Alistair being right next to you",
+          "Hmmmm..... i wonder, lets check hes draw, i doubt its nothing but......",
+          "…wait. Did you hear that? Under the bed."
+        ],
+        () => {
+          alistairShowChoices(
+            "Do you look under the bed?",
+            [
+              {
+                label: "Yes",
+                onClick: () => {
+                  alistairResetNextButton();
+                  alistairStartDialogue(
+                    [
+                      "You slowly bend down to look.",
+                      "You pull back the bed drapes…",
+                      "There’s nothing — just a single crab claw.",
+                      "Like it was left behind… but not recently."
+                    ],
+                    () => { enterBedroomFreeRoam(); }
+                  );
+                }
+              },
+              {
+                label: "No",
+                onClick: () => {
+                  alistairResetNextButton();
+                  alistairStartDialogue(
+                    [
+                      "Guess we’ll never know.",
+                      "Best leave it be…"
+                    ],
+                    () => { enterBedroomFreeRoam(); }
+                  );
+                }
+              }
+            ]
+          );
+        }
+      );
     }
   };
 
