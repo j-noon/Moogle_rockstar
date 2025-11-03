@@ -2809,16 +2809,277 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
 
   //---------------------------------
   // --- PARLOUR ---
-  //---------------------------------- 
+  //----------------------------------
   const AlistairRoom_ManorParlour = {
     act: 2,
     id: "manor_parlour",
     name: "Parlour",
     background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1761790350/ag-parlour_pfv9si.png",
-    render() { return ``; },
-    onEnter() {
+
+    render(gameState) {
+      const hasDemonAsh = !!gameState.inventory.find(i => i.id === "demon_ash");
+      const hasDaughtersNote = !!gameState.journals.find(j => j.id === "daughters_note");
+
+      return `
+        <!-- Hotspot 1: fireplace / secret way (yellow) -->
+        <div id="alistair-parlour-fireplace" class="alistair-parlour-hotspot"></div>
+
+        <!-- Hotspot 2: Demon Ash (only if not collected) -->
+        ${hasDemonAsh ? "" : `
+          <div id="alistair-parlour-ash" class="alistair-parlour-ash">
+            <img
+              src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762170626/ag-bag-of-ash_gn69lb.png"
+              alt="Demon Ash">
+          </div>
+        `}
+
+        <!-- Hotspot 3: hidden note (yellow for now) -->
+        ${hasDaughtersNote ? "" : `
+          <div id="alistair-parlour-note" class="alistair-parlour-hotspot"></div>
+        `}
+      `;
+    },
+
+    onEnter(gameState) {
+      // helper: free roam
+      function enterParlourFreeRoam() {
+        const bar = document.getElementById("alistair-dialogue-bar");
+        if (bar) bar.classList.add("hidden");
+        wireFireplaceHotspot();
+        wireAshHotspot();
+        wireNoteHotspot();
+      }
+
+      // check if player is ready to go through the fireplace passage
+      function playerHasRitualRequirements() {
+        // at least ONE of these
+        const hasOneWeapon =
+          alistairState.inventory.find(i => i.id === "bonds") ||
+          alistairState.inventory.find(i => i.id === "kitchen_knife") ||
+          alistairState.inventory.find(i => i.id === "moon_maiden_blade");
+
+        // AND must have ALL of these 4
+        const hasCandle       = !!alistairState.inventory.find(i => i.id === "candle");
+        const hasRedHeart     = !!alistairState.inventory.find(i => i.id === "red_heart_stone");
+        const hasBathSludge   = !!alistairState.inventory.find(i => i.id === "bath_sludge");
+        const hasDemonAsh     = !!alistairState.inventory.find(i => i.id === "demon_ash");
+
+        const hasAllFour = hasCandle && hasRedHeart && hasBathSludge && hasDemonAsh;
+
+        return hasOneWeapon && hasAllFour;
+      }
+
+      // when blocked by the voice
+      function doBlockedByVoiceThenFreeRoam() {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "I'm afraid more preparation is needed.",
+            "You hear a voice in your head:",
+            "“You will never get to this place. You shall never leave…!”"
+          ],
+          () => {
+            alistairTakeDamage(1);
+            alistairResetNextButton();
+            alistairStartDialogue(
+              ["Ouch… that hurt."],
+              () => {
+                enterParlourFreeRoam();
+              }
+            );
+          }
+        );
+      }
+
+      // fireplace hotspot logic
+      function wireFireplaceHotspot() {
+        const node = document.getElementById("alistair-parlour-fireplace");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          // SECOND CLICK / REUSE PATH
+          if (alistairState._parlourFireplaceSeenOnce) {
+            alistairResetNextButton();
+            alistairStartDialogue(
+              ["Do you have all you need to proceed?"],
+              () => {
+                alistairShowChoices(
+                  "Are you ready?",
+                  [
+                    {
+                      label: "Yes",
+                      onClick: () => {
+                        if (playerHasRitualRequirements()) {
+                          alistairResetNextButton();
+                          alistairStartDialogue(
+                            ["You may pass ahead."],
+                            () => {
+                              alistairPlayHallTransitionThenGo("manor_ritual_room");
+                            }
+                          );
+                        } else {
+                          // fail path with your new wording
+                          alistairResetNextButton();
+                          alistairStartDialogue(
+                            [
+                              "Seems you’ve got something missing.",
+                              "The voice SCREAMS with laughter in your head, rattling your brain…"
+                            ],
+                            () => {
+                              alistairTakeDamage(1);
+                              alistairResetNextButton();
+                              alistairStartDialogue(
+                                ["Ouch… that hurt."],
+                                () => { enterParlourFreeRoam(); }
+                              );
+                            }
+                          );
+                        }
+                      }
+                    },
+                    {
+                      label: "No",
+                      onClick: () => {
+                        alistairResetNextButton();
+                        alistairStartDialogue(
+                          ["Return when you have everything."],
+                          () => { enterParlourFreeRoam(); }
+                        );
+                      }
+                    }
+                  ]
+                );
+              }
+            );
+            return;
+          }
+
+          // FIRST TIME path stays the same ↓↓↓
+          alistairState._parlourFireplaceSeenOnce = true;
+
+          alistairResetNextButton();
+          alistairStartDialogue(
+            [
+              "As you move closer to the cold, still fireplace you feel a faint breeze coming from it...",
+              "Like there’s something behind it."
+            ],
+            () => {
+              // ... your first-time choices (unchanged)
+            }
+          );
+        });
+      }
+
+      // demon ash hotspot
+      function wireAshHotspot() {
+        const node = document.getElementById("alistair-parlour-ash");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          alistairShowImageOverlay(
+            "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170626/ag-bag-of-ash_gn69lb.png",
+            "Demon’s Ash",
+            () => {
+              const alreadyHave = alistairState.inventory.find(i => i.id === "demon_ash");
+
+              if (!alreadyHave) {
+                alistairAddItem({
+                  id: "demon_ash",
+                  name: "Demon’s Ash",
+                  imgUrl: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170626/ag-bag-of-ash_gn69lb.png"
+                });
+                alistairRenderInventoryPanel();
+              }
+
+              // 🔴 remove the ash hotspot from the scene so it’s gone immediately
+              const ashNode = document.getElementById("alistair-parlour-ash");
+              if (ashNode) ashNode.remove();
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "Hmmm… this doesn’t look too healthy.",
+                  "And God — it smells bad.",
+                  "Like rotten eggs.",
+                  "I think we should keep this — never know, aye…!"
+                ],
+                () => { enterParlourFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // hidden/daughter note hotspot
+      function wireNoteHotspot() {
+        const node = document.getElementById("alistair-parlour-note");
+        if (!node) return;
+        const clone = node.cloneNode(true);
+        node.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          // TODO: replace this URL with the actual daughter's note image
+          const daughtersNoteImg = "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170648/ag-diary-note-safe-code_adgxux.png";
+
+          alistairShowImageOverlay(
+            daughtersNoteImg,
+            "Daughter’s Note",
+            () => {
+              if (!alistairState.journals.find(j => j.id === "daughters_note")) {
+                alistairAddJournal({
+                  id: "daughters_note",
+                  title: "Daughter’s Note",
+                  imgUrl: daughtersNoteImg
+                });
+                alistairRenderJournalPanel();
+              }
+
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "It seems to be a note from the daughter.",
+                  "I think we should read this…!"
+                ],
+                () => { enterParlourFreeRoam(); }
+              );
+            }
+          );
+        });
+      }
+
+      // --- entry flow ---
+      const seenBefore = !!alistairState._enteredParlourOnce;
+      alistairState._enteredParlourOnce = true;
+
+      if (seenBefore) {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Back to the parlour…"],
+          () => { enterParlourFreeRoam(); }
+        );
+        return;
+      }
+
+      // first-time narration
       alistairResetNextButton();
-      alistairStartDialogue(["You have entered a new room."]);
+      alistairStartDialogue(
+        [
+          "You step into the parlour.",
+          "It’s eerie — still — like it’s been empty for centuries.",
+          "You can almost imagine it once held fabulous balls and exquisite evenings.",
+          "Above the fireplace there’s a sigil — not just for show.",
+          "Maybe it’s containing magic to keep a spell active.",
+          "The fireplace itself is dark, cold and dead… but you feel as if there’s some small part of life behind it.",
+          "I think there might be something hidden in this room — maybe a note or information we can miss."
+        ],
+        () => {
+          enterParlourFreeRoam();
+        }
+      );
     }
   };
 
@@ -3320,6 +3581,29 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   };
 
+  //---------------------------------
+  // --- SECRET RITUAL ROOM ---
+  //----------------------------------
+  const AlistairRoom_ManorRitualRoom = {
+    act: 2,
+    id: "manor_ritual_room",
+    name: "Ritual Chamber",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170857/ag-panic-ritual-room_nzjcxv.png",
+    render(gameState) {
+      return ``; // add hotspots later
+    },
+    onEnter(gameState) {
+      alistairResetNextButton();
+      alistairStartDialogue(
+        [
+          "You squeeze through the narrow gap behind the fireplace.",
+          "The air in here is thick with old magic.",
+          "Something was done here… and it wasn’t holy."
+        ]
+      );
+    }
+  };
+
     // ----- ROOM REGISTRY -----
     // This is how alistairGoToRoom("room_id") knows what to load.
     const ALISTAIR_ROOMS = {
@@ -3336,7 +3620,8 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       manor_study: AlistairRoom_ManorStudy,
       manor_parlour: AlistairRoom_ManorParlour,
       manor_kitchen: AlistairRoom_ManorKitchen,
-      manor_garden: AlistairRoom_ManorGarden
+      manor_garden: AlistairRoom_ManorGarden,
+      manor_ritual_room: AlistairRoom_ManorRitualRoom
     };
 
  // -------------------------------   
