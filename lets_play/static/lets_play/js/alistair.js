@@ -2282,7 +2282,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                     {
                       label: "Yes",
                       onClick: () => {
-                        alistairState.health = 3;
+                        alistairState.health = Math.min(3, (alistairState.health || 0) + 1);
                         alistairRenderHearts();
                         alistairResetNextButton();
                         alistairStartDialogue(
@@ -2513,6 +2513,8 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 });
                 alistairRenderJournalPanel();
               }
+              const n = document.getElementById('alistair-bedroom-note');
+              if (n) n.remove();
 
               alistairResetNextButton();
               alistairStartDialogue(
@@ -3796,6 +3798,22 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         node.replaceWith(clone);
         clone.addEventListener('click', () => {
           alistairResetNextButton();
+        // ✅ already have cure, don’t craft again
+        const alreadyHaveCure = !!alistairState.inventory.find(i => i.id === "cure_curse");
+        if (alreadyHaveCure) {
+          alistairStartDialogue(
+            [
+              "We’ve already brewed a Cure Curse potion.",
+              "Where would I even store another one?",
+              "Let’s hold onto the one we have."
+            ],
+            () => {
+              enterKitchenFreeRoam();
+            }
+          );
+          return;
+        }
+
           alistairStartDialogue(
             [
               "Small tools and empty vials… a pestle and mortar.",
@@ -4203,25 +4221,714 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   };
 
   //---------------------------------
-  // --- SECRET RITUAL ROOM ---
+  // --- RITUAL ROOM / FINAL (ACT 3)
   //----------------------------------
   const AlistairRoom_ManorRitualRoom = {
-    act: 2,
+    act: 3,
     id: "manor_ritual_room",
     name: "Ritual Chamber",
-    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762170857/ag-panic-ritual-room_nzjcxv.png",
+    background: "https://res.cloudinary.com/ddmslr9na/image/upload/v1762362935/ag-secret-sigil-room_fkvgco.png",
+
     render(gameState) {
-      return ``; // add hotspots later
+      const portalOpen = !!alistairState._ritualPortalOpen;
+      const puzzleActive = !!alistairState._ritualPuzzleActive;
+
+      return `
+        <!-- PUZZLE LAYER (when actually placing items) -->
+        <div id="alistair-ritual-puzzle-layer" class="${puzzleActive ? "" : "alistair-hidden"}">
+          <!-- your sigil board image goes here -->
+          <img
+            src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762468229/ag-sigil-puzzle_c0tord.png" 
+            alt="Ritual sigil board"
+            class="alistair-ritual-puzzle-img"
+          >
+
+          <!-- these are the ORIGINAL slots we use while placing -->
+          <div id="alistair-ritual-slot-center" class="alistair-ritual-slot"></div>
+          <div id="alistair-ritual-slot-left" class="alistair-ritual-slot"></div>
+          <div id="alistair-ritual-slot-right" class="alistair-ritual-slot"></div>
+          <div id="alistair-ritual-slot-lines" class="alistair-ritual-slot"></div>
+        </div>
+
+        <!-- FINAL LAYER (when portal is open, show items in different places) -->
+        <div id="alistair-ritual-final-layer" class="${portalOpen ? "" : "alistair-hidden"}">
+          <div id="alistair-ritual-final-center" class="alistair-ritual-final-slot"></div>
+          <div id="alistair-ritual-final-left" class="alistair-ritual-final-slot"></div>
+          <div id="alistair-ritual-final-right" class="alistair-ritual-final-slot"></div>
+          <div id="alistair-ritual-final-lines" class="alistair-ritual-final-slot"></div>
+        </div>
+
+        <!-- PORTAL (only if open) -->
+        ${portalOpen ? `
+          <div id="alistair-ritual-portal" class="alistair-ritual-portal">
+            <img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762205486/ag-portal-end_iopthz.png" alt="Exit Portal">
+          </div>
+        ` : ``}
+      `;
     },
+
     onEnter(gameState) {
+      // make sure act 3 splash shows
+      alistairEnterAct(3);
       alistairResetNextButton();
-      alistairStartDialogue(
-        [
-          "You squeeze through the narrow gap behind the fireplace.",
-          "The air in here is thick with old magic.",
-          "Something was done here… and it wasn’t holy."
-        ]
-      );
+
+      // ensure we have a place to store puzzle placements
+      if (!alistairState._ritualPlacements) {
+        alistairState._ritualPlacements = {
+          center: null, // should be demon_ash
+          lines: null,  // should be bath_sludge
+          left: null,   // should be candle
+          right: null   // should be red_heart_stone
+        };
+      }
+
+      const firstTime = !alistairState._enteredRitualRoomOnce;
+      alistairState._enteredRitualRoomOnce = true;
+
+      const portalOpen = !!alistairState._ritualPortalOpen;
+      
+      // -------------------------
+      // ENDING SCREEN (inside game)
+      // -------------------------
+      function showEndingScreen(endingType) {
+        // 1) full list of items that exist in your game now
+        const ALL_ITEM_IDS = [
+          "bucket",
+          "rope",
+          "barn_hammer",
+          "front_key",
+          "alistair_coat",
+          "bath_sludge",
+          "cellar_mold",
+          "kitchen_knife",
+          "blessed_water",
+          "cellar_key",
+          "strange_herb",
+          "cure_curse",
+          "moon_maiden_blade",
+          "demon_ash",
+          "candle",
+          "red_heart_stone",
+          "bonds"
+        ];
+
+        // 2) full list of journal notes that can be picked up
+        const ALL_JOURNAL_IDS = [
+          "crab_note",
+          "greaves_note",
+          "bedroom_note",
+          "ritual_note",
+          "cure_curse_recipe",
+          "wine_note",
+          "daughters_note",
+          "watchers_note"
+        ];
+
+        // what the player actually has right now
+        const inventoryArr = alistairState.inventory || [];
+        const inventoryIds = inventoryArr.map(i => i.id);
+
+        // NOTE: your original code used "alistairState.journal" (singular) — that was why it showed 0
+        const journalArr = alistairState.journals || [];
+        const journalIds = journalArr.map(j => j.id);
+
+        // counts
+        const itemsFound = ALL_ITEM_IDS.filter(id => inventoryIds.includes(id)).length;
+        const totalItems = ALL_ITEM_IDS.length;
+
+        const journalsFound = ALL_JOURNAL_IDS.filter(id => journalIds.includes(id)).length;
+        const totalJournals = ALL_JOURNAL_IDS.length;
+
+        // keep your curse bit
+        const curseCured = !alistairState.isCursed;
+
+        // simple score formula (same vibe as before)
+        const score =
+          (itemsFound * 10) +
+          (journalsFound * 15) +
+          (curseCured ? 25 : 0);
+
+        // did they 100% it?
+        const didPerfectRun = (itemsFound === totalItems) && (journalsFound === totalJournals);
+
+        const escaped = (endingType === "knife" || endingType === "bonds");
+        const titleText = escaped
+          ? "Congratulations, you made it out."
+          : "You are bound to the manor… but your deeds are recorded.";
+
+        // hide dialogue
+        const bar = document.getElementById("alistair-dialogue-bar");
+        if (bar) bar.classList.add("hidden");
+
+        const wrapper = document.getElementById("alistair-wrapper") || document.body;
+
+        let layer = document.getElementById("alistair-ending-layer");
+        if (!layer) {
+          layer = document.createElement("div");
+          layer.id = "alistair-ending-layer";
+          wrapper.appendChild(layer);
+        }
+
+        layer.innerHTML = `
+          <div class="alistair-ending-inner">
+            <h1 class="alistair-ending-title">${titleText}</h1>
+            <p class="alistair-ending-sub">Alistair’s night at the manor has reached its end.</p>
+
+            <div class="alistair-ending-stats">
+              <p><strong>Items found:</strong> ${itemsFound} / ${totalItems}</p>
+              <p><strong>Journal notes found:</strong> ${journalsFound} / ${totalJournals}</p>
+              <p><strong>Curse status:</strong> ${curseCured ? "Cured" : "Still cursed"}</p>
+            </div>
+
+            <p class="alistair-ending-score">Final Score: <strong>${score}</strong></p>
+
+            ${
+              didPerfectRun
+                ? `<p class="alistair-ending-bonus">👻 Perfect run! The manor remembers your name.</p>`
+                : ``
+            }
+
+            <button id="alistair-ending-replay" class="alistair-ending-replay-btn">
+              Play again
+            </button>
+          </div>
+        `;
+
+        layer.classList.add("show");
+
+        // wire the replay button to your existing reset logic
+        const replayBtn = document.getElementById("alistair-ending-replay");
+        if (replayBtn) {
+          replayBtn.addEventListener("click", () => {
+            // hide the ending layer
+            layer.classList.remove("show");
+            // use the reset you already wrote earlier in the file
+            alistairRestart();
+          });
+        }
+      }
+
+      // helper to show current placements visually (for puzzle layer)
+      function renderRitualSlotsFromState() {
+        const centerEl = document.getElementById("alistair-ritual-slot-center");
+        const leftEl   = document.getElementById("alistair-ritual-slot-left");
+        const rightEl  = document.getElementById("alistair-ritual-slot-right");
+        const linesEl  = document.getElementById("alistair-ritual-slot-lines");
+
+        const slotVal = alistairState._ritualPlacements || {};
+
+        function imgFor(itemId) {
+          if (itemId === "demon_ash") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762170626/ag-bag-of-ash_gn69lb.png" alt="Demon Ash">`;
+          }
+          if (itemId === "bath_sludge") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png" alt="Bath Sludge">`;
+          }
+          if (itemId === "candle") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177042/ag-demon-candle_fjbow5.png" alt="Candle">`;
+          }
+          if (itemId === "red_heart_stone") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177049/ag-crystals-red_kcww1l.png" alt="Red Heart Stone">`;
+          }
+          return "";
+        }
+
+        if (centerEl) centerEl.innerHTML = imgFor(slotVal.center);
+        if (leftEl) leftEl.innerHTML = imgFor(slotVal.left);
+        if (rightEl) rightEl.innerHTML = imgFor(slotVal.right);
+        if (linesEl) linesEl.innerHTML = imgFor(slotVal.lines);
+      }
+
+      // NEW: render final items when portal is open (different spots)
+      function renderRitualFinalSlotsFromState() {
+        const p = alistairState._ritualPlacements || {};
+
+        function imgFor(itemId) {
+          if (itemId === "demon_ash") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762170626/ag-bag-of-ash_gn69lb.png" alt="Demon Ash">`;
+          }
+          if (itemId === "bath_sludge") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762096067/ag-bath-sludge_sxbvjv.png" alt="Bath Sludge">`;
+          }
+          if (itemId === "candle") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177042/ag-demon-candle_fjbow5.png" alt="Candle">`;
+          }
+          if (itemId === "red_heart_stone") {
+            return `<img src="https://res.cloudinary.com/ddmslr9na/image/upload/v1762177049/ag-crystals-red_kcww1l.png" alt="Red Heart Stone">`;
+          }
+          return "";
+        }
+
+        const fCenter = document.getElementById("alistair-ritual-final-center");
+        const fLeft   = document.getElementById("alistair-ritual-final-left");
+        const fRight  = document.getElementById("alistair-ritual-final-right");
+        const fLines  = document.getElementById("alistair-ritual-final-lines");
+
+        if (fCenter) fCenter.innerHTML = imgFor(p.center);
+        if (fLeft)   fLeft.innerHTML   = imgFor(p.left);
+        if (fRight)  fRight.innerHTML  = imgFor(p.right);
+        if (fLines)  fLines.innerHTML  = imgFor(p.lines);
+      }
+
+      function clearRitualSlots() {
+        alistairState._ritualPlacements = { center: null, lines: null, left: null, right: null };
+        renderRitualSlotsFromState();
+      }
+
+      // portal click -> flavour by ending -> end scene
+      function wirePortalHotspot() {
+        const portal = document.getElementById("alistair-ritual-portal");
+        if (!portal) return;
+        const clone = portal.cloneNode(true);
+        portal.replaceWith(clone);
+
+        clone.addEventListener("click", () => {
+          const last = alistairState._lastRitualEnding || "generic";
+
+          alistairResetNextButton();
+
+          if (last === "knife") {
+            alistairStartDialogue(
+              [
+                "So you chose greed!",
+                "Your husband came here for you, I suppose… so it’s what he wanted.",
+                "Go on, then."
+              ],
+              () => {
+                showEndingScreen("knife");
+              }
+            );
+            return;
+          }
+
+          if (last === "bonds") {
+            alistairStartDialogue(
+              [
+                "Love always prevails.",
+                "Riches do not matter — you got what you came for.",
+                "Take him home."
+              ],
+              () => {
+                showEndingScreen("bonds");
+              }
+            );
+            return;
+          }
+
+          // fallback
+          alistairStartDialogue(
+            [
+              "You step toward the portal as the house exhales.",
+              "The curse breaks around you.",
+              "You made it out… for now."
+            ],
+            () => {
+              showEndingScreen("knife");
+            }
+          );
+        });
+      }
+
+      // ------------- PART 3: watcher’s 3 outcomes -------------
+      function startWatcherDemands() {
+        const hasKnife   = !!alistairState.inventory.find(i => i.id === "kitchen_knife");
+        const hasBonds   = !!alistairState.inventory.find(i => i.id === "bonds");
+        const hasMoon    = !!alistairState.inventory.find(i => i.id === "moon_maiden_blade");
+
+        const choices = [];
+
+        // ENDING 1 – kill Alistair
+        if (hasKnife) {
+          choices.push({
+            label: "…I’ll end Alistair with his own knife.",
+            onClick: () => {
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "You raise Alistair’s own knife.",
+                  "“I’m sorry, love… you should never have come here alone.”",
+                  "The watcher howls — appeased.",
+                  "He allows you to keep the deeds… for now."
+                ],
+                () => {
+                  alistairState._ritualPortalOpen = true;
+                  alistairState._lastRitualEnding = "knife";
+                  // show portal + final layout
+                  alistairGoToRoom("manor_ritual_room", { recordHistory: false });
+                }
+              );
+            }
+          });
+        }
+
+        // ENDING 2 – give bonds
+        if (hasBonds) {
+          choices.push({
+            label: "Take the manor bonds — let us leave.",
+            onClick: () => {
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "You offer the deeds out with a trembling hand.",
+                  "“This house is yours — it always was.”",
+                  "The watcher’s voice softens, just for a second.",
+                  "“Then go. Take the man and flee. Your claim is forfeit.”"
+                ],
+                () => {
+                  alistairState._ritualPortalOpen = true;
+                  alistairState._lastRitualEnding = "bonds";
+                  alistairGoToRoom("manor_ritual_room", { recordHistory: false });
+                }
+              );
+            }
+          });
+        }
+
+        // ENDING 3 – slay watcher → become bound → NO portal
+        if (hasMoon) {
+          choices.push({
+            label: "No. I will slay you with the Moon Maiden’s blade.",
+            onClick: () => {
+              alistairResetNextButton();
+              alistairStartDialogue(
+                [
+                  "You lift the Moon Maiden’s blade.",
+                  "Its radiance hisses against the watcher’s form.",
+                  "“IMPUDENT MORTAL—”",
+                  "You strike.",
+                  "The demon is seared by lunar fire.",
+                  "Alistair stirs awake… confused… frightened.",
+                  "You’ve saved the mansion and the family name from a wicked, tormented soul.",
+                  "How long before your own soul twists, we wonder…"
+                ],
+                () => {
+                  alistairState._ritualPortalOpen = false;
+                  alistairState._lastRitualEnding = "bound";
+                  alistairGoToRoom("manor_ritual_room", { recordHistory: false });
+                  setTimeout(() => showEndingScreen("bound"), 40);
+                }
+              );
+            }
+          });
+        }
+
+        if (!choices.length) {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            [
+              "The watcher sneers.",
+              "“You come to bargain with nothing?”",
+              "“Prepare yourself again.”"
+            ],
+            () => {
+              clearRitualSlots();
+              startSummonLoop();
+            }
+          );
+          return;
+        }
+
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "The watcher looms over you.",
+            "“Two paths — greed or devotion,” he rumbles.",
+            "“Spill the husband and keep the house… or give up the claim and leave with him.”",
+            "“Choose, and choose quickly.”"
+          ],
+          () => {
+            alistairShowChoices("What will you do?", choices);
+          }
+        );
+      }
+
+      // ------------- PART 2: watcher arrives -------------
+      function watcherArrives() {
+        alistairShowImageOverlay(
+          "https://res.cloudinary.com/ddmslr9na/image/upload/v1762181922/ag-the-crab_sonkzy.png",
+          "The Watcher… in a borrowed form",
+          () => {
+            alistairResetNextButton();
+            alistairStartDialogue(
+              [
+                "“I warned you in the study… and still you dug deeper.”",
+                "“You have woken what this house kept chained.”",
+                "“Very well. See me as I am.”"
+              ],
+              () => {
+                alistairShowImageOverlay(
+                  "https://res.cloudinary.com/ddmslr9na/image/upload/v1762204926/ag-the-watcher_eytsza.png",
+                  "The Watcher",
+                  () => {
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "The chamber bows inward as his true form fills the room.",
+                        "“This soul… your soul… is bright.”",
+                        "“You will pay for opening the path — unless you make me an offer…”"
+                      ],
+                      () => {
+                        startWatcherDemands();
+                      }
+                    );
+                  }
+                );
+              }
+            );
+          }
+        );
+      }
+
+      // ------------- PUZZLE CHECK -------------
+      function checkRitualCorrect() {
+        const p = alistairState._ritualPlacements;
+        return (
+          p.center === "demon_ash" &&
+          p.lines === "bath_sludge" &&
+          p.left === "candle" &&
+          p.right === "red_heart_stone"
+        );
+      }
+
+      // confirm placements
+      function confirmRitual() {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          ["Do you feel this is correct?"],
+          () => {
+            alistairShowChoices(
+              "Seal the ritual?",
+              [
+                {
+                  label: "Yes, begin.",
+                  onClick: () => {
+                    if (checkRitualCorrect()) {
+                      // success → hide puzzle board → go story
+                      alistairResetNextButton();
+                      alistairStartDialogue(
+                        [
+                          "The sigil flares.",
+                          "You did it right.",
+                          "Something old and furious peels itself out of the dark…"
+                        ],
+                        () => {
+                          // hide puzzle layer now
+                          alistairState._ritualPuzzleActive = false;
+                          alistairGoToRoom("manor_ritual_room", { recordHistory: false });
+                          setTimeout(() => {
+                            watcherArrives();
+                          }, 30);
+                        }
+                      );
+                    } else {
+                      // fail → keep puzzle visible
+                      alistairResetNextButton();
+                      alistairStartDialogue(
+                        [
+                          "The lines sputter… then die.",
+                          "“Wrong,” the house whispers.",
+                          "Pain bursts behind your eyes."
+                        ],
+                        () => {
+                          alistairTakeDamage(1);
+                          clearRitualSlots();
+                          startSummonLoop();
+                        }
+                      );
+                    }
+                  }
+                },
+                {
+                  label: "No, reset them.",
+                  onClick: () => {
+                    clearRitualSlots();
+                    startSummonLoop();
+                  }
+                }
+              ]
+            );
+          }
+        );
+      }
+
+      // place specific item
+      function askPlacementForItem(itemId) {
+        const choices = [
+          { label: "In the middle of the sigil, over Alistair.", place: "center" },
+          { label: "On the left side of the sigil.", place: "left" },
+          { label: "On the right side of the sigil.", place: "right" },
+          { label: "Spilled/poured across the carved lines.", place: "lines" }
+        ];
+
+        alistairResetNextButton();
+        alistairShowChoices(
+          itemId === "demon_ash"
+            ? "Where do you place the demon ash?"
+            : itemId === "bath_sludge"
+            ? "Where do you pour the bath sludge?"
+            : itemId === "candle"
+            ? "Where do you set the candle?"
+            : "Where do you place the red heart stone?",
+          choices.map(choice => ({
+            label: choice.label,
+            onClick: () => {
+              alistairState._ritualPlacements[choice.place] = itemId;
+              renderRitualSlotsFromState();
+              pickNextItem();
+            }
+          }))
+        );
+      }
+
+      // choose which item to place next
+      function pickNextItem() {
+        const placed = alistairState._ritualPlacements;
+
+        const needed = [
+          { id: "demon_ash", name: "Demon Ash" },
+          { id: "bath_sludge", name: "Bath Sludge" },
+          { id: "candle", name: "Candle" },
+          { id: "red_heart_stone", name: "Red Heart Stone" }
+        ];
+
+        const placedIds = Object.values(placed).filter(Boolean);
+        const remaining = needed.filter(n => !placedIds.includes(n.id));
+
+        if (!remaining.length) {
+          // all 4 have been placed somewhere → now we confirm
+          confirmRitual();
+          return;
+        }
+
+        alistairResetNextButton();
+        alistairShowChoices(
+          "Which item would you like to place now?",
+          remaining.map(r => ({
+            label: r.name,
+            onClick: () => {
+              askPlacementForItem(r.id);
+            }
+          }))
+        );
+      }
+
+      // main summon ask
+      function startSummonLoop() {
+        alistairResetNextButton();
+        alistairStartDialogue(
+          [
+            "You fear the only way forward is to summon the thing that’s been watching you.",
+            "Do we call to it?"
+          ],
+          () => {
+            alistairShowChoices(
+              "Do you summon the watcher?",
+              [
+                {
+                  label: "Yes… let’s begin.",
+                  onClick: () => {
+                    const inv = alistairState.inventory || [];
+                    const hasAsh    = !!inv.find(i => i.id === "demon_ash");
+                    const hasSludge = !!inv.find(i => i.id === "bath_sludge");
+                    const hasCandle = !!inv.find(i => i.id === "candle");
+                    const hasHeart  = !!inv.find(i => i.id === "red_heart_stone");
+
+                    if (!hasAsh || !hasSludge || !hasCandle || !hasHeart) {
+                      alistairResetNextButton();
+                      alistairStartDialogue(
+                        [
+                          "We’re missing something.",
+                          "We need: demon ash, bath sludge, the black candle, and the red heart stone.",
+                          "Let’s go back and find them."
+                        ],
+                        () => {
+                          const bar = document.getElementById("alistair-dialogue-bar");
+                          if (bar) bar.classList.add("hidden");
+                        }
+                      );
+                      return;
+                    }
+
+                    // show puzzle layer now
+                    alistairState._ritualPuzzleActive = true;
+                    alistairGoToRoom("manor_ritual_room", { recordHistory: false });
+                    setTimeout(() => {
+                      clearRitualSlots();
+                      renderRitualSlotsFromState();
+                      pickNextItem();
+                    }, 30);
+                  }
+                },
+                {
+                  label: "No… I’m not ready.",
+                  onClick: () => {
+                    alistairResetNextButton();
+                    alistairStartDialogue(
+                      [
+                        "Then we’re stuck here.",
+                        "When you’re ready — we’ll call it."
+                      ],
+                      () => {
+                        startSummonLoop();
+                      }
+                    );
+                  }
+                }
+              ]
+            );
+          }
+        );
+      }
+
+      // first-time story
+      if (firstTime) {
+        alistairStartDialogue(
+          [
+            "You step through the fireplace passage and into a hidden chamber.",
+            "There he is… Alistair… lying in the center of a dead sigil.",
+            "For a heartbeat you remember home — the bickering, the warm bed, the stupid little man chasing stories.",
+            "“You should never have come here alone,” you whisper.",
+            "“But I’ll do what I must.”"
+          ],
+          () => {
+            startSummonLoop();
+          }
+        );
+      } else {
+        // re-entry
+        if (portalOpen) {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            ["Back in the ritual chamber… the portal still hums."],
+            () => {
+              wirePortalHotspot();
+            }
+          );
+        } else {
+          alistairResetNextButton();
+          alistairStartDialogue(
+            ["Back in the ritual chamber. The sigil waits."],
+            () => {
+              startSummonLoop();
+            }
+          );
+        }
+      }
+
+      // DOM sync
+      if (portalOpen) {
+        setTimeout(() => {
+          wirePortalHotspot();
+          renderRitualFinalSlotsFromState();
+        }, 0);
+      } else {
+        setTimeout(() => {
+          // if puzzle active, show items on puzzle
+          if (alistairState._ritualPuzzleActive) {
+            renderRitualSlotsFromState();
+          }
+        }, 0);
+      }
     }
   };
 
