@@ -145,12 +145,15 @@ h1 {
 
 #footer {
   position: fixed;
+  margin-left: -5px;
   bottom: 0px;
-  width: 97%;
+  width: 100%;
   height: 100px;
   background-color: aliceblue;
   border: solid 2px black;
   border-radius: 8px;
+  z-index: 9999999;
+
 }
 
 #footer-list {
