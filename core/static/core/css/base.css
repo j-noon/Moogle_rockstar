@@ -152,8 +152,7 @@ h1 {
   background-color: aliceblue;
   border: solid 2px black;
   border-radius: 8px;
-  z-index: 9999999;
-
+  z-index: 2000;
 }
 
 #footer-list {

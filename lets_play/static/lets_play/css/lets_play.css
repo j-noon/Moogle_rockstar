@@ -390,6 +390,21 @@ button[data-locked="true"] {
    adventure game start
 -------------------------*/
 
+#advent-btn { 
+  margin-left: 20px;
+  border: solid black 2px;
+  border-radius: 6px;
+  color: black;
+  background-color: white;
+  padding: 5px 5px;
+}
+
+#advent-btn:hover {
+  color: white;
+  background-color: black;
+  border: solid white 2px;
+}
+
 #adventure-card {
   display:none;
 }
@@ -492,6 +507,7 @@ button[data-locked="true"] {
 
 #alistair-wrapper.alistair-embedded {
   height: 100%;
+  z-index: 1000;
 }
 
 #alistair-wrapper.alistair-expanded {
@@ -503,6 +519,15 @@ button[data-locked="true"] {
   z-index: 9999;
   border-radius: 0;
   margin: 0;
+}
+
+#alistair-wrapper.alistair-expanded #alistair-ui {
+  position: fixed;
+  top: 8px;
+  left: 0;
+  right: 0;
+  padding: 8px 12px;
+  z-index: 10001;
 }
 
 /* HUD bar */
@@ -521,6 +546,14 @@ button[data-locked="true"] {
   color: #fff;
   z-index: 10;
   pointer-events: none; /* so clicks go through unless button */
+}
+
+#alistair-wrapper.alistair-expanded #alistair-dialogue-bar.alistair-dialogue {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10001;
 }
 
 #alistair-ui button {
@@ -1977,12 +2010,12 @@ button[data-locked="true"] {
     height: 80px;
   }
 
-  #hall-to-room-1 { right: 37%; top: 1%; width: 60px; height: 100px; background-color: blue; }
-  #hall-to-room-2 { left: 22%; top: 32%; width: 50px; height: 240px; background-color: yellow; }
-  #hall-to-room-3 { left: 71%; top: 35%; width: 45px; height: 220px; background-color: green; }
-  #hall-to-room-4 { left: 30%; top: 1%; width: 70px; height: 100px; background-color: red; }
-  #hall-to-room-5 { left: 7%;  bottom: 5%; width: 95px; height: 360px; background-color: pink; }
-  #hall-to-room-6 { right: 8%; bottom: 5%; width: 90px; height: 280px; background-color: purple; }
+  #hall-to-room-1 { right: 37%; top: 1%; width: 60px; height: 100px; }
+  #hall-to-room-2 { left: 22%; top: 32%; width: 50px; height: 240px; }
+  #hall-to-room-3 { left: 71%; top: 35%; width: 45px; height: 220px; }
+  #hall-to-room-4 { left: 30%; top: 1%; width: 70px; height: 100px; }
+  #hall-to-room-5 { left: 7%;  bottom: 5%; width: 95px; height: 360px; }
+  #hall-to-room-6 { right: 8%; bottom: 5%; width: 90px; height: 280px; }
 
   /* coat */
   .alistair-hotspot-coat {
@@ -2298,15 +2331,15 @@ button[data-locked="true"] {
     background-size: cover;
   }
 
-  /* ==============
-     WELL
-     ============== */
+
+  /* -------------------
+     ADVENTURE EXPANDED
+     ------------------- */
   #alistair-wrapper.alistair-expanded .alistair-well-hotspot {
     left: 56.5%;
     top: 40%;
     width: 150px;
-    height: 350px;
-    background-color: yellow;
+    height: 450px;
   }
 
   /* bucket on the well */
@@ -2350,23 +2383,26 @@ button[data-locked="true"] {
   /* the rope icon itself (lower/right corner in base) */
   #alistair-wrapper.alistair-expanded .alistair-hotspot-rope {
     right: 1%;
-    top: 95%;
+    top: 98%;
   }
 
   #alistair-wrapper.alistair-expanded .alistair-hotspot-pouch {
     bottom: 5px;
-    left: 460px; /* adjusted from base 560px to match your earlier forest expanded tweak */
-    width: 50px;
-    height: 30px;
+    left: 56%; /* adjusted from base 560px to match your earlier forest expanded tweak */
+    width: 120px;
+    height: 70px;
   }
 
   /* ==============
      BARN EXTERIOR
      ============== */
   #alistair-wrapper.alistair-expanded .alistair-barn-door-hotspot {
-    left: 39%;
-    top: 59%;
+    left: 33%;
+    top: 49%;
+    height: 200px;
+    width: 280px;
   }
+
   #alistair-wrapper.alistair-expanded .alistair-herb-hotspot {
     right: 2%;
     bottom: 90px;
@@ -2379,7 +2415,7 @@ button[data-locked="true"] {
      ============== */
   #alistair-wrapper.alistair-expanded .alistair-glimmer-hotspot {
     left: 50%;
-    bottom: 10%;
+    bottom:9%;
     width: 5px;
     height: 5px;
   }
@@ -2388,20 +2424,22 @@ button[data-locked="true"] {
      MANOR FRONT
      ============== */
   #alistair-wrapper.alistair-expanded #alistair-manor-door-hotspot {
-    bottom: 120px;
+    bottom: 32%;
     left: 50%;
     transform: translateX(-50%);
+    height: 200px;
+    width: 145px;
   }
 
   /* ==============
-     MANOR HALL
+     MANOR HAll
      ============== */
-  #alistair-wrapper.alistair-expanded #hall-to-room-1 { right: 37%; top: 1%; }
-  #alistair-wrapper.alistair-expanded #hall-to-room-2 { left: 22%; top: 32%; }
-  #alistair-wrapper.alistair-expanded #hall-to-room-3 { left: 71%; top: 38%; }
-  #alistair-wrapper.alistair-expanded #hall-to-room-4 { left: 30%; top: 1%; }
-  #alistair-wrapper.alistair-expanded #hall-to-room-5 { left: 7%;  bottom: 5%; }
-  #alistair-wrapper.alistair-expanded #hall-to-room-6 { right: 9%; bottom: 5%; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-1 { right: 37%; top: 1%; height: 250px; width: 150px; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-2 { left: 23%; top: 33%; height: 420px; width: 80px; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-3 { left: 71.5%; top: 38%; height: 420px; width: 70px; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-4 { left: 30%; top: 1%; height: 250px; width: 170px; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-5 { left: 7.5%;  bottom: 5%; height: 720px; width: 160px; }
+  #alistair-wrapper.alistair-expanded #hall-to-room-6 { right: 8%; bottom: 5%; height: 650px; width: 160px; }
 
   /* coat on the hall wall */
   #alistair-wrapper.alistair-expanded .alistair-hotspot-coat {
@@ -2415,22 +2453,22 @@ button[data-locked="true"] {
      BEDROOM
      ============== */
   #alistair-wrapper.alistair-expanded #alistair-bedroom-candle {
-    top: 47%;
+    top: 49%;
     left: 15%;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
   }
   #alistair-wrapper.alistair-expanded #alistair-bedroom-heart {
-    top: 60%;
+    top: 61%;
     right: 7%;
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
   }
   #alistair-wrapper.alistair-expanded #alistair-bedroom-note {
-    top: 50%;
-    left: 35%;
-    width: 150px;
-    height: 30px;
+    top: 51%;
+    left: 37%;
+    width: 280px;
+    height: 70px;
   }
 
   /* ==============
@@ -2439,14 +2477,14 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded .alistair-bath-hotspot {
     left: 55%;
     top: 80%;
-    width: 50px;
-    height: 50px;
+    width: 70px;
+    height: 70px;
   }
   #alistair-wrapper.alistair-expanded .alistair-bathroom-note {
     left: 16%;
     bottom: 45%;
-    width: 150px;
-    height: 25px;
+    width: 300px;
+    height: 28px;
   }
 
   /* ==============
@@ -2455,20 +2493,22 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded #alistair-kitchen-door-hotspot {
     top: 10%;
     right: 40%;
-    width: 110px;
-    height: 250px;
+    width: 210px;
+    height: 500px;
   }
+
   #alistair-wrapper.alistair-expanded #alistair-kitchen-knife-hotspot {
-    bottom: 40%;
+    bottom: 42%;
     right: 20%;
-    width: 140px;
-    height: 20px;
+    width: 270px;
+    height: 35px;
   }
+
   #alistair-wrapper.alistair-expanded #alistair-kitchen-alchemy-hotspot {
-    top: 58%;
-    left: 25%;
-    width: 80px;
-    height: 80px;
+    top: 64%;
+    left: 26%;
+    width: 140px;
+    height: 140px;
   }
 
   /* ==============
@@ -2477,12 +2517,12 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded .alistair-garden-statue-hotspot {
     left: 45%;
     bottom: 31%;
-    width: 95px;
-    height: 27px;
+    width: 155px;
+    height: 54px;
   }
   #alistair-wrapper.alistair-expanded .alistair-garden-key-hotspot {
     right: 3%;
-    bottom: 10%;
+    bottom: 7%;
     width: 15px;
     height: 15px;
   }
@@ -2515,20 +2555,22 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded #alistair-parlour-fireplace {
     top: 43%;
     left: 35%;
-    width: 170px;
-    height: 150px;
+    width: 340px;
+    height: 300px;
   }
+
   #alistair-wrapper.alistair-expanded #alistair-parlour-ash {
-    top: 26%;
+    top: 28%;
     left: 30%;
     width: 20px;
     height: 20px;
   }
+
   #alistair-wrapper.alistair-expanded #alistair-parlour-note {
     bottom: 5%;
-    left: 47%;
-    width: 150px;
-    height: 45px;
+    left: 46%;
+    width: 175px;
+    height: 65px;
   }
 
   /* ==============
@@ -2537,25 +2579,25 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded #alistair-study-note {
     top: 75%;
     left: 65%;
-    width: 25px;
-    height: 25px;
+    width: 50px;
+    height: 50px;
   }
   #alistair-wrapper.alistair-expanded #alistair-study-safe {
     top: 2%;
     left: 12%;
-    width: 180px;
-    height: 240px;
+    width: 360px;
+    height: 480px;
   }
 
-  /* ==============
+  /* =============
      RITUAL ROOM
      ============== */
   #alistair-wrapper.alistair-expanded #alistair-ritual-puzzle-layer {
     left: 35%;
     bottom: 40%;
     top: 5%;
-    width: 250px;
-    height: 250px;
+    width: 450px;
+    height: 450px;
   }
 
   /* the 3 ritual slots + lines, which were only in base */
@@ -2579,8 +2621,8 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded .alistair-ritual-portal {
     bottom: 30%;
     right: 48%;
-    width: 110px;
-    height: 170px;
+    width: 130px;
+    height: 670px;
   }
 }
 
