@@ -486,12 +486,12 @@ button[data-locked="true"] {
 #game-space {
   margin-top: 32px;
   margin-left: 20px;
-  background-color: yellow; /* temporary placeholder "poster" */
+  background-color: yellow;
   height: 390px;
   width: 90%;
   border: solid black 2px;
   border-radius: 8px;
-  position: relative; /* anchor for absolute children */
+  position: relative;
   overflow: hidden;
 }
 
@@ -769,7 +769,6 @@ button[data-locked="true"] {
   align-self: flex-start;
 }
 
-/* When the dialogue bar is in "list choices" mode, stack the buttons neatly */
 #alistair-dialogue-bar.alistair-list-choices #alistair-dialogue-next {
   display: flex;
   flex-direction: column;
@@ -789,8 +788,8 @@ button[data-locked="true"] {
 /* clickable bucket hotspot */
 .alistair-hotspot-bucket {
   position: absolute;
-  bottom: 100px;   /* tweak visually */
-  left: 50%;     /* tweak visually */
+  bottom: 100px;
+  left: 50%;
   width: 40px;
   height: 40px;
   cursor: pointer;
@@ -861,7 +860,7 @@ button[data-locked="true"] {
   width: 100%;
   height: auto;
   display: block;
-  pointer-events: none; /* click goes to parent div */
+  pointer-events: none;
 }
 
 .alistair-hotspot-sign {
@@ -871,13 +870,12 @@ button[data-locked="true"] {
 }
 
 .alistair-hotspot-sign img {
-  width: 90px;           /* tweak this visually later */
+  width: 90px;
   height: auto;
   display: block;
-  pointer-events: none;  /* so clicks hit the parent div */
+  pointer-events: none;
 }
 
-/* rough placement guesses in the well scene */
 .alistair-sign-forest {
   bottom: 1px;
   left: 40px;
@@ -923,17 +921,13 @@ button[data-locked="true"] {
 /* clickable rope hitbox over the skeleton */
 .alistair-rope-hotspot {
   position: absolute;
-
-  /* ⬇⬇ tweak these to line up with the rope on the skeleton ⬇⬇ */
   left: 48%;
   top: 60%;
   width: 80px;
   height: 80px;
   transform: translate(-50%, -50%);
-  /* ⬆⬆ tweak percent/px until it's sitting right on the rope ⬆⬆ */
-
   cursor: pointer;
-  z-index: 10; /* above background */
+  z-index: 10;
 }
 
 /* clickable rope image hotspot */
@@ -949,13 +943,13 @@ button[data-locked="true"] {
 .alistair-rope-img {
   width: 40px;
   height: 40;
-  pointer-events: none; /* ensures clicks go through to parent div */
+  pointer-events: none;
 }
 
 .alistair-hotspot-pouch {
   position: absolute;
-  bottom: 5px;   /* adjust visually to match pouch location */
-  left: 460px;     /* tune these by eye */
+  bottom: 5px;
+  left: 460px;
   width: 30px;
   height: 30px;
   z-index: 6;
@@ -967,10 +961,10 @@ button[data-locked="true"] {
 
 .alistair-barn-door-hotspot {
   position: absolute;
-  left: 39%;         /* tweak this */
-  top: 59%;          /* tweak this */
-  width: 110px;       /* tweak this */
-  height: 70px;     /* tweak this */
+  left: 39%;
+  top: 59%;
+  width: 110px;
+  height: 70px;
   cursor: pointer;
   z-index: 10;
 }
@@ -978,8 +972,8 @@ button[data-locked="true"] {
 /* Herb hotspot - clickable */
 .alistair-herb-hotspot {
   position: absolute;
-  right: 2%;         /* tweak this to where the herb should sit */
-  bottom: 90px;      /* tweak this for vertical placement */
+  right: 2%;
+  bottom: 90px;
   width: 10px;
   height: 10px;
   z-index: 11;
@@ -992,7 +986,7 @@ button[data-locked="true"] {
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  pointer-events: none; /* ensures click hits parent div */
+  pointer-events: none;
 }
 
 /* =========================
@@ -1072,9 +1066,9 @@ button[data-locked="true"] {
 /* Clickable area */
 .alistair-hotspot-coat {
   position: absolute;
-  top: 63%;        /* Adjust vertical placement */
-  left: 48%;       /* Adjust horizontal placement */
-  width: 8%;       /* Size relative to room image */
+  top: 63%;
+  left: 48%;
+  width: 8%;
   height: 18%;
   cursor: pointer;
   z-index: 12;
@@ -1142,7 +1136,7 @@ button[data-locked="true"] {
   width: 100%;
   height: auto;
   display: block;
-  pointer-events: none; /* so clicks hit the parent div */
+  pointer-events: none;
 }
 
 
@@ -1167,7 +1161,6 @@ button[data-locked="true"] {
   pointer-events: none;
 }
 
-/* hidden note (temporary dev square) — renamed */
 .alistair-bathroom-note {
   position: absolute;
   LEFT: 16%;
@@ -1241,7 +1234,6 @@ button[data-locked="true"] {
   justify-content: center;
 }
 
-/* Images shouldn’t eat clicks */
 #alistair-cellar-mold img,
 #alistair-cellar-note img {
   max-width: 100%;
@@ -1684,7 +1676,6 @@ button[data-locked="true"] {
 }
 
 .alistair-ending-replay-btn {
-  /* basic button look; adjust to match your theme */
   margin-top: 1rem;
   padding: 0.6rem 1.2rem;
   font-weight: 600;
@@ -1695,9 +1686,6 @@ button[data-locked="true"] {
   margin-top: 0.75rem;
   font-weight: 600;
 }
-
-
-
 
 /*--------------------
   adventure game end
@@ -1856,7 +1844,7 @@ button[data-locked="true"] {
     width: 60px;
     height: 60px;
     font-size: 26px;
-  }
+  }  
 }
 
 /* Laptop-only: fully hide Alistair on <1024, including modals/overlays */
@@ -1874,15 +1862,14 @@ button[data-locked="true"] {
 /* 1024–1439px: show Alistair and pin it AFTER Game 4, full width */
 @media (min-width: 1024px) and (max-width: 1439.98px) {
   #adventure-card {
-    display: block;        /* override the global display:none */
-    grid-column: 1 / -1;   /* span all columns */
-    grid-row: 3;          /* effectively "last" */
+    display: block;
+    grid-column: 1 / -1;
+    grid-row: 3;
     justify-self: stretch;
     align-self: start;
     margin-top: 16px; 
   }
 
-  /* optional: make the game frame breathe a bit */
   #adventure-card #game-space {
     width: 100%;
     margin: 16px 0 0;
@@ -1895,7 +1882,6 @@ button[data-locked="true"] {
    ========================================= */
 @media (min-width: 1024px) and (max-width: 1439px) {
 
-  /* if you want the frame to stretch full width on this range */
   #game-space {
     width: 100%;
     height: 460px;
@@ -2361,7 +2347,6 @@ button[data-locked="true"] {
   #alistair-wrapper.alistair-expanded .alistair-hotspot-sign.alistair-sign-manor {
     bottom: 35%;
     left: 70%;
-    transform: translateX(-50%);
     height: 80px;
     width: 80px;
   }
@@ -2663,7 +2648,7 @@ button[data-locked="true"] {
 
   #typing-card,
   #math-card {
-    max-width: 40vw;   /* tweak to 41–42vw if you want wider */
+    max-width: 40vw;
     justify-self: center;
     width: 100%;
   }

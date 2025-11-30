@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // ----- GAME STATE -----
   const alistairState = {
     health: 3,
-    // inventory now stores objects like { id, name, imgUrl }
+    // inventory stores objects like { id, name, imgUrl }
     inventory: [],
     // journals store objects like { id, title, imgUrl }
     journals: [],
@@ -29,7 +29,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   const ALISTAIR_SUB_LOCK_ENABLED = false;
 
-  // Replace this later with your real check (JWT, API, etc.)
   function alistairIsSubscriber() {
     return false; // <- CHANGE to `true` (or real logic) when wiring subs
   }
@@ -46,7 +45,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const roomContainer = document.getElementById('alistair-room-container');
     if (!roomContainer) return;
 
-    // no room background yet for intro
     roomContainer.style.backgroundImage = 'none';
 
     roomContainer.innerHTML = `
@@ -86,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // - branching choices buttons
   // - when to hide/show the dialogue bar
   //
-  // You mostly call:
+  // We mostly call:
   //   alistairStartDialogue(linesArray, callbackWhenDone)
   //   alistairShowChoices(question, [ {label, onClick}, ... ])
   //   alistairResetNextButton()  (puts the bar back into single "Next" mode)
@@ -121,7 +119,6 @@ document.addEventListener("DOMContentLoaded", function () {
     textEl.textContent = dialogueQueue[0];
     bar.classList.remove('hidden');
 
-    // make sure the bar is in "Next" mode (not in "choice buttons" mode)
     alistairResetNextButton();
   }
 
@@ -132,7 +129,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const textEl = document.getElementById('alistair-dialogue-text');
 
     if (dialogueIndex < dialogueQueue.length) {
-      // still more lines to show
       textEl.textContent = dialogueQueue[dialogueIndex];
       return;
     }
@@ -143,7 +139,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (dialogueOnComplete) {
       const cb = dialogueOnComplete;
       dialogueOnComplete = null;
-      cb(); // e.g. now show choices...
+      cb();
     }
   }
 
@@ -243,7 +239,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   //
 
   function alistairAddJournal(journalObj) {
-    // journalObj: { id, title, imgUrl }
     if (!alistairState.journals.find(j => j.id === journalObj.id)) {
       alistairState.journals.push(journalObj);
     }
@@ -257,7 +252,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     grid.innerHTML = '';
 
     if (alistairState.journals.length === 0) {
-      // fill with some "empty" slots so layout looks good
       for (let i = 0; i < 6; i++) {
         const slot = document.createElement('div');
         slot.className = 'alistair-grid-slot';
@@ -323,7 +317,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   //
 
   function alistairAddItem(itemObj) {
-    // itemObj: { id, name, imgUrl }
     if (!alistairState.inventory.find(i => i.id === itemObj.id)) {
       alistairState.inventory.push(itemObj);
     }
@@ -349,7 +342,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           <img src="${itemObj.imgUrl}" alt="${itemObj.name}">
           <div class="alistair-grid-slot-title">${itemObj.name}</div>
         `;
-        // future: we can add click handlers here to "inspect item"
       } else {
         slot.innerHTML = `
           <div class="alistair-grid-slot-title" style="opacity:.4;">(empty)</div>
@@ -414,10 +406,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   // Example: "reveal the clickable signs" at the Well is useful
   // both when we first arrive and any time later.
   //
-  // IMPORTANT FOR YOU:
-  // - If you need new shared logic (like a Forest puzzle helper,
-  //   or a 'playScreamCutscene()'), add it HERE so it's global.
-  //
 
   const ALISTAIR_ACT_LABELS = {
     1: "ACT I — Outside",
@@ -438,7 +426,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
     }
   }
 
-  // Make The Well's direction signs visible + clickable.
   // (Forest, Barn, Manor)
   function alistairRevealSignsOnly() {
     const signs = document.querySelectorAll('.alistair-hotspot-sign');
@@ -469,7 +456,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         const hasKey = !!alistairState.inventory.find(i => i.id === "front_key");
 
         if (!hasKey) {
-          // No key: hint and return to free roam
           alistairResetNextButton();
           alistairStartDialogue(
             [
@@ -916,15 +902,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   // render() => returns HTML string for hotspots in that room.
   // onEnter() => runs logic each time you arrive (narration, etc)
   //
-  // IMPORTANT FOR YOU:
-  // - To add new scene content / choices / puzzle for FOREST,
-  //   edit AlistairRoom_ForestGrounds.onEnter() and .render().
-  //   Look at The Well for reference on branching, items, etc.
-  //
-  // - If a new scene needs cutscenes / helpers, put those helper
-  //   functions up in GLOBAL HELPERS so it's reusable (like we did
-  //   for the well's crossroads logic).
-  //
 
   // --- ENTRANCE GATES ---
   const AlistairRoom_EntranceGates = {
@@ -962,7 +939,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         return;
       }
 
-      // ---- original first-time intro (unchanged) ----
+      // ---- original first-time intro ----
       const introLines = [
         "The air is colder here. You shouldn't even be on these grounds.",
         "They said Alistair vanished beyond these gates. They said anyone who looks for him doesn't come back.",
@@ -1064,7 +1041,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       });
     }
 
-        // re-wire the bucket hotspot safely (idempotent)
+        // re-wire the bucket hotspot safely
     function wireBucketHotspot() {
       const spot = document.getElementById('alistair-bucket-hotspot');
       if (!spot) return;
@@ -1115,7 +1092,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
               "Choose your action:",
               [
                 {
-                  // ✅ Correct order
                   label: "Tie the bucket to the rope, hit the crank with the hammer, and lower it.",
                   onClick: () => {
                     alistairClearListChoices();
@@ -1179,7 +1155,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                   }
                 },
                 {
-                  // ❌ Wrong: foot damage (1)
+                  // Wrong: foot damage (1)
                   label: "Use the hammer on the crank first, then tie the rope to the bucket and lower it",
                   onClick: () => {
                     alistairClearListChoices();
@@ -1578,7 +1554,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           ],
           () => { enterForestFreeRoam(); }
         );
-        return; // skip the initial intro/choice on re-entries
+        return;
       }
 
       // -------------------------------------------------
@@ -1761,7 +1737,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         alistairStartDialogue(reenterExteriorLines, () => {
           enterBarnFreeRoam();
         });
-        return; // stop; don't show the original 'go inside?' prompt
+        return;
       }
 
       // ---- Barn arrival narration (outside the barn) ----
@@ -1792,7 +1768,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                 ];
 
                 alistairStartDialogue(noLines, () => {
-                  // Now we release control to free roam outside the barn.
+                  // release control to free roam outside the barn.
                   enterBarnFreeRoam();
                 });
               }
@@ -2498,7 +2474,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         node.replaceWith(clone);
 
         clone.addEventListener('click', () => {
-          // you can swap this for a proper note image:
           const noteImg = "https://res.cloudinary.com/ddmslr9na/image/upload/v1762179369/ag-alistairs-note_t3yt6y.png";
 
           alistairShowImageOverlay(
@@ -2943,10 +2918,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                         {
                           label: "Ok, I'll take a sip.",
                           onClick: () => {
-                            // Reuse the Yes flow
-                            // (simulate a click-through to keep code DRY)
-                            // We'll just call the 'Yes' branch directly:
-                            // replicate short path:
                             alistairResetNextButton();
                             alistairStartDialogue([
                               "You sip the wine — the taste is to die for.",
@@ -3592,7 +3563,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
               "Like there’s something behind it."
             ],
             () => {
-              // you can later drop the same “have you got everything” flow here too if you want
             }
           );
         });
@@ -3798,7 +3768,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         node.replaceWith(clone);
         clone.addEventListener('click', () => {
           alistairResetNextButton();
-        // ✅ already have cure, don’t craft again
+        // already have cure, don’t craft again
         const alreadyHaveCure = !!alistairState.inventory.find(i => i.id === "cure_curse");
         if (alreadyHaveCure) {
           alistairStartDialogue(
@@ -3871,7 +3841,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                                             // actually cure the curse
                                             alistairState.isCursed = false;
 
-                                            // ⬇️ NEW: give Moon Maiden’s Blade
+                                            // NEW: give Moon Maiden’s Blade
                                             const alreadyHaveBlade = alistairState.inventory.find(i => i.id === "moon_maiden_blade");
                                             alistairShowImageOverlay(
                                               "https://res.cloudinary.com/ddmslr9na/image/upload/v1762168460/ag-blessed-dagger_mdg7qq.png",
@@ -3929,7 +3899,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
                           }
                         );
                       } else {
-                        // ❌ Missing ingredients: story beat → damage → hint → free roam
+                        // Missing ingredients: story beat → damage → hint → free roam
                         alistairResetNextButton();
                         alistairStartDialogue(
                           [
@@ -4185,7 +4155,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         });
       }
 
-      // --- Blessed Water hotspot (for dev testing, optional direct pickup) ---
       function wireWaterHotspot() {
         const node = document.getElementById("alistair-garden-water-hotspot");
         if (!node) return;
@@ -4275,10 +4244,10 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
       // ensure we have a place to store puzzle placements
       if (!alistairState._ritualPlacements) {
         alistairState._ritualPlacements = {
-          center: null, // should be demon_ash
-          lines: null,  // should be bath_sludge
-          left: null,   // should be candle
-          right: null   // should be red_heart_stone
+          center: null,
+          lines: null,
+          left: null,
+          right: null
         };
       }
 
@@ -4328,7 +4297,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         const inventoryArr = alistairState.inventory || [];
         const inventoryIds = inventoryArr.map(i => i.id);
 
-        // NOTE: your original code used "alistairState.journal" (singular) — that was why it showed 0
         const journalArr = alistairState.journals || [];
         const journalIds = journalArr.map(j => j.id);
 
@@ -4342,7 +4310,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
         // keep your curse bit
         const curseCured = !alistairState.isCursed;
 
-        // simple score formula (same vibe as before)
+        // simple score formula
         const score =
           (itemsFound * 10) +
           (journalsFound * 15) +
@@ -4402,7 +4370,7 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
           replayBtn.addEventListener("click", () => {
             // hide the ending layer
             layer.classList.remove("show");
-            // use the reset you already wrote earlier in the file
+            // use the reset i already wrote earlier in the file
             alistairRestart();
           });
         }
@@ -5088,8 +5056,6 @@ function alistairShowImageOverlay(imgUrl, captionText, onClose) {
   //
   // Start game sets started=true, shows hearts,
   // unhides the room header, and jumps to first room.
-  //
-  // Then we wire up all the HUD buttons.
   //
 
   function alistairStartGame() {
